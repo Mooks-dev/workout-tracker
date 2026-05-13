@@ -2,8 +2,18 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lift Tracker</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>LiftTrack</title>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0E0E0E">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="LiftTrack">
+<link rel="apple-touch-icon" href="icon.svg">
+
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -586,6 +596,46 @@ body {
 .divider { height: 1px; background: var(--border); margin: 36px 0; position: relative; }
 .divider::after { content: ''; position: absolute; left: 0; top: 0; height: 1px; width: 80px; background: var(--push); }
 
+/* ── SYNC PANEL ── */
+.sync-panel {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 6px; padding: 18px 20px; margin-top: 4px;
+}
+.sync-desc { font-size: 12px; color: var(--muted); margin-bottom: 14px; line-height: 1.6; }
+.sync-desc strong { color: var(--text); }
+.sync-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.sync-token-input {
+  flex: 1; min-width: 180px; background: var(--bg3);
+  border: 1px solid var(--border); border-radius: 4px;
+  color: var(--text); font-family: var(--mono);
+  font-size: 12px; padding: 7px 12px; outline: none;
+  transition: border-color 0.15s; letter-spacing: 0.02em;
+}
+.sync-token-input:focus { border-color: var(--push); }
+.sync-status-row {
+  display: flex; align-items: center; gap: 10px;
+  margin-top: 12px; flex-wrap: wrap;
+}
+.sync-indicator {
+  display: flex; align-items: center; gap: 7px;
+  font-family: var(--mono); font-size: 11px; color: var(--muted);
+  flex: 1;
+}
+.sync-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--border); flex-shrink: 0;
+  transition: background 0.3s;
+}
+.sync-dot.ok      { background: var(--complete); }
+.sync-dot.err     { background: var(--ab); }
+.sync-dot.syncing { background: var(--push); animation: blink 0.9s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+.sync-gist-id {
+  font-family: var(--mono); font-size: 9px;
+  color: rgba(107,103,98,0.35); margin-top: 8px;
+  word-break: break-all;
+}
+
 /* ── TOAST ── */
 .toast {
   position: fixed; bottom: 28px; left: 50%;
@@ -608,6 +658,10 @@ body {
   .run-metrics { grid-template-columns: 1fr 1fr; }
   .prog-table th:nth-child(2), .prog-table td:nth-child(2) { display: none; }
 }
+
+/* ── PWA SAFE AREAS (Android notch / gesture bar) ── */
+.nav { padding-top: env(safe-area-inset-top); }
+.page { padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
 </style>
 </head>
 <body>
@@ -735,7 +789,7 @@ const MT_ACTIVITIES = [
 /* ════════════════════════════════════════════════════════════
    STATE
 ════════════════════════════════════════════════════════════ */
-let S = { view:'home', draft:null, sessions:[], bodyWeight:null };
+let S = { view:'home', draft:null, sessions:[], bodyWeight:null, syncToken:null, syncGistId:null, syncStatus:'idle', syncLastAt:null };
 
 /* ════════════════════════════════════════════════════════════
    PERSISTENCE
@@ -746,6 +800,9 @@ function persist() {
     localStorage.setItem('lt_bw', S.bodyWeight ?? '');
     if (S.draft) localStorage.setItem('lt_draft', JSON.stringify(S.draft));
     else         localStorage.removeItem('lt_draft');
+    if (S.syncToken)  localStorage.setItem('lt_sync_token', S.syncToken);
+    if (S.syncGistId) localStorage.setItem('lt_sync_gist',  S.syncGistId);
+    if (S.syncLastAt) localStorage.setItem('lt_sync_last',  S.syncLastAt);
   } catch(e) {}
 }
 
@@ -757,6 +814,12 @@ function hydrate() {
     if (bw) S.bodyWeight = parseFloat(bw);
     const d = localStorage.getItem('lt_draft');
     if (d) S.draft = JSON.parse(d);
+    const tok = localStorage.getItem('lt_sync_token');
+    if (tok) S.syncToken = tok;
+    const gist = localStorage.getItem('lt_sync_gist');
+    if (gist) S.syncGistId = gist;
+    const last = localStorage.getItem('lt_sync_last');
+    if (last) S.syncLastAt = last;
   } catch(e) {}
 }
 
@@ -978,6 +1041,43 @@ function renderHome() {
     ${recent.length === 0
       ? `<div class="empty">No sessions yet — start one above to begin tracking.</div>`
       : recent.map(s => sessionCardHTML(s, false)).join('')}
+
+    <div class="section-label" style="margin-top:40px">Data &amp; Sync</div>
+    <div class="sync-panel">
+
+      <!-- Export / Import -->
+      <div style="display:flex;gap:8px;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border);">
+        <button class="btn btn-sm" onclick="exportData()" style="flex:1;text-align:center;">↓ Export backup</button>
+        <button class="btn btn-sm" onclick="importData()" style="flex:1;text-align:center;">↑ Import backup</button>
+      </div>
+
+      <!-- Cloud sync -->
+      <div class="sync-desc">
+        Sync across all devices via a private GitHub Gist.
+        Requires a GitHub <strong>Personal Access Token</strong> with <strong>gist</strong> scope.
+      </div>
+      ${S.syncToken ? `
+        <div class="sync-status-row">
+          <div class="sync-indicator">
+            <div class="sync-dot ${S.syncStatus === 'ok' ? 'ok' : S.syncStatus === 'err' ? 'err' : ''}" id="sync-dot"></div>
+            <span id="sync-status-txt">${S.syncStatus === 'ok'
+              ? 'Synced' + (S.syncLastAt ? ' · ' + new Date(S.syncLastAt).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '')
+              : S.syncStatus === 'err' ? 'Sync failed — check your token'
+              : 'Configured'}</span>
+          </div>
+          <button class="btn btn-sm" onclick="syncNow()">↻ Sync now</button>
+          <button class="btn btn-danger btn-sm" onclick="removeSyncToken()">Remove</button>
+        </div>
+        ${S.syncGistId ? `<div class="sync-gist-id">Gist: ${S.syncGistId}</div>` : ''}
+      ` : `
+        <div class="sync-row">
+          <input class="sync-token-input" type="password" id="sync-token-input"
+            placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+            autocomplete="off" spellcheck="false">
+          <button class="btn btn-primary btn-sm" onclick="saveSyncToken()">Enable sync</button>
+        </div>
+      `}
+    </div>
   `;
 }
 
@@ -1600,6 +1700,7 @@ function saveSession() {
   persist();
   toast('Session saved!', 'ok');
   nav('home');
+  if (S.syncToken) syncPush();
 }
 
 /* ── STATUS / WEIGHT ── */
@@ -1735,13 +1836,197 @@ function onNavBwInput(val) {
 }
 
 /* ════════════════════════════════════════════════════════════
+   EXPORT / IMPORT
+════════════════════════════════════════════════════════════ */
+function exportData() {
+  const payload = {
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    bodyWeight: S.bodyWeight,
+    sessions: S.sessions
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `lifttrack-backup-${todayISO()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toast('Backup downloaded!', 'ok');
+}
+
+function importData() {
+  const input    = document.createElement('input');
+  input.type     = 'file';
+  input.accept   = '.json,application/json';
+  input.onchange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        if (!Array.isArray(data.sessions)) throw new Error('invalid');
+        // Merge: imported sessions win on ID conflict
+        const byId = new Map();
+        for (const s of S.sessions)    byId.set(s.id, s);
+        for (const s of data.sessions) byId.set(s.id, s);
+        S.sessions = [...byId.values()];
+        if (data.bodyWeight != null) S.bodyWeight = data.bodyWeight;
+        persist();
+        if (S.view === 'home') renderHome();
+        toast(`Imported ${data.sessions.length} sessions`, 'ok');
+      } catch {
+        toast('Import failed — file not recognised');
+      }
+    };
+    reader.readAsText(file);
+  };
+  document.body.appendChild(input);
+  input.click();
+  document.body.removeChild(input);
+}
+
+/* ════════════════════════════════════════════════════════════
+   CLOUD SYNC — GitHub Gist
+════════════════════════════════════════════════════════════ */
+const GIST_FILE = 'lifttrack_data.json';
+const GIST_API  = 'https://api.github.com/gists';
+
+function syncHeaders() {
+  return {
+    'Authorization': `Bearer ${S.syncToken}`,
+    'Content-Type': 'application/json',
+    'X-GitHub-Api-Version': '2022-11-28'
+  };
+}
+
+function setSyncDot(status) {
+  S.syncStatus = status;
+  const dot = document.getElementById('sync-dot');
+  const txt = document.getElementById('sync-status-txt');
+  if (!dot) return;
+  dot.className = 'sync-dot' + (status === 'ok' ? ' ok' : status === 'err' ? ' err' : status === 'syncing' ? ' syncing' : '');
+  if (txt) {
+    if (status === 'syncing') txt.textContent = 'Syncing…';
+    else if (status === 'ok') {
+      const t = S.syncLastAt ? new Date(S.syncLastAt).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : '';
+      txt.textContent = 'Synced' + (t ? ' · ' + t : '');
+    }
+    else if (status === 'err') txt.textContent = 'Sync failed — check your token';
+    else txt.textContent = 'Not synced yet';
+  }
+}
+
+async function syncPush() {
+  if (!S.syncToken) return;
+  setSyncDot('syncing');
+  const payload = JSON.stringify({ sessions: S.sessions, bodyWeight: S.bodyWeight });
+  try {
+    if (S.syncGistId) {
+      const r = await fetch(`${GIST_API}/${S.syncGistId}`, {
+        method: 'PATCH', headers: syncHeaders(),
+        body: JSON.stringify({ files: { [GIST_FILE]: { content: payload } } })
+      });
+      if (!r.ok) throw new Error('patch failed');
+    } else {
+      const r = await fetch(GIST_API, {
+        method: 'POST', headers: syncHeaders(),
+        body: JSON.stringify({
+          description: 'LiftTrack workout data — do not edit manually',
+          public: false,
+          files: { [GIST_FILE]: { content: payload } }
+        })
+      });
+      if (!r.ok) throw new Error('create failed');
+      const g = await r.json();
+      S.syncGistId = g.id;
+    }
+    S.syncLastAt = new Date().toISOString();
+    persist();
+    setSyncDot('ok');
+  } catch(e) {
+    setSyncDot('err');
+  }
+}
+
+async function syncPull() {
+  if (!S.syncToken || !S.syncGistId) return;
+  setSyncDot('syncing');
+  try {
+    const r = await fetch(`${GIST_API}/${S.syncGistId}`, { headers: syncHeaders() });
+    if (!r.ok) throw new Error('fetch failed');
+    const g = await r.json();
+    const raw = g.files?.[GIST_FILE]?.content;
+    if (raw) {
+      const remote = JSON.parse(raw);
+      // Merge: keep all sessions by ID, remote wins on conflict
+      const byId = new Map();
+      for (const s of S.sessions)              byId.set(s.id, s);
+      for (const s of (remote.sessions ?? [])) byId.set(s.id, s);
+      S.sessions = [...byId.values()];
+      if (remote.bodyWeight != null) S.bodyWeight = remote.bodyWeight;
+      persist();
+    }
+    S.syncLastAt = new Date().toISOString();
+    persist();
+    setSyncDot('ok');
+  } catch(e) {
+    setSyncDot('err');
+  }
+}
+
+async function saveSyncToken() {
+  const input = document.getElementById('sync-token-input');
+  const token = input?.value?.trim();
+  if (!token) { toast('Paste your GitHub token first'); return; }
+  S.syncToken = token;
+  persist();
+  // First try pulling (picks up existing gist from another device)
+  if (S.syncGistId) {
+    await syncPull();
+  }
+  await syncPush();
+  renderHome();
+  toast('Sync enabled!', 'ok');
+}
+
+async function syncNow() {
+  if (!S.syncToken) { toast('Set up sync first'); return; }
+  await syncPull();
+  await syncPush();
+  if (S.view === 'home') renderHome();
+  else setSyncDot('ok');
+}
+
+function removeSyncToken() {
+  if (!confirm('Remove sync? Your data stays on this device but will no longer sync.')) return;
+  S.syncToken = null; S.syncGistId = null; S.syncStatus = 'idle'; S.syncLastAt = null;
+  localStorage.removeItem('lt_sync_token');
+  localStorage.removeItem('lt_sync_gist');
+  localStorage.removeItem('lt_sync_last');
+  renderHome();
+}
+
+/* ════════════════════════════════════════════════════════════
    INIT
 ════════════════════════════════════════════════════════════ */
 (function init() {
+  // Register service worker for PWA / offline support
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  }
+
   hydrate();
   const nb = document.getElementById('nav-bw-input');
   if (S.bodyWeight) nb.value = S.bodyWeight;
   nav('home');
+  // Pull latest data in background if sync is configured
+  if (S.syncToken && S.syncGistId) {
+    syncPull().then(() => { if (S.view === 'home') renderHome(); });
+  }
 })();
 </script>
 </body>
