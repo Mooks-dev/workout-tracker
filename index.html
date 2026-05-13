@@ -674,6 +674,7 @@ body {
       <button class="nav-tab" id="tab-session"  onclick="nav('session')">Session</button>
       <button class="nav-tab" id="tab-history"  onclick="nav('history')">History</button>
       <button class="nav-tab" id="tab-progress" onclick="nav('progress')">Progress</button>
+      <button class="nav-tab" id="tab-sync"     onclick="nav('sync')">Data &amp; Sync</button>
     </div>
     <div class="nav-bw">
       <span class="nav-bw-label">Body&nbsp;kg</span>
@@ -688,6 +689,7 @@ body {
 <div id="view-session"  class="page" style="display:none"></div>
 <div id="view-history"  class="page" style="display:none"></div>
 <div id="view-progress" class="page" style="display:none"></div>
+<div id="view-sync"     class="page" style="display:none"></div>
 
 <div class="toast" id="toast"></div>
 
@@ -952,7 +954,7 @@ function toast(msg, cls='') {
 ════════════════════════════════════════════════════════════ */
 function nav(view) {
   S.view = view;
-  ['home','session','history','progress'].forEach(v => {
+  ['home','session','history','progress','sync'].forEach(v => {
     document.getElementById('view-'+v).style.display = v === view ? '' : 'none';
     document.getElementById('tab-'+v).classList.toggle('active', v === view);
   });
@@ -967,6 +969,7 @@ function render(view) {
   if (view === 'session')  renderSession();
   if (view === 'history')  renderHistory();
   if (view === 'progress') renderProgress();
+  if (view === 'sync')     renderSync();
 }
 
 /* ════════════════════════════════════════════════════════════
@@ -1042,42 +1045,6 @@ function renderHome() {
       ? `<div class="empty">No sessions yet — start one above to begin tracking.</div>`
       : recent.map(s => sessionCardHTML(s, false)).join('')}
 
-    <div class="section-label" style="margin-top:40px">Data &amp; Sync</div>
-    <div class="sync-panel">
-
-      <!-- Export / Import -->
-      <div style="display:flex;gap:8px;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border);">
-        <button class="btn btn-sm" onclick="exportData()" style="flex:1;text-align:center;">↓ Export backup</button>
-        <button class="btn btn-sm" onclick="importData()" style="flex:1;text-align:center;">↑ Import backup</button>
-      </div>
-
-      <!-- Cloud sync -->
-      <div class="sync-desc">
-        Sync across all devices via a private GitHub Gist.
-        Requires a GitHub <strong>Personal Access Token</strong> with <strong>gist</strong> scope.
-      </div>
-      ${S.syncToken ? `
-        <div class="sync-status-row">
-          <div class="sync-indicator">
-            <div class="sync-dot ${S.syncStatus === 'ok' ? 'ok' : S.syncStatus === 'err' ? 'err' : ''}" id="sync-dot"></div>
-            <span id="sync-status-txt">${S.syncStatus === 'ok'
-              ? 'Synced' + (S.syncLastAt ? ' · ' + new Date(S.syncLastAt).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '')
-              : S.syncStatus === 'err' ? 'Sync failed — check your token'
-              : 'Configured'}</span>
-          </div>
-          <button class="btn btn-sm" onclick="syncNow()">↻ Sync now</button>
-          <button class="btn btn-danger btn-sm" onclick="removeSyncToken()">Remove</button>
-        </div>
-        ${S.syncGistId ? `<div class="sync-gist-id">Gist: ${S.syncGistId}</div>` : ''}
-      ` : `
-        <div class="sync-row">
-          <input class="sync-token-input" type="password" id="sync-token-input"
-            placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-            autocomplete="off" spellcheck="false">
-          <button class="btn btn-primary btn-sm" onclick="saveSyncToken()">Enable sync</button>
-        </div>
-      `}
-    </div>
   `;
 }
 
@@ -1833,6 +1800,57 @@ function onNavBwInput(val) {
     const sb = document.getElementById('sess-bw');
     if (sb) sb.value = val;
   }
+}
+
+/* ════════════════════════════════════════════════════════════
+   SYNC VIEW
+════════════════════════════════════════════════════════════ */
+function renderSync() {
+  document.getElementById('view-sync').innerHTML = `
+    <div class="home-title" style="font-size:clamp(32px,6vw,56px)">DATA &amp;<br><span>SYNC</span></div>
+    <div class="home-subtitle" style="margin-bottom:32px">Backup · Restore · Cloud sync</div>
+
+    <div class="section-label">Backup &amp; Restore</div>
+    <div class="sync-panel" style="margin-bottom:28px">
+      <div class="sync-desc">
+        Export saves a <strong>.json</strong> file to your device — back it up to Google Drive for extra safety.
+        Import merges a backup file with your current data, nothing gets overwritten.
+      </div>
+      <div style="display:flex;gap:8px;margin-top:4px;flex-wrap:wrap;">
+        <button class="btn" onclick="exportData()" style="flex:1;text-align:center;">↓ Export backup</button>
+        <button class="btn" onclick="importData()" style="flex:1;text-align:center;">↑ Import backup</button>
+      </div>
+    </div>
+
+    <div class="section-label">Cloud Sync — GitHub Gist</div>
+    <div class="sync-panel">
+      <div class="sync-desc">
+        Syncs your data across all devices automatically using a private GitHub Gist.
+        Requires a GitHub <strong>Personal Access Token</strong> with <strong>gist</strong> scope.
+      </div>
+      ${S.syncToken ? `
+        <div class="sync-status-row">
+          <div class="sync-indicator">
+            <div class="sync-dot ${S.syncStatus === 'ok' ? 'ok' : S.syncStatus === 'err' ? 'err' : ''}" id="sync-dot"></div>
+            <span id="sync-status-txt">${S.syncStatus === 'ok'
+              ? 'Synced' + (S.syncLastAt ? ' · ' + new Date(S.syncLastAt).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '')
+              : S.syncStatus === 'err' ? 'Sync failed — check your token'
+              : 'Configured'}</span>
+          </div>
+          <button class="btn btn-sm" onclick="syncNow()">↻ Sync now</button>
+          <button class="btn btn-danger btn-sm" onclick="removeSyncToken()">Remove</button>
+        </div>
+        ${S.syncGistId ? `<div class="sync-gist-id">Gist: ${S.syncGistId}</div>` : ''}
+      ` : `
+        <div class="sync-row">
+          <input class="sync-token-input" type="password" id="sync-token-input"
+            placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+            autocomplete="off" spellcheck="false">
+          <button class="btn btn-primary btn-sm" onclick="saveSyncToken()">Enable sync</button>
+        </div>
+      `}
+    </div>
+  `;
 }
 
 /* ════════════════════════════════════════════════════════════
