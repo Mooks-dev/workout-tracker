@@ -636,6 +636,69 @@ body {
   word-break: break-all;
 }
 
+/* ── REST TIMER ── */
+.rest-timer-bar {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 6px; padding: 12px 18px; margin-bottom: 20px;
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+}
+.rest-timer-label {
+  font-family: var(--mono); font-size: 10px; text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--muted);
+}
+.rest-timer-display {
+  font-family: var(--mono); font-size: 22px;
+  color: var(--text); letter-spacing: -0.01em; min-width: 52px; text-align: center;
+}
+.rest-timer-display.running { color: var(--push); }
+.rest-timer-display.done    { color: var(--complete); }
+.rest-timer-presets { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
+.rest-preset {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.06em;
+  padding: 5px 10px; border-radius: 4px;
+  border: 1px solid var(--border); background: var(--bg3);
+  color: var(--muted); cursor: pointer; transition: all 0.15s;
+}
+.rest-preset:hover { border-color: var(--muted); color: var(--text); }
+.rest-preset.active { border-color: var(--push); color: var(--push); background: rgba(200,240,78,0.08); }
+
+/* ── AB TIMER ── */
+.ab-timer-btn {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.04em;
+  padding: 5px 10px; border-radius: 4px;
+  border: 1px solid var(--border); background: var(--bg3);
+  color: var(--muted); cursor: pointer; transition: all 0.15s;
+  white-space: nowrap; flex-shrink: 0;
+}
+.ab-timer-btn:hover { border-color: var(--ab); color: var(--ab); }
+.ab-timer-btn.running { border-color: var(--ab); color: var(--ab); animation: blink 1s infinite; }
+.ab-timer-btn.done    { border-color: var(--complete); color: var(--complete); }
+
+/* ── ROUND TICKS ── */
+.round-ticks { display: flex; gap: 5px; flex-shrink: 0; }
+.round-tick {
+  width: 34px; height: 30px; border-radius: 4px;
+  border: 1px solid var(--border); background: var(--bg3);
+  color: var(--muted); font-family: var(--mono);
+  cursor: pointer; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 1px;
+  transition: all 0.15s; user-select: none; line-height: 1;
+}
+.round-tick:hover { border-color: var(--muted); }
+.round-tick .rt-label { font-size: 8px; letter-spacing: 0.06em; }
+.round-tick .rt-check { font-size: 11px; }
+.round-tick.done { background: rgba(78,232,122,0.15); border-color: var(--complete); color: var(--complete); }
+
+/* ── BW TOGGLE ── */
+.bw-toggle-btn {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.06em;
+  padding: 0 10px; height: 30px; border-radius: 4px;
+  border: 1px solid var(--border); background: var(--bg3);
+  color: var(--muted); cursor: pointer; transition: all 0.15s; white-space: nowrap;
+}
+.bw-toggle-btn:hover { border-color: var(--muted); color: var(--text); }
+.bw-toggle-btn.active { background: rgba(78,232,200,0.12); border-color: var(--pull); color: var(--pull); }
+
 /* ── TOAST ── */
 .toast {
   position: fixed; bottom: 28px; left: 50%;
@@ -716,15 +779,15 @@ const PLAN = {
       { label:'Accessories', isAbs:false, items:[
         { id:'p_lateral',   name:'Dumbbell lateral raises',              note:'Slight forward lean, control the negative', sets:'3 × 12–15 reps', weighted:true },
         { id:'p_rear_delt', name:'Rear delt dumbbell flyes',             note:'Hinge forward 45°, lead with elbows',       sets:'3 × 12–15 reps', weighted:true },
-        { id:'p_tricep',    name:'Tricep dips or overhead DB extension', note:'Lockout strength and arm definition',        sets:'3 × 10–12 reps', weighted:true }
+        { id:'p_tricep',    name:'Tricep dips or overhead DB extension', note:'Lockout strength and arm definition',        sets:'3 × 10–12 reps', weighted:true, hasBW:true }
       ]},
       { label:'Strength Abs', isAbs:true, abRounds:'3 rounds · 45 sec rest between rounds',
         tip:"<strong>Circuit order:</strong> all 4 exercises back-to-back with no rest, then 45 sec. Ab wheel goes first while you're fresh.",
         items:[
-          { id:'p_ab_wheel', name:'Ab wheel rollout',   note:'Full extension only when spine stays neutral',            sets:'8–10 reps',        weighted:false },
-          { id:'p_hollow',   name:'Hollow body hold',   note:'Lower back flat, arms overhead, legs just off the floor', sets:'30–40 sec',        weighted:false },
-          { id:'p_hanging',  name:'Hanging knee raises',note:'Progress to straight-leg raises as you get stronger',     sets:'10–12 reps',       weighted:false },
-          { id:'p_dead_bug', name:'Dead bug',            note:'Slow; opposite arm and leg extend simultaneously',        sets:'6 reps each side', weighted:false }
+          { id:'p_ab_wheel', name:'Ab wheel rollout',   note:'Full extension only when spine stays neutral',            sets:'8–10 reps',        weighted:false, isAb:true },
+          { id:'p_hollow',   name:'Hollow body hold',   note:'Lower back flat, arms overhead, legs just off the floor', sets:'30–40 sec',        weighted:false, isAb:true, timed:true, timerSec:40 },
+          { id:'p_hanging',  name:'Hanging knee raises',note:'Progress to straight-leg raises as you get stronger',     sets:'10–12 reps',       weighted:false, isAb:true },
+          { id:'p_dead_bug', name:'Dead bug',            note:'Slow; opposite arm and leg extend simultaneously',        sets:'6 reps each side', weighted:false, isAb:true }
         ]}
     ]
   },
@@ -748,10 +811,10 @@ const PLAN = {
       { label:'Definition Abs', isAbs:true, abRounds:'3 rounds · 45 sec rest between rounds',
         tip:'<strong>Why two circuits:</strong> Strength circuit builds thickness. Definition circuit adds volume and metabolic stress at higher reps.',
         items:[
-          { id:'l_bicycle',   name:'Bicycle crunches',       note:"Don't yank your neck, lead with the elbow",          sets:'20 reps each side', weighted:false },
-          { id:'l_reverse',   name:'Reverse crunches',       note:'Curl hips toward the ceiling; hits lower abs',       sets:'15 reps',           weighted:false },
-          { id:'l_plank_tap', name:'Plank with shoulder tap',note:'Hips stay square; anti-rotation challenge',           sets:'12 taps each side', weighted:false },
-          { id:'l_vsit',      name:'V-sit hold or tuck hold',note:'Tuck hold is the regression; progress to full V-sit', sets:'30 sec',            weighted:false }
+          { id:'l_bicycle',   name:'Bicycle crunches',       note:"Don't yank your neck, lead with the elbow",          sets:'20 reps each side', weighted:false, isAb:true },
+          { id:'l_reverse',   name:'Reverse crunches',       note:'Curl hips toward the ceiling; hits lower abs',       sets:'15 reps',           weighted:false, isAb:true },
+          { id:'l_plank_tap', name:'Plank with shoulder tap',note:'Hips stay square; anti-rotation challenge',           sets:'12 taps each side', weighted:false, isAb:true },
+          { id:'l_vsit',      name:'V-sit hold or tuck hold',note:'Tuck hold is the regression; progress to full V-sit', sets:'30 sec',            weighted:false, isAb:true, timed:true, timerSec:30 }
         ]}
     ]
   }
@@ -900,11 +963,19 @@ function bwHistory(n=12) {
 
 function sessionStats(session) {
   const ex = Object.values(session.exercises ?? {});
-  return {
-    done: ex.filter(e => e.status === 'complete').length,
-    half: ex.filter(e => e.status === 'half').length,
-    skip: ex.filter(e => e.status === 'skip').length
-  };
+  let done = 0, half = 0, skip = 0;
+  for (const e of ex) {
+    if (e.rounds) {
+      const c = e.rounds.filter(Boolean).length;
+      if (c === 3) done++;
+      else if (c > 0) half++;
+    } else {
+      if (e.status === 'complete') done++;
+      else if (e.status === 'half') half++;
+      else if (e.status === 'skip') skip++;
+    }
+  }
+  return { done, half, skip };
 }
 
 function statusIcon(status) {
@@ -1095,6 +1166,17 @@ function renderLiftSession() {
         value="${d.bodyWeight ?? S.bodyWeight ?? ''}"
         oninput="onSessBwInput(this.value)">
       <span class="bw-unit">kg</span>
+    </div>
+    <div class="rest-timer-bar">
+      <span class="rest-timer-label">Rest</span>
+      <div class="rest-timer-presets">
+        <button class="rest-preset" data-sec="60"  onclick="startRestTimer(60)">1 min</button>
+        <button class="rest-preset" data-sec="90"  onclick="startRestTimer(90)">90 s</button>
+        <button class="rest-preset" data-sec="120" onclick="startRestTimer(120)">2 min</button>
+        <button class="rest-preset" data-sec="180" onclick="startRestTimer(180)">3 min</button>
+      </div>
+      <div class="rest-timer-display" id="rest-timer-disp">—</div>
+      <button class="btn btn-sm btn-danger" id="rest-stop-btn" style="display:none" onclick="stopRestTimer()">Stop</button>
     </div>`;
 
   def.sections.forEach(sec => {
@@ -1128,15 +1210,44 @@ function renderLiftSession() {
 }
 
 function exRowHTML(ex, draft) {
-  const logged  = draft.exercises[ex.id] ?? {};
-  const status  = logged.status ?? 'none';
-  const wt      = logged.weight ?? '';
-  const sets    = logged.sets ?? [];
-
-  // Per-set toggle for main lifts
+  const logged = draft.exercises[ex.id] ?? {};
+  const status = logged.status ?? 'none';
+  const wt     = logged.weight ?? '';
+  const sets   = logged.sets ?? [];
+  const isBW   = logged.isBW ?? false;
   const isMain = !!ex.setCount;
-  let controlsHTML = '';
 
+  /* ── AB EXERCISE: per-round tracking ── */
+  if (ex.isAb) {
+    const rounds = logged.rounds ?? [false, false, false];
+    const c = rounds.filter(Boolean).length;
+    const rowStatus = c === 3 ? 'complete' : c > 0 ? 'half' : 'none';
+    const roundHTML = [0,1,2].map(i =>
+      `<div class="round-tick${rounds[i]?' done':''}" onclick="toggleRound('${ex.id}',${i})">` +
+      `<span class="rt-label">R${i+1}</span>` +
+      `<span class="rt-check">${rounds[i]?'✓':'·'}</span></div>`
+    ).join('');
+    const timerHTML = ex.timed
+      ? `<button class="ab-timer-btn" id="ab-timer-btn-${ex.id}" onclick="toggleAbTimer('${ex.id}',${ex.timerSec})">${ex.timerSec}s ▶</button>`
+      : '';
+    return `
+      <div class="ex-row s-${rowStatus}" id="row-${ex.id}">
+        <div class="ex-row-main">
+          <div class="ex-info">
+            <div class="ex-name">${ex.name}</div>
+            <div class="ex-note">${ex.note}</div>
+          </div>
+          <div class="ex-sets">${ex.sets}</div>
+          <div class="ex-controls">
+            <div class="round-ticks">${roundHTML}</div>
+            ${timerHTML}
+          </div>
+        </div>
+      </div>`;
+  }
+
+  /* ── MAIN LIFT: per-set inputs ── */
+  let controlsHTML = '';
   if (isMain) {
     const maxWt = sets.filter(w => w != null && w !== '').length
       ? Math.max(...sets.filter(w => w != null && w !== ''))
@@ -1150,29 +1261,15 @@ function exRowHTML(ex, draft) {
       if (curr != null && curr > prev.weight) { cls = 'up';   sym = '↑ '; }
       if (curr != null && curr < prev.weight) { cls = 'down'; sym = '↓ '; }
       if (curr == null) sym = '';
-      prevHTML = `<div class="prev-wt">
-        <span class="${cls}">${sym}${prev.weight}kg</span><br>
-        <span style="font-size:9px;color:var(--muted)">${fmtDate(prev.date)}</span>
-      </div>`;
+      prevHTML = `<div class="prev-wt"><span class="${cls}">${sym}${prev.weight}kg</span><br><span style="font-size:9px;color:var(--muted)">${fmtDate(prev.date)}</span></div>`;
     } else {
       prevHTML = `<div class="prev-wt"><span class="nodata">first</span></div>`;
     }
-
+    const panelOpen = sets.some(w => w != null && w !== '') ? ' open' : '';
     const setInputs = Array.from({length: ex.setCount}, (_, i) => {
       const v = sets[i] != null ? sets[i] : '';
-      return `<div class="set-item">
-        <span class="set-label">S${i+1}</span>
-        <div class="wt-wrap">
-          <input class="set-wt-input" type="number" step="0.5" min="0" max="500"
-            placeholder="—" value="${v}"
-            oninput="setSetWeight('${ex.id}',${i},this.value)">
-          <span class="wt-unit">kg</span>
-        </div>
-      </div>`;
+      return `<div class="set-item"><span class="set-label">S${i+1}</span><div class="wt-wrap"><input class="set-wt-input" type="number" step="0.5" min="0" max="500" placeholder="—" value="${v}" oninput="setSetWeight('${ex.id}',${i},this.value)"><span class="wt-unit">kg</span></div></div>`;
     }).join('');
-
-    const panelOpen = sets.some(w => w != null && w !== '') ? ' open' : '';
-
     controlsHTML = `
       <div class="ex-controls">
         <div class="status-group">
@@ -1180,29 +1277,38 @@ function exRowHTML(ex, draft) {
           <button class="sbtn ${status==='half'    ?'active-half'    :''}" onclick="setStatus('${ex.id}','half')"    title="Partial">~</button>
           <button class="sbtn ${status==='skip'    ?'active-skip'    :''}" onclick="setStatus('${ex.id}','skip')"    title="Skipped">✗</button>
         </div>
-        <button class="sets-toggle-btn${panelOpen ? ' open' : ''}" id="sets-btn-${ex.id}"
-          onclick="toggleSets('${ex.id}')">${btnLabel}</button>
+        <button class="sets-toggle-btn${panelOpen ? ' open' : ''}" id="sets-btn-${ex.id}" onclick="toggleSets('${ex.id}')">${btnLabel}</button>
         ${prevHTML}
       </div>
-      <div class="sets-panel${panelOpen}" id="sets-panel-${ex.id}">
-        ${setInputs}
-      </div>`;
+      <div class="sets-panel${panelOpen}" id="sets-panel-${ex.id}">${setInputs}</div>`;
+
+  /* ── ACCESSORY / WARMUP ── */
   } else {
-    const prev = ex.weighted ? prevWeight(ex.id, draft.dayType, draft.date) : null;
+    const prev = ex.weighted && !isBW ? prevWeight(ex.id, draft.dayType, draft.date) : null;
     let prevHTML = '';
-    if (ex.weighted) {
+    if (ex.weighted && !isBW) {
       if (prev) {
         const curr = parseFloat(wt);
         let cls = 'same', sym = '→ ';
         if (!isNaN(curr) && curr > prev.weight) { cls = 'up';   sym = '↑ '; }
         if (!isNaN(curr) && curr < prev.weight) { cls = 'down'; sym = '↓ '; }
         if (isNaN(curr)) sym = '';
-        prevHTML = `<div class="prev-wt">
-          <span class="${cls}">${sym}${prev.weight}kg</span><br>
-          <span style="font-size:9px;color:var(--muted)">${fmtDate(prev.date)}</span>
-        </div>`;
+        prevHTML = `<div class="prev-wt"><span class="${cls}">${sym}${prev.weight}kg</span><br><span style="font-size:9px;color:var(--muted)">${fmtDate(prev.date)}</span></div>`;
       } else {
         prevHTML = `<div class="prev-wt"><span class="nodata">first</span></div>`;
+      }
+    }
+    let weightHTML = '';
+    if (ex.weighted) {
+      if (ex.hasBW) {
+        weightHTML =
+          `<button class="bw-toggle-btn${isBW?' active':''}" onclick="toggleBW('${ex.id}')" title="Toggle bodyweight">BW</button>` +
+          `<div class="wt-wrap" id="wt-wrap-${ex.id}" style="${isBW?'display:none':''}">` +
+          `<input class="wt-input" type="number" step="0.5" min="0" max="500" placeholder="—" value="${wt}" oninput="setWeight('${ex.id}',this.value)">` +
+          `<span class="wt-unit">kg</span></div>` +
+          `<span id="bw-label-${ex.id}" style="font-family:var(--mono);font-size:11px;color:var(--pull);${isBW?'':'display:none'}">Bodyweight</span>`;
+      } else {
+        weightHTML = `<div class="wt-wrap"><input class="wt-input" type="number" step="0.5" min="0" max="500" placeholder="—" value="${wt}" oninput="setWeight('${ex.id}',this.value)"><span class="wt-unit">kg</span></div>`;
       }
     }
     controlsHTML = `
@@ -1212,12 +1318,7 @@ function exRowHTML(ex, draft) {
           <button class="sbtn ${status==='half'    ?'active-half'    :''}" onclick="setStatus('${ex.id}','half')"    title="Partial">~</button>
           <button class="sbtn ${status==='skip'    ?'active-skip'    :''}" onclick="setStatus('${ex.id}','skip')"    title="Skipped">✗</button>
         </div>
-        ${ex.weighted ? `<div class="wt-wrap">
-          <input class="wt-input" type="number" step="0.5" min="0" max="500"
-            placeholder="—" value="${wt}"
-            oninput="setWeight('${ex.id}',this.value)">
-          <span class="wt-unit">kg</span>
-        </div>` : ''}
+        ${weightHTML}
         ${prevHTML}
       </div>`;
   }
@@ -1232,12 +1333,6 @@ function exRowHTML(ex, draft) {
         <div class="ex-sets">${ex.sets}</div>
         ${controlsHTML}
       </div>
-      ${isMain ? `<div class="sets-panel${sets.some(w=>w!=null&&w!=='')?' open':''}" id="sets-panel-${ex.id}">${
-        Array.from({length:ex.setCount},(_,i)=>{
-          const v=sets[i]!=null?sets[i]:'';
-          return `<div class="set-item"><span class="set-label">S${i+1}</span><div class="wt-wrap"><input class="set-wt-input" type="number" step="0.5" min="0" max="500" placeholder="—" value="${v}" oninput="setSetWeight('${ex.id}',${i},this.value)"><span class="wt-unit">kg</span></div></div>`;
-        }).join('')
-      }</div>` : ''}
     </div>`;
 }
 
@@ -1474,13 +1569,18 @@ function sessionCardHTML(session, expandable) {
         ${session.bodyWeight ? `<div class="sc-bw">Body weight: ${session.bodyWeight} kg</div>` : ''}
         ${exs.map(ex => {
           const lg = session.exercises?.[ex.id] ?? {};
+          if (ex.isAb && lg.rounds) {
+            const c = lg.rounds.filter(Boolean).length;
+            const ico = c===3 ? `<span style="color:var(--complete)">✓</span>` : c>0 ? `<span style="color:var(--half)">~</span>` : `<span style="color:var(--border)">·</span>`;
+            return `<div class="hist-row"><div class="hist-icon">${ico}</div><div class="hist-name">${ex.name}</div><div class="hist-wt" style="font-size:10px">${c}/3 rounds</div></div>`;
+          }
           const setArr = lg.sets ?? [];
           const setStr = setArr.filter(w=>w!=null&&w!=='').map((w,i)=>`S${i+1}:${w}kg`).join('  ');
-          const wt = lg.weight;
+          const wtDisplay = lg.isBW ? 'BW' : (lg.weight!=null&&lg.weight!=='' ? lg.weight+' kg' : '');
           return `<div class="hist-row">
             <div class="hist-icon">${statusIcon(lg.status??'none')}</div>
             <div class="hist-name">${ex.name}</div>
-            <div class="hist-wt">${setStr || (wt!=null&&wt!=='' ? wt+' kg' : '')}</div>
+            <div class="hist-wt">${setStr || wtDisplay}</div>
           </div>`;
         }).join('')}
         ${session.notes ? `<div class="sc-notes">${session.notes}</div>` : ''}`;
@@ -1488,8 +1588,8 @@ function sessionCardHTML(session, expandable) {
   }
 
   return `
-    <div class="session-card" id="card-${session.id}">
-      <div class="sc-head" onclick="${expandable ? `toggleCard('${session.id}')` : ''}">
+    <div class="session-card">
+      <div class="sc-head" onclick="${expandable ? `this.closest('.session-card').classList.toggle('open')` : ''}">
         <div class="sc-date">${fmtDate(session.date)}</div>
         <div class="sc-type"><span class="tag ${tagClass}" style="font-size:9px;padding:2px 8px">${tagLabel}</span></div>
         <div class="sc-stats">${statsHTML}</div>
@@ -2026,6 +2126,135 @@ function removeSyncToken() {
   localStorage.removeItem('lt_sync_gist');
   localStorage.removeItem('lt_sync_last');
   renderHome();
+}
+
+/* ════════════════════════════════════════════════════════════
+   AB ROUND TRACKING
+════════════════════════════════════════════════════════════ */
+function toggleRound(exId, roundIdx) {
+  if (!S.draft) return;
+  if (!S.draft.exercises[exId]) S.draft.exercises[exId] = {};
+  const ex = S.draft.exercises[exId];
+  if (!ex.rounds) ex.rounds = [false, false, false];
+  ex.rounds[roundIdx] = !ex.rounds[roundIdx];
+  persist();
+  const row = document.getElementById('row-' + exId);
+  if (!row) return;
+  const ticks = row.querySelectorAll('.round-tick');
+  ticks.forEach((tick, i) => {
+    tick.classList.toggle('done', !!ex.rounds[i]);
+    tick.querySelector('.rt-check').textContent = ex.rounds[i] ? '✓' : '·';
+  });
+  const c = ex.rounds.filter(Boolean).length;
+  row.className = `ex-row s-${c === 3 ? 'complete' : c > 0 ? 'half' : 'none'}`;
+}
+
+/* ════════════════════════════════════════════════════════════
+   AB TIMER
+════════════════════════════════════════════════════════════ */
+const _abTimers = {};
+
+function toggleAbTimer(exId, totalSec) {
+  const btn = document.getElementById('ab-timer-btn-' + exId);
+  if (!btn) return;
+  if (_abTimers[exId]?.running) {
+    clearInterval(_abTimers[exId].intervalId);
+    delete _abTimers[exId];
+    btn.classList.remove('running');
+    btn.textContent = totalSec + 's ▶';
+    return;
+  }
+  let remaining = totalSec;
+  _abTimers[exId] = { running: true };
+  btn.classList.add('running');
+  btn.textContent = remaining + 's';
+  _abTimers[exId].intervalId = setInterval(() => {
+    remaining--;
+    if (remaining <= 0) {
+      clearInterval(_abTimers[exId].intervalId);
+      delete _abTimers[exId];
+      btn.classList.remove('running');
+      btn.classList.add('done');
+      btn.textContent = 'Done!';
+      setTimeout(() => { btn.classList.remove('done'); btn.textContent = totalSec + 's ▶'; }, 2000);
+    } else {
+      btn.textContent = remaining + 's';
+    }
+  }, 1000);
+}
+
+/* ════════════════════════════════════════════════════════════
+   REST TIMER
+════════════════════════════════════════════════════════════ */
+let _restTimer = { running: false, remaining: 0, total: 0, intervalId: null };
+
+function startRestTimer(sec) {
+  if (_restTimer.intervalId) clearInterval(_restTimer.intervalId);
+  _restTimer.total     = sec;
+  _restTimer.remaining = sec;
+  _restTimer.running   = true;
+  _updateRestDisplay();
+  _restTimer.intervalId = setInterval(() => {
+    _restTimer.remaining--;
+    if (_restTimer.remaining <= 0) {
+      clearInterval(_restTimer.intervalId);
+      _restTimer.intervalId = null;
+      _restTimer.running = false;
+      _updateRestDisplay(true);
+    } else {
+      _updateRestDisplay();
+    }
+  }, 1000);
+}
+
+function stopRestTimer() {
+  if (_restTimer.intervalId) clearInterval(_restTimer.intervalId);
+  _restTimer.intervalId = null;
+  _restTimer.running = false;
+  _restTimer.remaining = 0;
+  _updateRestDisplay();
+}
+
+function _updateRestDisplay(done = false) {
+  const disp    = document.getElementById('rest-timer-disp');
+  const stopBtn = document.getElementById('rest-stop-btn');
+  if (!disp) return;
+  const m = Math.floor(_restTimer.remaining / 60);
+  const s = _restTimer.remaining % 60;
+  if (done) {
+    disp.className   = 'rest-timer-display done';
+    disp.textContent = 'Go!';
+    setTimeout(() => { disp.className = 'rest-timer-display'; disp.textContent = '—'; }, 2000);
+  } else if (_restTimer.running) {
+    disp.className   = 'rest-timer-display running';
+    disp.textContent = `${m}:${String(s).padStart(2,'0')}`;
+  } else {
+    disp.className   = 'rest-timer-display';
+    disp.textContent = '—';
+  }
+  if (stopBtn) stopBtn.style.display = _restTimer.running ? '' : 'none';
+  document.querySelectorAll('.rest-preset').forEach(btn => {
+    btn.classList.toggle('active', _restTimer.running && parseInt(btn.dataset.sec) === _restTimer.total);
+  });
+}
+
+/* ════════════════════════════════════════════════════════════
+   BW TOGGLE
+════════════════════════════════════════════════════════════ */
+function toggleBW(exId) {
+  if (!S.draft) return;
+  if (!S.draft.exercises[exId]) S.draft.exercises[exId] = {};
+  const ex = S.draft.exercises[exId];
+  ex.isBW = !ex.isBW;
+  if (ex.isBW) ex.weight = null;
+  persist();
+  const row = document.getElementById('row-' + exId);
+  if (!row) return;
+  row.querySelector('.bw-toggle-btn')?.classList.toggle('active', ex.isBW);
+  const wtWrap = document.getElementById('wt-wrap-' + exId);
+  const bwLbl  = document.getElementById('bw-label-' + exId);
+  if (wtWrap) wtWrap.style.display = ex.isBW ? 'none' : '';
+  if (bwLbl)  bwLbl.style.display  = ex.isBW ? '' : 'none';
 }
 
 /* ════════════════════════════════════════════════════════════
