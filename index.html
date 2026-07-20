@@ -241,8 +241,8 @@ hr.d{border:none;border-top:1px solid var(--border);margin:22px 0}
 .empty-hero{height:auto;padding:24px}
 .empty-hero .hero-txt{position:static}
 .empty-hero .hero-h1{text-transform:none}
-.week{display:flex;gap:8px}
-.wk{flex:1;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:11px 4px;text-align:center}
+.week{display:flex;gap:8px;flex-wrap:wrap}
+.wk{flex:1 1 44px;min-width:44px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:11px 4px;text-align:center}
 .wk-d{font-size:11px;color:var(--muted);font-weight:600}
 .wk-i{margin-top:6px;font-size:14px;height:18px;line-height:1}
 .wk.done{opacity:.5} .wk.done .wk-i{color:var(--good)}
@@ -253,26 +253,6 @@ hr.d{border:none;border-top:1px solid var(--border);margin:22px 0}
 .tm-circ:active{transform:scale(.95)}
 .tm-big-btn{width:96px;height:96px;border-radius:50%;border:none;background:var(--teal);color:#0f2523;font-size:30px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 30px rgba(87,201,196,.3)}
 .tm-big-btn:active{transform:scale(.97)}
-#config .ov-head{border-bottom:none}
-#config .ov-body{padding-bottom:96px}
-.cfg-toggle{display:flex;background:var(--card);border-radius:22px;padding:4px;width:100%;max-width:230px;margin:0 auto}
-.cfg-toggle button{flex:1;padding:9px;border:none;background:none;color:var(--muted);font-weight:600;font-size:14px;border-radius:18px;cursor:pointer;font-family:var(--sans)}
-.cfg-toggle button.on{background:var(--acc);color:#fff}
-.cfg-title{background:var(--card);border-radius:14px;padding:20px;text-align:center}
-.cfg-title h2{font-size:24px;font-weight:800;letter-spacing:.045em;text-transform:uppercase}
-.cfg-lbl{text-align:center;font-family:var(--mono);font-size:11px;letter-spacing:.24em;color:var(--faint);text-transform:uppercase;margin:22px 0 12px}
-.cfg-grid{background:var(--card);border-radius:14px;padding:8px}
-.cfg-basic{text-align:center;padding:14px;border-radius:10px;cursor:pointer;border-bottom:1px solid var(--border)}
-.cfg-cells{display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;margin-top:2px}
-.cfg-cell{text-align:center;padding:14px 6px;cursor:pointer;border-radius:10px}
-.cfg-cell .n,.cfg-basic .n{font-weight:700;font-size:13px}
-.cfg-cell .s,.cfg-basic .s{font-size:10.5px;color:var(--muted);margin-top:2px}
-.cfg-dur{background:var(--card);border-radius:14px;display:grid;grid-template-columns:1fr 1fr 1fr}
-.cfg-durc{text-align:center;padding:16px 6px;cursor:pointer;border-radius:10px}
-.cfg-durc .n{font-weight:700;font-size:14px} .cfg-durc .s{font-size:10.5px;color:var(--muted);margin-top:2px}
-.cfg-sel{outline:1.5px solid var(--acc);outline-offset:-1.5px}
-.cfg-sel .n,.cfg-sel .s{color:var(--acc)}
-.cfg-start{position:absolute;bottom:0;left:0;right:0;background:var(--acc);text-align:center;padding:18px;padding-bottom:calc(18px + env(safe-area-inset-bottom));font-weight:800;letter-spacing:.14em;color:#fff;cursor:pointer;font-size:14px}
 </style>
 </head>
 <body>
@@ -306,17 +286,6 @@ hr.d{border:none;border-top:1px solid var(--border);margin:22px 0}
     <div id="sh-action"></div>
   </div>
   <div class="ov-body" id="sh-body"></div>
-</div>
-
-<!-- pre-workout config (style + duration) -->
-<div class="overlay" id="config">
-  <div class="ov-head">
-    <button class="ov-back" onclick="closeConfig()"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
-    <div class="ov-title"><div class="cfg-toggle"><button id="cfg-gym" onclick="_cfg.loc='Gym';renderConfig()">Gym</button><button id="cfg-home" onclick="_cfg.loc='Home';renderConfig()">Home</button></div></div>
-    <div style="width:38px;flex-shrink:0"></div>
-  </div>
-  <div class="ov-body" id="cfg-body"></div>
-  <div class="cfg-start" onclick="confirmConfig()">START WORKOUT</div>
 </div>
 
 <!-- fullscreen timer -->
@@ -536,6 +505,10 @@ function prevWeight(exId){
   return null;
 }
 function sessionsFor(pid){ return S.sessions.filter(s=>s.source?.programId===pid).length; }
+function weekStart(){ const d=new Date(); d.setHours(0,0,0,0); const wd=(d.getDay()+6)%7; d.setDate(d.getDate()-wd); return d.getTime(); } // Monday
+function monthStart(){ const n=new Date(); return new Date(n.getFullYear(),n.getMonth(),1).getTime(); }
+function sessionsSince(ts){ return S.sessions.filter(s=> new Date(s.date+'T00:00:00').getTime()>=ts); }
+function runsSince(ts){ return S.runs.filter(r=> new Date(r.date+'T00:00:00').getTime()>=ts); }
 
 /* ═══════════════════════════════════════════════════════════════
    NAV
@@ -582,16 +555,26 @@ function renderAcct(){
 ═══════════════════════════════════════════════════════════════ */
 function renderHome(){
   renderAcct();
-  const bw=lastBody(), r7=run7d(), total=S.sessions.length;
+  const bw=lastBody(), r7=run7d();
+  const ws=weekStart(), ms=monthStart();
+  const wkSessions=sessionsSince(ws);
+  const weekCount=wkSessions.length, monthCount=sessionsSince(ms).length;
+  const runWkDone=runsSince(ws).length>0;
   let top;
   if(S.active){
     const p=progById(S.active.programId);
-    const cur=sessionsFor(p.id)%p.D.length;
+    const progWk=wkSessions.filter(s=>s.source?.type==='program' && s.source.programId===p.id).length;
+    const freeWk=wkSessions.filter(s=>s.source?.type==='freestyle'||s.source?.type==='custom');
+    const progDone=Math.min(progWk,p.D.length);
+    const cur=progWk % p.D.length;               // next program day in the cycle
     const d=p.D[cur];
-    const week=p.D.map((dd,i)=>{
-      const st=i<cur?'done':(i===cur?'now':'todo');
+    let cells=p.D.map((dd,i)=>{
+      const st=i<progDone?'done':(i===progDone?'now':'todo');
       return `<div class="wk ${st}"><div class="wk-d">D${i+1}</div><div class="wk-i">${st==='done'?'✓':(st==='now'?'•':'')}</div></div>`;
-    }).join('')+`<div class="wk run"><div class="wk-d">Run</div><div class="wk-i">◷</div></div>`;
+    });
+    freeWk.forEach(s=>cells.push(`<div class="wk done" title="${esc(s.title)}"><div class="wk-d">Free</div><div class="wk-i">✓</div></div>`));
+    cells.push(`<div class="wk run${runWkDone?' done':''}"><div class="wk-d">Run</div><div class="wk-i">${runWkDone?'✓':'◷'}</div></div>`);
+    const trained=progDone+freeWk.length;
     top=`
       <div class="hero">
         <div class="hero-media"><span class="hero-ph">PROGRAM COVER</span></div>
@@ -607,9 +590,11 @@ function renderHome(){
         <button class="btn" style="flex:1" onclick="openProgram('${p.id}')">Swap day</button>
         <button class="btn" style="flex:1" onclick="nav('workouts')">Freestyle</button>
       </div>
-      <div class="sec-label">This week</div>
-      <div class="week">${week}</div>`;
+      <div class="sec-label">This week · ${trained} day${trained!==1?'s':''}</div>
+      <div class="week">${cells.join('')}</div>`;
   } else {
+    let cells=wkSessions.map(s=>`<div class="wk done" title="${esc(s.title)}"><div class="wk-d">Free</div><div class="wk-i">✓</div></div>`);
+    cells.push(`<div class="wk run${runWkDone?' done':''}"><div class="wk-d">Run</div><div class="wk-i">${runWkDone?'✓':'◷'}</div></div>`);
     top=`
       <div class="hero empty-hero">
         <div class="hero-txt">
@@ -619,7 +604,9 @@ function renderHome(){
         </div>
       </div>
       <button class="btn btn-acc btn-block btn-lg" onclick="nav('programs')">Browse programs</button>
-      <div class="row" style="margin-top:12px"><button class="btn btn-block" onclick="nav('workouts')">Freestyle a workout</button></div>`;
+      <div class="row" style="margin-top:12px"><button class="btn btn-block" onclick="nav('workouts')">Freestyle a workout</button></div>
+      <div class="sec-label">This week · ${wkSessions.length} day${wkSessions.length!==1?'s':''}</div>
+      <div class="week">${cells.join('')}</div>`;
   }
   const stats=`
     <div class="sec-label">Snapshot</div>
@@ -628,8 +615,10 @@ function renderHome(){
         <div class="stat-val">${bw!=null?bw:'—'}<small>kg</small></div></div>
       <div class="stat"><div class="stat-lbl"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7">${ICON.runs}</svg>Run (7d)</div>
         <div class="stat-val">${r7? (Math.round(r7*10)/10):'0'}<small>km</small></div></div>
-      <div class="stat" style="grid-column:1/-1"><div class="stat-lbl"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7">${ICON.history}</svg>Sessions</div>
-        <div class="stat-val">${total}<small>total</small></div></div>
+      <div class="stat"><div class="stat-lbl"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7">${ICON.history}</svg>This week</div>
+        <div class="stat-val">${weekCount}<small>session${weekCount!==1?'s':''}</small></div></div>
+      <div class="stat"><div class="stat-lbl"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7">${ICON.programs}</svg>This month</div>
+        <div class="stat-val">${monthCount}<small>session${monthCount!==1?'s':''}</small></div></div>
     </div>`;
   let recent='';
   if(S.sessions.length){
@@ -658,7 +647,7 @@ function renderPrograms(){
       const on=S.active?.programId===p.id;
       html+=`<div class="item ${on?'hl':''}" onclick="openProgram('${p.id}')">
         <div class="item-eyebrow">${p.days}-day${on?' · active':''}</div>
-        <div class="item-title">${esc(p.title)} <span style="color:var(--muted);font-weight:500">(${esc(p.subtitle)})</span></div>
+        <div class="item-title">${esc(p.subtitle)}</div>
         <div class="item-sub">${esc(p.layout)}</div></div>`;
     });
   });
@@ -666,8 +655,8 @@ function renderPrograms(){
 }
 function openProgram(pid){
   const p=progById(pid);
-  $('sh-title').textContent=p.title;
-  $('sh-sub').textContent=`${p.days}-day · ${p.subtitle}`;
+  $('sh-title').textContent=p.subtitle;
+  $('sh-sub').textContent=`${CAT_NAME[p.cat]} · ${p.days}-day`;
   const active=S.active?.programId===pid;
   $('sh-action').innerHTML=`<button class="btn btn-acc btn-sm" onclick="setActive('${pid}')">${active?'Active ✓':'Set active'}</button>`;
   let body=`<div class="warmbox" style="border-left-color:var(--acc)"><span class="tag tag-${p.cat}">${CAT_NAME[p.cat]}</span>
@@ -784,34 +773,25 @@ function buildRows(day){
     a.items.forEach(it=>rows.push({kind:'ab',id:slug(it.n),name:it.n,scheme:it.s,timed:it.timed})); }
   return rows;
 }
-function startProgramDay(pid,idx){ const p=progById(pid); openConfig(p.D[idx],{type:'program',programId:pid,dayName:p.D[idx].name},p.D[idx].name,`${p.title} · ${p.D[idx].name}`,p.D[idx].tag); }
-function startFreestyle(pid,idx){ const p=progById(pid); openConfig(p.D[idx],{type:'freestyle',dayName:p.D[idx].name},p.D[idx].name,`${p.D[idx].name} (freestyle)`,p.D[idx].tag); }
-function startCustom(id){ const w=S.customWorkouts.find(x=>x.id===id); if(!w)return; openConfig(w,{type:'custom',workoutId:id},w.name,w.name,null); }
+function startProgramDay(pid,idx){ const p=progById(pid); _start(p.D[idx],{type:'program',programId:pid,dayName:p.D[idx].name},`${p.title} · ${p.D[idx].name}`,p.D[idx].tag); }
+function startFreestyle(pid,idx){ const p=progById(pid); openWorkoutDetail(p.D[idx],{type:'freestyle',dayName:p.D[idx].name},p.D[idx].name,p.D[idx].tag,`${p.subtitle} · freestyle`); }
+function startCustom(id){ const w=S.customWorkouts.find(x=>x.id===id); if(!w)return; openWorkoutDetail(w,{type:'custom',workoutId:id},w.name,null,'Custom workout'); }
 
-/* ── pre-workout config (style + duration picker) ── */
-let _cfg=null;
-function openConfig(day,source,plaque,title,tag){
-  _cfg={loc:'Home',style:'Band',dur:'Regular',_day:day,_source:source,_plaque:plaque,_title:title,_tag:tag};
-  $('config').classList.add('active'); $('cfg-body').scrollTo?.(0,0); renderConfig();
+/* ── workout detail → single Start session button ── */
+let _pending=null;
+function openWorkoutDetail(day,source,title,tag,sub){
+  _pending={day,source,title,tag};
+  $('sh-title').textContent=title;
+  $('sh-sub').textContent=sub||'';
+  $('sh-action').innerHTML='';
+  openSheet();
+  $('sh-body').innerHTML=`<div class="card">
+    ${tag?`<span class="tag tag-${tag==='Hard'?'hard':'mod'}">${tag}</span>`:''}
+    <div class="desc" style="margin-top:${tag?'12px':'0'}">${dayContentPreview(day)}</div>
+  </div>
+  <button class="btn btn-acc btn-block btn-lg" style="margin-top:16px" onclick="beginPending()">Start session</button>`;
 }
-function closeConfig(){ $('config').classList.remove('active'); }
-function renderConfig(){
-  $('cfg-gym').classList.toggle('on',_cfg.loc==='Gym');
-  $('cfg-home').classList.toggle('on',_cfg.loc==='Home');
-  const styles=[['Classic','Just You'],['Athlete','Dynamic'],['Band','with a Band'],['Kettle','Kettlebell'],['Dumbbell','Dumbbells'],['Lean-X','Machine']];
-  const durs=[['Mini','~20m'],['Regular','~40m'],['Badass','~60m']];
-  $('cfg-body').innerHTML=`
-    <div class="cfg-title"><h2>${esc(_cfg._plaque)}</h2></div>
-    <div class="cfg-lbl">Choose your style</div>
-    <div class="cfg-grid">
-      <div class="cfg-basic ${_cfg.style==='Basic'?'cfg-sel':''}" onclick="_cfg.style='Basic';renderConfig()"><div class="n" style="font-size:15px">Basic</div><div class="s">Solid Workouts</div></div>
-      <div class="cfg-cells">${styles.map(([n,s])=>`<div class="cfg-cell ${_cfg.style===n?'cfg-sel':''}" onclick="_cfg.style='${n}';renderConfig()"><div class="n">${n}</div><div class="s">${s}</div></div>`).join('')}</div>
-    </div>
-    <div class="cfg-lbl">Choose your duration</div>
-    <div class="cfg-dur">${durs.map(([n,s])=>`<div class="cfg-durc ${_cfg.dur===n?'cfg-sel':''}" onclick="_cfg.dur='${n}';renderConfig()"><div class="n">${n}</div><div class="s">${s}</div></div>`).join('')}</div>
-    <div style="height:24px"></div>`;
-}
-function confirmConfig(){ const c=_cfg; closeConfig(); _start(c._day,{...c._source,style:c.style,dur:c.dur,loc:c.loc},c._title,c._tag); }
+function beginPending(){ if(!_pending)return; const p=_pending; _pending=null; closeSheet(); _start(p.day,p.source,p.title,p.tag); }
 function _start(day,source,title,tag){
   if(S.draft && !confirm('Discard the session in progress and start a new one?')) { openSession(); return; }
   S.draft={id:uid(),date:todayISO(),title,tag:tag||null,source,rows:buildRows(day),log:{},notes:''};
