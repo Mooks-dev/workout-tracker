@@ -1,12 +1,12 @@
 {
-  "name": "LiftTrack",
-  "short_name": "LiftTrack",
-  "description": "Push/Pull workout tracker with run and Muay Thai logging",
+  "name": "MG Training",
+  "short_name": "MG Training",
+  "description": "Training programs, workout tracker, runs and bodyweight logging",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#0E0E0E",
-  "theme_color": "#0E0E0E",
+  "background_color": "#2b3034",
+  "theme_color": "#2b3034",
   "orientation": "portrait-primary",
   "icons": [
     {

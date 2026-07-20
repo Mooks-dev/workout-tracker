@@ -1,7 +1,7 @@
-const CACHE = 'lifttrack-v1';
-const ASSETS = ['./index.html', './manifest.json', './icon.svg', './icon-maskable.svg'];
+const CACHE = 'mgt-v2';
+const ASSETS = ['./', './index.html', './manifest.json', './icon.svg', './icon-maskable.svg'];
 
-// Install: cache all app assets
+// Install: pre-cache the app shell
 self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE)
@@ -10,7 +10,7 @@ self.addEventListener('install', e => {
   );
 });
 
-// Activate: clean up old caches
+// Activate: drop old caches
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys()
@@ -19,22 +19,29 @@ self.addEventListener('activate', e => {
   );
 });
 
-// Fetch: cache-first for app assets, network-only for GitHub API calls
+// Network-only hosts: Firebase auth / Firestore must never be cached.
+const BYPASS = ['identitytoolkit', 'googleapis.com', 'firebaseio.com', 'firestore', 'gstatic.com', 'api.github.com'];
+
 self.addEventListener('fetch', e => {
-  if (e.request.url.includes('api.github.com') || e.request.url.includes('fonts.googleapis.com')) {
+  const url = e.request.url;
+  if (BYPASS.some(h => url.includes(h))) {
     e.respondWith(fetch(e.request).catch(() => new Response('', { status: 503 })));
     return;
   }
+  // Network-first for the HTML shell so a new deploy always wins; cache is the offline fallback.
+  if (e.request.mode === 'navigate' || url.endsWith('/index.html') || url.endsWith('/')) {
+    e.respondWith(
+      fetch(e.request)
+        .then(res => { const c = res.clone(); caches.open(CACHE).then(x => x.put('./index.html', c)); return res; })
+        .catch(() => caches.match('./index.html'))
+    );
+    return;
+  }
+  // Cache-first for static assets (icons, manifest).
   e.respondWith(
-    caches.match(e.request).then(cached => {
-      if (cached) return cached;
-      return fetch(e.request).then(res => {
-        if (res.ok) {
-          const clone = res.clone();
-          caches.open(CACHE).then(c => c.put(e.request, clone));
-        }
-        return res;
-      });
-    })
+    caches.match(e.request).then(cached => cached || fetch(e.request).then(res => {
+      if (res.ok) { const clone = res.clone(); caches.open(CACHE).then(c => c.put(e.request, clone)); }
+      return res;
+    }))
   );
 });
