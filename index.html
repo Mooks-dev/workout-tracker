@@ -626,7 +626,17 @@ function renderHome(){
       .map(s=>`<div class="item" onclick="nav('history')"><div class="spread"><div class="item-title" style="font-size:16px">${esc(s.title)}</div>
       <span class="log-sub">${fmtDate(s.date)}</span></div></div>`).join('');
   }
-  $('v-home').innerHTML=top+`<div style="height:8px"></div>`+stats+recent;
+  const resume=S.draft?`
+    <div class="card hl" style="margin-bottom:14px">
+      <div class="item-eyebrow">Session in progress</div>
+      <div class="item-title" style="font-size:16px">${esc(S.draft.title)}</div>
+      <div class="item-sub">${Object.values(S.draft.log).filter(l=>l.done).length} done · started ${fmtDate(S.draft.date)}</div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn btn-acc" style="flex:1" onclick="openSession()">Resume</button>
+        <button class="btn btn-danger" onclick="discardDraft()">Discard</button>
+      </div>
+    </div>`:'';
+  $('v-home').innerHTML=resume+top+`<div style="height:8px"></div>`+stats+recent;
 }
 function liftsPreview(d){
   const parts=(d.lifts||[]).map(l=>l.n);
@@ -806,7 +816,17 @@ function renderSessionBody(){
   let html=`<button class="btn btn-block" onclick="openRest(90)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${ICON.history}</svg> Rest timer</button>
     <div style="height:6px"></div>`;
   d.rows.forEach(r=>html+=rowHTML(r));
-  html+=`<div class="sec-label">Notes</div>
+  const bankOpts=Object.entries(EX_BANK).map(([g,arr])=>`<optgroup label="${g}">`+arr.map(n=>`<option value="${esc(n)}">`).join('')+`</optgroup>`).join('');
+  html+=`<div class="grp">Add / swap exercise</div>
+    <div class="lift">
+      <div class="row-t">
+        <input class="inp" id="ss-add-n" list="ss-dl" placeholder="Exercise…" style="flex:2">
+        <input class="inp" id="ss-add-s" placeholder="3×10" style="flex:1;min-width:74px">
+      </div>
+      <datalist id="ss-dl">${bankOpts}</datalist>
+      <button class="btn btn-block btn-sm" style="margin-top:10px" onclick="ssAddExercise()">+ Add to session</button>
+    </div>
+    <div class="sec-label">Notes</div>
     <textarea class="inp" id="ss-notes" rows="3" placeholder="How did it go? PRs, energy, injuries…" oninput="S.draft.notes=this.value;persist(false)">${esc(d.notes)}</textarea>
     <div class="row" style="margin-top:20px"><button class="btn btn-acc" style="flex:1" onclick="saveSession()">Save session</button>
     <button class="btn btn-danger" onclick="discardDraft()">Discard</button></div>`;
@@ -835,7 +855,7 @@ function rowHTML(r){
         <div class="lift-info"><div class="lift-name">${esc(r.name)}</div><div class="lift-scheme">${esc(r.scheme)}</div></div>
         <button class="chk ${done?'on':''}" onclick="toggleDone('${r.id}')">${done?'✓':''}</button>
       </div>
-      <div class="lift-ctl">${wtInput}${timer}${prevHTML}</div>
+      <div class="lift-ctl">${wtInput}${timer}${prevHTML}<button class="mini" onclick="ssRemoveRow('${r.id}')" title="Remove" style="margin-left:auto">✕</button></div>
     </div>`;
   }
   if(r.kind==='block'||r.kind==='wod'){
@@ -854,6 +874,7 @@ function rowHTML(r){
       <div class="lift-ctl">
         ${hasSeq?`<button class="mini" onclick="openTimer(TIMERS['${r.id}']())"><svg viewBox="0 0 24 24">${ICON.history}</svg>Start timer</button>`:''}
         <button class="mini" onclick="openRest(90)"><svg viewBox="0 0 24 24">${ICON.history}</svg>90s rest</button>
+        <button class="mini" onclick="ssRemoveRow('${r.id}')" title="Remove" style="margin-left:auto">✕</button>
       </div></div>`;
   }
   return '';
@@ -867,6 +888,22 @@ function toggleDone(id){ const l=S.draft.log[id]=S.draft.log[id]||{}; l.done=!l.
   row.querySelector('.chk').textContent=l.done?'✓':''; }
 function toggleRound(id,i,total){ const l=S.draft.log[id]=S.draft.log[id]||{}; if(!l.rounds)l.rounds=Array(total).fill(false);
   l.rounds[i]=!l.rounds[i]; const all=l.rounds.every(Boolean); l.done=all; persist(false); renderSessionBody(); }
+function ssAddExercise(){
+  if(!S.draft)return;
+  const n=$('ss-add-n').value.trim(); if(!n){ toast('Name the exercise'); return; }
+  const s=$('ss-add-s').value.trim()||'3×10';
+  let id=slug(n), base=id, k=2; while(S.draft.rows.some(r=>r.id===id)) id=base+'-'+(k++);
+  S.draft.rows.push({kind:'lift',id,name:n,scheme:s});
+  persist(false); renderSessionBody(); toast('Added',true);
+  $('ss-add-n')?.scrollIntoView({block:'center'});
+}
+function ssRemoveRow(id){
+  if(!S.draft)return;
+  const lg=S.draft.log[id];
+  if(lg && (lg.weight!=null||lg.done||lg.rounds) && !confirm('Remove this exercise? Its logged data will be cleared.')) return;
+  S.draft.rows=S.draft.rows.filter(r=>r.id!==id); delete S.draft.log[id];
+  persist(false); renderSessionBody();
+}
 function discardDraft(){ if(S.draft&&!confirm('Discard this session?'))return; S.draft=null; persist(); closeSession(); nav('home'); }
 function saveSession(){
   if(!S.draft) return;
@@ -987,10 +1024,16 @@ function openTimer(cfg){
   else if(cfg.mode==='up'){ TM={cfg,mode:'up',elapsed:0,target:cfg.target||0,running:true}; }
   else { TM={cfg,mode:'down',remaining:cfg.sec,total:cfg.sec,running:true}; }
   $('timer').classList.add('active');
-  drawTimer(); tickStart();
+  drawTimer(); tickStart(); reqWake();
   try{ _ac=_ac||new (window.AudioContext||window.webkitAudioContext)(); }catch(e){}
 }
-function closeTimer(){ clearInterval(_tmInt); TM=null; $('timer').classList.remove('active'); }
+function closeTimer(){ clearInterval(_tmInt); TM=null; $('timer').classList.remove('active'); relWake(); }
+
+/* keep the screen awake while a timer is running */
+let _wake=null;
+async function reqWake(){ try{ if('wakeLock' in navigator) _wake=await navigator.wakeLock.request('screen'); }catch(e){} }
+function relWake(){ try{ _wake&&_wake.release(); }catch(e){} _wake=null; }
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible' && TM && !_wake) reqWake(); });
 function tickStart(){ clearInterval(_tmInt); _tmInt=setInterval(tick,1000); }
 function tick(){
   if(!TM||!TM.running) return;
@@ -1086,6 +1129,7 @@ async function initFirebase(){
     await loadScript(base+'firebase-firestore-compat.js');
     firebase.initializeApp(FIREBASE_CONFIG);
     auth=firebase.auth(); db=firebase.firestore();
+    try{ db.settings({ignoreUndefinedProperties:true}); }catch(e){}  // session rows carry optional undefined fields
     await auth.getRedirectResult().catch(()=>{});
     auth.onAuthStateChanged(onAuth);
   }catch(e){ console.warn('Firebase init failed',e); }
@@ -1135,8 +1179,7 @@ async function pushCloud(){
 ═══════════════════════════════════════════════════════════════ */
 (function init(){
   if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
-  hydrate(); buildNav(); nav('home');
-  if(S.draft){ /* leave draft; user can resume via a started session */ }
+  hydrate(); buildNav(); nav('home');  // a saved draft surfaces as a Resume banner on Home
   initFirebase();
 })();
 </script>
