@@ -196,8 +196,9 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
 /* ── toast ── */
 .toast{position:fixed;bottom:calc(96px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(80px);
   background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:12px 20px;font-size:14px;
-  z-index:120;transition:transform .3s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;pointer-events:none;font-weight:500}
-.toast.show{transform:translateX(-50%) translateY(0)}
+  z-index:120;transition:transform .3s cubic-bezier(.34,1.56,.64,1),opacity .2s;white-space:nowrap;pointer-events:none;font-weight:500;
+  opacity:0;visibility:hidden}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;visibility:visible}
 .toast.ok{border-color:var(--good);color:var(--good)}
 
 /* ── picker chips ── */
@@ -231,7 +232,11 @@ hr.d{border:none;border-top:1px solid var(--border);margin:22px 0}
 .tag-mod{background:rgba(232,118,58,.14)}
 .btn-lg{font-size:16px;padding:16px 18px}
 .hero{position:relative;border-radius:20px;overflow:hidden;height:210px;margin-bottom:14px;background:var(--card)}
-.hero-media{position:absolute;inset:0;background:repeating-linear-gradient(48deg,#31363b 0 14px,#2a2e33 14px 28px);display:flex;align-items:center;justify-content:center}
+.hero-media{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.hero-media svg{position:absolute;right:-30px;bottom:-30px;width:200px;height:200px;opacity:.13;stroke:#fff;fill:none;stroke-width:1}
+.hero-media.weights{background:radial-gradient(120% 120% at 15% 0%,#e8763a 0%,#7a3a17 45%,#241712 100%)}
+.hero-media.hiit{background:radial-gradient(120% 120% at 15% 0%,#f0834e 0%,#7d2f1c 45%,#241512 100%)}
+.hero-media.crossfit{background:radial-gradient(120% 120% at 15% 0%,#57c9c4 0%,#1d5a58 45%,#10201f 100%)}
 .hero-ph{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--faint)}
 .hero-grad{position:absolute;inset:0;background:linear-gradient(transparent 32%,rgba(17,18,20,.92))}
 .hero-txt{position:absolute;left:18px;right:18px;bottom:18px}
@@ -404,50 +409,50 @@ const PROGRAMS=[
  {id:'h3',cat:'hiit',days:'3',title:'HIIT, 3 Day',subtitle:'Primer + conditioning block',
   layout:'Day 1, rest, Day 2, rest, Day 3, run, rest',run:'Easy Zone 2 — intensity is covered by the blocks.',
   D:[
-   {name:'Day 1',sub:'Lower primer + Block 1',tag:'Hard',lifts:[L('Back squat','4×6'),L('Romanian deadlift','3×8')],cond:'block1',ab:'C'},
-   {name:'Day 2',sub:'Push primer + Block 2',tag:'Hard',lifts:[L('Barbell bench press','4×6'),L('Overhead press','3×8')],cond:'block2',ab:'E'},
-   {name:'Day 3',sub:'Pull primer + Block 3',tag:'Moderate',lifts:[L('Weighted pull-up','4×6'),L('Chest-supported row','3×8')],cond:'block3',ab:'B'}
+   {name:'Legs + Intervals',sub:'Lower primer + Block 1',tag:'Hard',lifts:[L('Back squat','4×6'),L('Romanian deadlift','3×8')],cond:'block1',ab:'C'},
+   {name:'Push + Density',sub:'Push primer + Block 2',tag:'Hard',lifts:[L('Barbell bench press','4×6'),L('Overhead press','3×8')],cond:'block2',ab:'E'},
+   {name:'Pull + Machine',sub:'Pull primer + Block 3',tag:'Moderate',lifts:[L('Weighted pull-up','4×6'),L('Chest-supported row','3×8')],cond:'block3',ab:'B'}
   ]},
  {id:'h4',cat:'hiit',days:'4',title:'HIIT, 4 Day',subtitle:'Alternating hard / moderate',
   layout:'Day 1, Day 2, rest, Day 3, Day 4, run, rest',run:'Easy Zone 2.',
   D:[
-   {name:'Day 1',sub:'Lower primer + Block 1',tag:'Hard',lifts:[L('Back squat','4×6'),L('Romanian deadlift','3×8')],cond:'block1',ab:'C'},
-   {name:'Day 2',sub:'Upper primer + Block 3',tag:'Moderate',lifts:[L('Incline dumbbell press','4×8'),L('Seated cable row','3×10')],cond:'block3',ab:'D'},
-   {name:'Day 3',sub:'Full-body primer + Block 2',tag:'Hard',lifts:[L('Trap-bar deadlift','4×6'),L('Overhead press','3×8')],cond:'block2',ab:'G'},
-   {name:'Day 4',sub:'Block 4 only',tag:'Moderate',warmup:'Light full-body ramp, no heavy lifting',lifts:[],cond:'block4',ab:'E'}
+   {name:'Legs + Intervals',sub:'Lower primer + Block 1',tag:'Hard',lifts:[L('Back squat','4×6'),L('Romanian deadlift','3×8')],cond:'block1',ab:'C'},
+   {name:'Upper + Machine',sub:'Upper primer + Block 3',tag:'Moderate',lifts:[L('Incline dumbbell press','4×8'),L('Seated cable row','3×10')],cond:'block3',ab:'D'},
+   {name:'Full Body + Density',sub:'Full-body primer + Block 2',tag:'Hard',lifts:[L('Trap-bar deadlift','4×6'),L('Overhead press','3×8')],cond:'block2',ab:'G'},
+   {name:'Conditioning Circuit',sub:'Block 4 only',tag:'Moderate',warmup:'Light full-body ramp, no heavy lifting',lifts:[],cond:'block4',ab:'E'}
   ]},
  {id:'h5',cat:'hiit',days:'5',title:'HIIT, 5 Day',subtitle:'Two hard days, rest moderate',
   layout:'Day 1, Day 2, Day 3, rest, Day 4, Day 5, run',run:'Easy Zone 2 only — do not run hard on a 5-day HIIT week.',
   D:[
-   {name:'Day 1',sub:'Lower primer + Block 1',tag:'Hard',lifts:[L('Back squat','4×6'),L('Romanian deadlift','3×8')],cond:'block1',ab:'A'},
-   {name:'Day 2',sub:'Push primer + Block 3',tag:'Moderate',lifts:[L('Barbell bench press','4×6'),L('Dumbbell lateral raise','3×15')],cond:'block3',ab:'E'},
-   {name:'Day 3',sub:'Pull primer + Block 4',tag:'Moderate',lifts:[L('Weighted pull-up','4×6'),L('Seated cable row','3×10')],cond:'block4',ab:'B'},
-   {name:'Day 4',sub:'Full-body primer + Block 2',tag:'Hard',lifts:[L('Trap-bar deadlift','4×6'),L('Overhead press','3×8')],cond:'block2',ab:'G'},
-   {name:'Day 5',sub:'Machine intervals + accessories',tag:'Moderate',lifts:[L('Leg press','3×12'),L('Dumbbell shoulder press','3×12'),L('Cable curl','3×15'),L('Cable triceps','3×15')],cond:'block3',ab:'D'}
+   {name:'Legs + Intervals',sub:'Lower primer + Block 1',tag:'Hard',lifts:[L('Back squat','4×6'),L('Romanian deadlift','3×8')],cond:'block1',ab:'A'},
+   {name:'Push + Machine',sub:'Push primer + Block 3',tag:'Moderate',lifts:[L('Barbell bench press','4×6'),L('Dumbbell lateral raise','3×15')],cond:'block3',ab:'E'},
+   {name:'Pull + Circuit',sub:'Pull primer + Block 4',tag:'Moderate',lifts:[L('Weighted pull-up','4×6'),L('Seated cable row','3×10')],cond:'block4',ab:'B'},
+   {name:'Full Body + Density',sub:'Full-body primer + Block 2',tag:'Hard',lifts:[L('Trap-bar deadlift','4×6'),L('Overhead press','3×8')],cond:'block2',ab:'G'},
+   {name:'Machines + Pump',sub:'Machine intervals + accessories',tag:'Moderate',lifts:[L('Leg press','3×12'),L('Dumbbell shoulder press','3×12'),L('Cable curl','3×15'),L('Cable triceps','3×15')],cond:'block3',ab:'D'}
   ]},
  {id:'c3',cat:'crossfit',days:'3',title:'CrossFit, 3 Day',subtitle:'Strength piece + metcon',
   layout:'Day 1, rest, Day 2, rest, Day 3, run, rest',run:'Easy Zone 2.',
   D:[
-   {name:'Day 1',sub:'Squat strength + WOD 1',tag:'Hard',lifts:[L('Back squat','4×5')],wod:'wod1',ab:'G'},
-   {name:'Day 2',sub:'Press strength + WOD 3',tag:'Moderate',lifts:[L('Overhead press','4×5')],wod:'wod3',ab:'E'},
-   {name:'Day 3',sub:'Hinge strength + WOD 2',tag:'Hard',lifts:[L('Deadlift','4×4')],wod:'wod2',ab:'B'}
+   {name:'Squat + AMRAP',sub:'Squat strength + WOD 1',tag:'Hard',lifts:[L('Back squat','4×5')],wod:'wod1',ab:'G'},
+   {name:'Press + EMOM',sub:'Press strength + WOD 3',tag:'Moderate',lifts:[L('Overhead press','4×5')],wod:'wod3',ab:'E'},
+   {name:'Deadlift + 21-15-9',sub:'Hinge strength + WOD 2',tag:'Hard',lifts:[L('Deadlift','4×4')],wod:'wod2',ab:'B'}
   ]},
  {id:'c4',cat:'crossfit',days:'4',title:'CrossFit, 4 Day',subtitle:'Strength piece + metcon',
   layout:'Day 1, Day 2, rest, Day 3, Day 4, run, rest',run:'Easy Zone 2.',
   D:[
-   {name:'Day 1',sub:'Squat strength + WOD 1',tag:'Hard',lifts:[L('Back squat','4×5')],wod:'wod1',ab:'G'},
-   {name:'Day 2',sub:'Press strength + WOD 5',tag:'Moderate',lifts:[L('Overhead press','4×5')],wod:'wod5',ab:'D'},
-   {name:'Day 3',sub:'Hinge strength + WOD 4',tag:'Hard',lifts:[L('Deadlift','4×4')],wod:'wod4',ab:'A'},
-   {name:'Day 4',sub:'Skill + WOD 3',tag:'Moderate',lifts:[L('Push press technique','5×3')],wod:'wod3',ab:'C'}
+   {name:'Squat + AMRAP',sub:'Squat strength + WOD 1',tag:'Hard',lifts:[L('Back squat','4×5')],wod:'wod1',ab:'G'},
+   {name:'Press + Couplet',sub:'Press strength + WOD 5',tag:'Moderate',lifts:[L('Overhead press','4×5')],wod:'wod5',ab:'D'},
+   {name:'Deadlift + Chipper',sub:'Hinge strength + WOD 4',tag:'Hard',lifts:[L('Deadlift','4×4')],wod:'wod4',ab:'A'},
+   {name:'Skill + EMOM',sub:'Skill + WOD 3',tag:'Moderate',lifts:[L('Push press technique','5×3')],wod:'wod3',ab:'C'}
   ]},
  {id:'c5',cat:'crossfit',days:'5',title:'CrossFit, 5 Day',subtitle:'Two hard days, three moderate',
   layout:'Day 1, Day 2, Day 3, rest, Day 4, Day 5, run',run:'Easy Zone 2 only.',
   D:[
-   {name:'Day 1',sub:'Squat strength + WOD 1',tag:'Hard',lifts:[L('Back squat','4×5')],wod:'wod1',ab:'G'},
-   {name:'Day 2',sub:'Press strength + WOD 5',tag:'Moderate',lifts:[L('Overhead press','4×5')],wod:'wod5',ab:'E'},
-   {name:'Day 3',sub:'Pull strength + WOD 3',tag:'Moderate',lifts:[L('Weighted pull-up','4×5'),L('Bent-over barbell row','3×8')],wod:'wod3',ab:'B'},
-   {name:'Day 4',sub:'Hinge strength + WOD 2',tag:'Hard',lifts:[L('Deadlift','4×4')],wod:'wod2',ab:'A'},
-   {name:'Day 5',sub:'Conditioning focus + WOD 4',tag:'Moderate',lifts:[L('Front squat','3×5 technique')],wod:'wod4',ab:'D'}
+   {name:'Squat + AMRAP',sub:'Squat strength + WOD 1',tag:'Hard',lifts:[L('Back squat','4×5')],wod:'wod1',ab:'G'},
+   {name:'Press + Couplet',sub:'Press strength + WOD 5',tag:'Moderate',lifts:[L('Overhead press','4×5')],wod:'wod5',ab:'E'},
+   {name:'Pull + EMOM',sub:'Pull strength + WOD 3',tag:'Moderate',lifts:[L('Weighted pull-up','4×5'),L('Bent-over barbell row','3×8')],wod:'wod3',ab:'B'},
+   {name:'Deadlift + 21-15-9',sub:'Hinge strength + WOD 2',tag:'Hard',lifts:[L('Deadlift','4×4')],wod:'wod2',ab:'A'},
+   {name:'Conditioning + Chipper',sub:'Conditioning focus + WOD 4',tag:'Moderate',lifts:[L('Front squat','3×5 technique')],wod:'wod4',ab:'D'}
   ]}
 ];
 const CAT_NAME={weights:'Weights',hiit:'HIIT',crossfit:'CrossFit / WODs'};
@@ -465,7 +470,7 @@ const EX_BANK={
    STATE + PERSISTENCE
 ═══════════════════════════════════════════════════════════════ */
 let S={ view:'home', active:null, draft:null, sessions:[], bodyLog:[], runs:[],
-        customWorkouts:[], updatedAt:0 };
+        customWorkouts:[], unit:'kg', remindWeekly:false, lastRemindWeek:null, updatedAt:0 };
 let USER=null, SYNC='idle', db=null, auth=null, _unsub=null, _cloudT=null;
 
 const K='mgt_';
@@ -474,7 +479,8 @@ function persist(bumpTime=true){
   try{
     localStorage.setItem(K+'state', JSON.stringify({
       active:S.active, draft:S.draft, sessions:S.sessions, bodyLog:S.bodyLog,
-      runs:S.runs, customWorkouts:S.customWorkouts, updatedAt:S.updatedAt }));
+      runs:S.runs, customWorkouts:S.customWorkouts, unit:S.unit,
+      remindWeekly:S.remindWeekly, lastRemindWeek:S.lastRemindWeek, updatedAt:S.updatedAt }));
   }catch(e){}
   if(USER) scheduleCloud();
 }
@@ -494,6 +500,15 @@ function fmtDate(iso){ if(!iso) return ''; return new Date(iso+'T00:00:00').toLo
 function parseSets(sch){ const m=String(sch).match(/^(\d+)/); return m?+m[1]:3; }
 function pace(km,min){ if(!km||!min) return '—'; const s=(min*60)/km, m=Math.floor(s/60); return `${m}:${String(Math.round(s%60)).padStart(2,'0')}`; }
 function progById(id){ return PROGRAMS.find(p=>p.id===id); }
+/* ── units (weights stored canonically in kg) ── */
+const KG_LB=2.2046226;
+function fromKg(kg){ if(kg==null||kg==='')return kg; const v=S.unit==='lb'?kg*KG_LB:kg; return Math.round(v*10)/10; }
+function toKg(v){ if(v==null||v===''||isNaN(+v))return null; return S.unit==='lb'? Math.round((+v/KG_LB)*100)/100 : +v; }
+function uLbl(){ return S.unit; }
+/* ── ISO week key for the Monday reminder ── */
+function weekKey(d=new Date()){ const t=new Date(d); t.setHours(0,0,0,0); t.setDate(t.getDate()+3-((t.getDay()+6)%7)); const wk1=new Date(t.getFullYear(),0,4); return t.getFullYear()+'-W'+String(1+Math.round(((t-wk1)/864e5-3+((wk1.getDay()+6)%7))/7)).padStart(2,'0'); }
+function programWeek(){ if(!S.active?.startedISO)return 0; const d=(Date.now()-new Date(S.active.startedISO+'T00:00:00'))/864e5; return Math.floor(d/7)+1; }
+function bodyLoggedThisWeek(){ const ws=weekStart(); return S.bodyLog.some(e=> new Date(e.date+'T00:00:00').getTime()>=ws); }
 let _toastT;
 function toast(msg,ok){ const el=$('toast'); el.textContent=msg; el.className='toast show'+(ok?' ok':''); clearTimeout(_toastT); _toastT=setTimeout(()=>el.className='toast',2400); }
 
@@ -521,6 +536,7 @@ const ICON={
  body:'<path d="M12 3v18"/><path d="M5 7l-2.5 5a2.5 2.5 0 005 0L5 7z"/><path d="M19 7l-2.5 5a2.5 2.5 0 005 0L19 7z"/><path d="M5 7h14"/>',
  runs:'<circle cx="9" cy="5" r="1.6"/><path d="M8 9l-2 4 3 2 1 5"/><path d="M10 11l4 1 2 4"/><path d="M6 13l-2 1"/>'
 };
+const HERO_ICON='<svg viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M4 8v8M8 4v16M16 4v16M20 8v8M2 12h2M20 12h2"/></svg>';
 const TABS=[['home','Home'],['programs','Programs'],['workouts','Workouts'],['history','History'],['body','Body'],['runs','Runs']];
 function buildNav(){
   $('nav').innerHTML=TABS.map(([id,label])=>
@@ -539,14 +555,15 @@ function render(v){({home:renderHome,programs:renderPrograms,workouts:renderWork
 /* ── account chip ── */
 function renderAcct(){
   const el=$('acct');
-  if(!FB_READY){ el.innerHTML=`<button class="mini" onclick="toast('Add your Firebase config to enable Gmail sync — see notes')">Set up sync</button>`; return; }
+  const gear=`<button class="ov-back" style="width:34px;height:34px;border-radius:9px" onclick="openSettings()" title="Settings"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.9l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.9-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.9.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.9 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.9l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.9.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.9-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.9V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg></button>`;
+  if(!FB_READY){ el.innerHTML=gear+`<button class="mini" onclick="openSettings()">Sync setup</button>`; return; }
   if(USER){
     const dot=SYNC==='ok'?'ok':SYNC==='err'?'err':SYNC==='sync'?'sync':'';
     const init=(USER.name||USER.email||'?').slice(0,1).toUpperCase();
     const av=USER.photo?`<img src="${esc(USER.photo)}" alt="">`:init;
-    el.innerHTML=`<div class="dot ${dot}" title="${SYNC}"></div><div class="avatar" onclick="signOutUser()" title="${esc(USER.email||'')} — tap to sign out">${av}</div>`;
+    el.innerHTML=gear+`<div class="dot ${dot}" title="${SYNC}"></div><div class="avatar" onclick="signOutUser()" title="${esc(USER.email||'')} — tap to sign out">${av}</div>`;
   } else {
-    el.innerHTML=`<button class="btn btn-sm" onclick="signInUser()">Sign in</button>`;
+    el.innerHTML=gear+`<button class="btn btn-sm" onclick="signInUser()">Sign in</button>`;
   }
 }
 
@@ -575,12 +592,13 @@ function renderHome(){
     freeWk.forEach(s=>cells.push(`<div class="wk done" title="${esc(s.title)}"><div class="wk-d">Free</div><div class="wk-i">✓</div></div>`));
     cells.push(`<div class="wk run${runWkDone?' done':''}"><div class="wk-d">Run</div><div class="wk-i">${runWkDone?'✓':'◷'}</div></div>`);
     const trained=progDone+freeWk.length;
+    const wk=programWeek();
     top=`
       <div class="hero">
-        <div class="hero-media"><span class="hero-ph">PROGRAM COVER</span></div>
+        <div class="hero-media ${p.cat}">${HERO_ICON}</div>
         <div class="hero-grad"></div>
         <div class="hero-txt">
-          <div class="hero-ey">Up next · ${esc(p.title)}</div>
+          <div class="hero-ey">Up next · ${esc(p.title)}${wk?' · Week '+wk:''}</div>
           <div class="hero-h1">${esc(d.name)}</div>
           <div class="hero-sub">Day ${cur+1} of ${p.D.length}${d.tag?' · '+esc(d.tag):''} · ${esc(d.sub||liftsPreview(d))}</div>
         </div>
@@ -612,7 +630,7 @@ function renderHome(){
     <div class="sec-label">Snapshot</div>
     <div class="stats">
       <div class="stat"><div class="stat-lbl"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7">${ICON.body}</svg>Bodyweight</div>
-        <div class="stat-val">${bw!=null?bw:'—'}<small>kg</small></div></div>
+        <div class="stat-val">${bw!=null?fromKg(bw):'—'}<small>${uLbl()}</small></div></div>
       <div class="stat"><div class="stat-lbl"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7">${ICON.runs}</svg>Run (7d)</div>
         <div class="stat-val">${r7? (Math.round(r7*10)/10):'0'}<small>km</small></div></div>
       <div class="stat"><div class="stat-lbl"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7">${ICON.history}</svg>This week</div>
@@ -636,7 +654,20 @@ function renderHome(){
         <button class="btn btn-danger" onclick="discardDraft()">Discard</button>
       </div>
     </div>`:'';
-  $('v-home').innerHTML=resume+top+`<div style="height:8px"></div>`+stats+recent;
+  // deload nudge once a program run passes 6 weeks
+  const dw=programWeek();
+  const deload=(S.active && dw>=6)?`
+    <div class="banner" style="border-color:rgba(240,131,78,.4);background:rgba(240,131,78,.08);color:var(--hiit)">
+      <div style="font-weight:600;margin-bottom:8px">Week ${dw} — time to deload 🎯</div>
+      <div style="color:var(--muted);font-size:13px">Cut working sets ~40% for a week to recover, then start a fresh cycle or switch programs.</div>
+      <div class="row" style="margin-top:12px"><button class="btn btn-sm" onclick="freshCycle()">Start fresh cycle</button></div>
+    </div>`:'';
+  // Monday check-in: photo + weigh-in reminder in-app
+  const checkin=(S.remindWeekly && !bodyLoggedThisWeek())?`
+    <div class="banner" style="cursor:pointer" onclick="nav('body')">
+      📸 Monday check-in — take a progress photo, weigh in, and log it in Body.
+    </div>`:'';
+  $('v-home').innerHTML=resume+deload+checkin+top+`<div style="height:8px"></div>`+stats+recent;
 }
 function liftsPreview(d){
   const parts=(d.lifts||[]).map(l=>l.n);
@@ -693,6 +724,54 @@ function dayContentPreview(d){
 }
 function setActive(pid){ S.active={programId:pid,startedISO:todayISO()}; persist(); toast('Program set active',true); closeSheet(); nav('home'); }
 function clearActive(){ if(!confirm('End the active program? Your logged sessions stay.')) return; S.active=null; persist(); renderHome(); }
+function freshCycle(){ if(S.active){ S.active.startedISO=todayISO(); persist(); toast('Fresh cycle — week 1',true); renderHome(); } }
+
+/* ── settings ── */
+function openSettings(){ $('sh-title').textContent='Settings'; $('sh-sub').textContent=''; $('sh-action').innerHTML=''; openSheet(); drawSettings(); }
+function drawSettings(){
+  const notif=('Notification' in window)?Notification.permission:'unsupported';
+  $('sh-body').innerHTML=`
+    <div class="sec-label" style="margin-top:0">Units</div>
+    <div class="seg">
+      <button class="${S.unit==='kg'?'on':''}" onclick="setUnit('kg')">Kilograms</button>
+      <button class="${S.unit==='lb'?'on':''}" onclick="setUnit('lb')">Pounds</button>
+    </div>
+    <div class="sec-label">Weekly check-in</div>
+    <div class="card">
+      <div class="spread"><div><div class="item-title" style="font-size:15px">Monday reminder</div>
+        <div class="item-sub">Prompt to take a progress photo &amp; weigh in.</div></div>
+        <button class="pill ${S.remindWeekly?'on':''}" onclick="toggleRemind()">${S.remindWeekly?'On':'Off'}</button></div>
+      ${S.remindWeekly&&notif!=='granted'?`<div class="soft" style="margin-top:10px;color:var(--hiit)">Allow notifications for a system alert${notif==='denied'?' (currently blocked — enable in browser/site settings)':''}.</div>`:''}
+      <div class="soft" style="margin-top:10px;font-size:12px">Fires when you open the app on/after Monday. For an alert while the app is closed, add a repeating calendar reminder too.</div>
+    </div>
+    ${FB_READY?'':`<div class="sec-label">Cloud sync</div><div class="card soft">Add your Firebase config near the top of the file to enable Gmail sign-in &amp; cross-device sync.</div>`}
+    <div class="sec-label">Backup</div>
+    <div class="row"><button class="btn" style="flex:1" onclick="exportData()">Export</button><button class="btn" style="flex:1" onclick="importData()">Import</button></div>
+    <div class="soft" style="margin-top:8px;font-size:12px">Backup saves your logs &amp; settings as a file. Progress photos stay on this device.</div>`;
+}
+function setUnit(u){ S.unit=u; persist(); drawSettings(); if(S.view)render(S.view); }
+function toggleRemind(){
+  if(!S.remindWeekly){ S.remindWeekly=true; if('Notification' in window && Notification.permission==='default') Notification.requestPermission().then(()=>drawSettings()); }
+  else S.remindWeekly=false;
+  persist(); drawSettings();
+}
+function exportData(){
+  const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='mg-training-'+todayISO()+'.json';
+  a.click(); URL.revokeObjectURL(a.href); toast('Backup exported',true);
+}
+function importData(){
+  const inp=document.createElement('input'); inp.type='file'; inp.accept='application/json';
+  inp.onchange=e=>{ const f=e.target.files[0]; if(!f)return; const r=new FileReader();
+    r.onload=()=>{ try{ const d=JSON.parse(r.result);
+      S.sessions=unionById(S.sessions,d.sessions); S.bodyLog=unionById(S.bodyLog,d.bodyLog);
+      S.runs=unionById(S.runs,d.runs); S.customWorkouts=unionById(S.customWorkouts,d.customWorkouts);
+      if(d.active!==undefined)S.active=d.active; if(d.unit)S.unit=d.unit;
+      persist(); closeSheet(); nav('home'); toast('Backup imported',true);
+    }catch(err){ toast('Could not read that file'); } };
+    r.readAsText(f); };
+  inp.click();
+}
 
 /* ═══════════════════════════════════════════════════════════════
    WORKOUTS BANK
@@ -783,9 +862,9 @@ function buildRows(day){
     a.items.forEach(it=>rows.push({kind:'ab',id:slug(it.n),name:it.n,scheme:it.s,timed:it.timed})); }
   return rows;
 }
-function startProgramDay(pid,idx){ const p=progById(pid); _start(p.D[idx],{type:'program',programId:pid,dayName:p.D[idx].name},`${p.title} · ${p.D[idx].name}`,p.D[idx].tag); }
-function startFreestyle(pid,idx){ const p=progById(pid); openWorkoutDetail(p.D[idx],{type:'freestyle',dayName:p.D[idx].name},p.D[idx].name,p.D[idx].tag,`${p.subtitle} · freestyle`); }
-function startCustom(id){ const w=S.customWorkouts.find(x=>x.id===id); if(!w)return; openWorkoutDetail(w,{type:'custom',workoutId:id},w.name,null,'Custom workout'); }
+function startProgramDay(pid,idx){ const p=progById(pid); _start(p.D[idx],{type:'program',programId:pid,dayName:p.D[idx].name,cat:p.cat},`${p.title} · ${p.D[idx].name}`,p.D[idx].tag); }
+function startFreestyle(pid,idx){ const p=progById(pid); openWorkoutDetail(p.D[idx],{type:'freestyle',dayName:p.D[idx].name,cat:p.cat},p.D[idx].name,p.D[idx].tag,`${p.subtitle} · freestyle`); }
+function startCustom(id){ const w=S.customWorkouts.find(x=>x.id===id); if(!w)return; openWorkoutDetail(w,{type:'custom',workoutId:id,cat:'custom'},w.name,null,'Custom workout'); }
 
 /* ── workout detail → single Start session button ── */
 let _pending=null;
@@ -807,7 +886,7 @@ function _start(day,source,title,tag){
   S.draft={id:uid(),date:todayISO(),title,tag:tag||null,source,rows:buildRows(day),log:{},notes:''};
   persist(); openSession();
 }
-function openSession(){ if(!S.draft){ nav('home'); return; } renderSessionBody(); $('session').classList.add('active'); }
+function openSession(){ if(!S.draft){ nav('home'); return; } closeSheet(); renderSessionBody(); $('session').classList.add('active'); $('ss-body').scrollTo?.(0,0); }
 function closeSession(){ $('session').classList.remove('active'); if(S.view) render(S.view); }
 function renderSessionBody(){
   const d=S.draft;
@@ -837,18 +916,18 @@ function rowHTML(r){
   if(r.kind==='warmup') return `<div class="warmbox"><b style="color:var(--text)">Warmup</b> — ${esc(r.text)}</div>`;
   if(r.kind==='abhead') return `<div class="grp">Ab burner ${r.ref} · ${esc(r.title)} <span class="opt">optional</span></div>`;
   if(r.kind==='lift'||r.kind==='ab'){
-    const done=!!lg.done, wt=lg.weight??'';
+    const done=!!lg.done, wt=lg.weight!=null?fromKg(lg.weight):'';
     const isAb=r.kind==='ab';
     const prev=(!isAb)?prevWeight(r.id):null;
     let prevHTML='';
     if(!isAb){
-      if(prev){ const c=+wt; let cls='',sym='→';
-        if(!isNaN(c)&&c>prev.w){cls='up';sym='↑';} if(!isNaN(c)&&c<prev.w){cls='dn';sym='↓';}
-        prevHTML=`<span class="prev"><span class="${cls}">${sym} ${prev.w}kg</span></span>`;
+      if(prev){ const c=lg.weight; let cls='',sym='→';
+        if(c!=null&&c>prev.w){cls='up';sym='↑';} if(c!=null&&c<prev.w){cls='dn';sym='↓';}
+        prevHTML=`<span class="prev"><span class="${cls}">${sym} ${fromKg(prev.w)}${uLbl()}</span></span>`;
       } else prevHTML=`<span class="prev">first time</span>`;
     }
     const timer=r.timed?`<button class="mini" onclick="openHold('${esc(r.name)}',${r.timed})"><svg viewBox="0 0 24 24">${ICON.history}</svg>${r.timed}s</button>`:'';
-    const wtInput=!isAb?`<div class="wt"><input type="number" step="0.5" inputmode="decimal" placeholder="—" value="${wt}" oninput="setW('${r.id}',this.value)"><span class="u">kg</span></div>
+    const wtInput=!isAb?`<div class="wt"><input type="number" step="0.5" inputmode="decimal" placeholder="—" value="${wt}" oninput="setW('${r.id}',this.value)"><span class="u">${uLbl()}</span></div>
        <button class="mini" onclick="openRest(90)"><svg viewBox="0 0 24 24">${ICON.history}</svg>rest</button>`:'';
     return `<div class="lift ${done?'done':''}" id="row-${r.id}">
       <div class="lift-top">
@@ -879,10 +958,10 @@ function rowHTML(r){
   }
   return '';
 }
-function setW(id,v){ (S.draft.log[id]=S.draft.log[id]||{}).weight=v!==''?parseFloat(v):null; persist(false);
+function setW(id,v){ const kg=v!==''?toKg(v):null; (S.draft.log[id]=S.draft.log[id]||{}).weight=kg; persist(false);
   const row=$('row-'+id); const prev=prevWeight(id); const pEl=row?.querySelector('.prev');
-  if(pEl&&prev){ const c=parseFloat(v); let cls='',sym='→'; if(!isNaN(c)&&c>prev.w){cls='up';sym='↑';} if(!isNaN(c)&&c<prev.w){cls='dn';sym='↓';}
-    pEl.innerHTML=`<span class="${cls}">${sym} ${prev.w}kg</span>`; } }
+  if(pEl&&prev){ let cls='',sym='→'; if(kg!=null&&kg>prev.w){cls='up';sym='↑';} if(kg!=null&&kg<prev.w){cls='dn';sym='↓';}
+    pEl.innerHTML=`<span class="${cls}">${sym} ${fromKg(prev.w)}${uLbl()}</span>`; } }
 function toggleDone(id){ const l=S.draft.log[id]=S.draft.log[id]||{}; l.done=!l.done; persist(false);
   const row=$('row-'+id); row.classList.toggle('done',l.done); row.querySelector('.chk').classList.toggle('on',l.done);
   row.querySelector('.chk').textContent=l.done?'✓':''; }
@@ -908,24 +987,42 @@ function discardDraft(){ if(S.draft&&!confirm('Discard this session?'))return; S
 function saveSession(){
   if(!S.draft) return;
   const done=Object.values(S.draft.log).filter(l=>l.done).length;
+  const editingId=S.draft.editingId;
   const sess={...S.draft, doneCount:done, savedAt:Date.now()};
-  S.sessions.push(sess); S.draft=null; persist();
+  delete sess.editingId;
+  if(editingId){ const i=S.sessions.findIndex(x=>x.id===editingId); if(i>=0){ sess.id=editingId; sess.date=S.sessions[i].date; S.sessions[i]=sess; } else S.sessions.push(sess); }
+  else S.sessions.push(sess);
+  S.draft=null; persist();
   $('session').classList.remove('active');
-  toast('Session saved',true); nav('home');
+  toast(editingId?'Session updated':'Session saved',true); nav(editingId?'history':'home');
+}
+function editSession(id){
+  const s=S.sessions.find(x=>x.id===id); if(!s)return;
+  S.draft=JSON.parse(JSON.stringify({...s, editingId:id})); persist(); openSession();
 }
 
 /* ═══════════════════════════════════════════════════════════════
    HISTORY
 ═══════════════════════════════════════════════════════════════ */
+let _hf={period:'all',type:'all'};
+function setHF(k,v){ _hf[k]=v; renderHistory(); }
 function renderHistory(){
   const el=$('v-history');
-  const list=[...S.sessions].sort((a,b)=>b.date.localeCompare(a.date));
-  let html=`<div class="eyebrow">Log</div><div class="h1">History</div><div class="lede">${list.length} session${list.length!==1?'s':''} logged.</div>`;
-  if(!list.length){ html+=`<div class="empty">No sessions yet. Start one from Home, Programs, or Workouts.</div>`; el.innerHTML=html; return; }
+  let list=[...S.sessions].sort((a,b)=>b.date.localeCompare(a.date));
+  if(_hf.period==='week'){ const ws=weekStart(); list=list.filter(s=>new Date(s.date+'T00:00:00').getTime()>=ws); }
+  else if(_hf.period==='month'){ const ms=monthStart(); list=list.filter(s=>new Date(s.date+'T00:00:00').getTime()>=ms); }
+  if(_hf.type!=='all') list=list.filter(s=>(s.source?.cat||'')===_hf.type);
+  const periods=[['all','All time'],['month','Month'],['week','Week']];
+  const types=[['all','All'],['weights','Weights'],['hiit','HIIT'],['crossfit','CrossFit'],['custom','Custom']];
+  let html=`<div class="eyebrow">Log</div><div class="h1">History</div>
+    <div class="seg" style="margin-top:14px">${periods.map(([k,l])=>`<button class="${_hf.period===k?'on':''}" onclick="setHF('period','${k}')">${l}</button>`).join('')}</div>
+    <div class="seg">${types.map(([k,l])=>`<button class="${_hf.type===k?'on':''}" style="min-width:64px;font-size:13px;padding:9px" onclick="setHF('type','${k}')">${l}</button>`).join('')}</div>
+    <div class="lede" style="margin-bottom:14px">${list.length} session${list.length!==1?'s':''}.</div>`;
+  if(!list.length){ html+=`<div class="empty">No sessions in this filter.</div>`; el.innerHTML=html; return; }
   html+=list.map(s=>{
     const rows=(s.rows||[]).filter(r=>r.kind==='lift'||r.kind==='ab'||r.kind==='block'||r.kind==='wod');
     const body=rows.map(r=>{ const lg=s.log?.[r.id]||{};
-      const val=lg.weight!=null&&lg.weight!==''?lg.weight+' kg':(lg.done?'done':(lg.rounds?lg.rounds.filter(Boolean).length+' rounds':''));
+      const val=lg.weight!=null&&lg.weight!==''?fromKg(lg.weight)+' '+uLbl():(lg.done?'done':(lg.rounds?lg.rounds.filter(Boolean).length+' rounds':''));
       const ic=lg.done?'<span style="color:var(--good)">✓</span>':'<span style="color:var(--faint)">·</span>';
       return `<div class="log-row" style="padding:8px 0"><span style="width:16px">${ic}</span><span class="log-sub" style="flex:1;color:var(--text)">${esc(r.name)}</span><span class="log-sub">${esc(val)}</span></div>`;
     }).join('');
@@ -935,7 +1032,8 @@ function renderHistory(){
       ${s.tag?`<span class="tag tag-${s.tag==='Hard'?'hard':'mod'}">${s.tag}</span>`:''}</div>
       <div class="hbody" style="display:none;margin-top:12px;border-top:1px solid var(--border);padding-top:8px">
         ${body}${s.notes?`<div class="soft" style="margin-top:8px;font-style:italic">${esc(s.notes)}</div>`:''}
-        <button class="pill" style="margin-top:12px" onclick="event.stopPropagation();delSession('${s.id}')">Delete</button>
+        <div class="row" style="margin-top:12px"><button class="pill" onclick="event.stopPropagation();editSession('${s.id}')">Edit</button>
+        <button class="pill" onclick="event.stopPropagation();delSession('${s.id}')">Delete</button></div>
       </div></div>`;
   }).join('');
   el.innerHTML=html;
@@ -952,20 +1050,69 @@ function renderBody(){
     const last12=log.slice(-12), max=Math.max(...last12.map(e=>e.kg)), min=Math.min(...last12.map(e=>e.kg));
     const rng=Math.max(1,max-min);
     chart=`<div class="bars">${last12.map((e,i)=>{ const h=20+((e.kg-min)/rng)*70;
-      return `<div class="bar ${i===last12.length-1?'last':''}" style="height:${h}px"><span>${e.kg}</span><em>${e.date.slice(5)}</em></div>`;}).join('')}</div><div style="height:26px"></div>`;
+      return `<div class="bar ${i===last12.length-1?'last':''}" style="height:${h}px"><span>${fromKg(e.kg)}</span><em>${e.date.slice(5)}</em></div>`;}).join('')}</div><div style="height:26px"></div>`;
   }
   const list=[...S.bodyLog].sort((a,b)=>b.date.localeCompare(a.date)).map(e=>
-    `<div class="log-row"><span class="log-date">${fmtDate(e.date)}</span><span class="log-main">${e.kg} kg</span>
+    `<div class="log-row"><span class="log-date">${fmtDate(e.date)}</span><span class="log-main">${fromKg(e.kg)} ${uLbl()}</span>
      <span class="pill" onclick="delBody('${e.id}')">✕</span></div>`).join('');
   $('v-body').innerHTML=`<div class="eyebrow">Composition</div><div class="h1">Bodyweight</div>
-    <div class="row-t" style="margin:8px 0 18px"><input class="inp" id="bw-in" type="number" step="0.1" inputmode="decimal" placeholder="Weight (kg)" style="flex:1">
+    <div class="row-t" style="margin:8px 0 18px"><input class="inp" id="bw-in" type="number" step="0.1" inputmode="decimal" placeholder="Weight (${uLbl()})" style="flex:1">
       <button class="btn btn-acc" onclick="logBody()">Log</button></div>
-    <div class="card">${chart}${list||'<div class="empty">Log your first weight.</div>'}</div>`;
+    <div class="card">${chart}${list||'<div class="empty">Log your first weight.</div>'}</div>
+    <div class="sec-label">Progress photos</div>
+    <button class="btn btn-block" onclick="addPhoto()">📷 Add progress photo</button>
+    <div id="photo-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px"></div>
+    <div class="soft" style="margin-top:10px;font-size:12px">Photos are stored privately on this device only.</div>`;
+  renderPhotos();
 }
-function logBody(){ const v=parseFloat($('bw-in').value); if(isNaN(v)){ toast('Enter a weight'); return; }
-  const d=todayISO(); const ex=S.bodyLog.find(e=>e.date===d); if(ex) ex.kg=v; else S.bodyLog.push({id:uid(),date:d,kg:v});
+function logBody(){ const raw=parseFloat($('bw-in').value); if(isNaN(raw)){ toast('Enter a weight'); return; }
+  const kg=toKg(raw); const d=todayISO(); const ex=S.bodyLog.find(e=>e.date===d); if(ex) ex.kg=kg; else S.bodyLog.push({id:uid(),date:d,kg});
   persist(); renderBody(); toast('Logged',true); }
 function delBody(id){ S.bodyLog=S.bodyLog.filter(e=>e.id!==id); persist(); renderBody(); }
+
+/* ── progress photos (IndexedDB — kept off the cloud doc) ── */
+let _idb=null;
+function idb(){ return new Promise((res,rej)=>{ if(_idb)return res(_idb);
+  const rq=indexedDB.open('mgt-photos',1);
+  rq.onupgradeneeded=()=>{ if(!rq.result.objectStoreNames.contains('photos')) rq.result.createObjectStore('photos',{keyPath:'id'}); };
+  rq.onsuccess=()=>{ _idb=rq.result; res(_idb); }; rq.onerror=()=>rej(rq.error); }); }
+async function photoAll(){ try{ const db=await idb(); return await new Promise(res=>{ const t=db.transaction('photos').objectStore('photos').getAll(); t.onsuccess=()=>res(t.result||[]); t.onerror=()=>res([]); }); }catch(e){ return []; } }
+async function photoPut(rec){ const db=await idb(); return new Promise((res,rej)=>{ const t=db.transaction('photos','readwrite').objectStore('photos').put(rec); t.onsuccess=()=>res(); t.onerror=()=>rej(t.error); }); }
+async function photoDel(id){ try{ const db=await idb(); await new Promise(res=>{ const t=db.transaction('photos','readwrite').objectStore('photos').delete(id); t.onsuccess=()=>res(); t.onerror=()=>res(); }); }catch(e){} }
+function addPhoto(){
+  const inp=document.createElement('input'); inp.type='file'; inp.accept='image/*'; inp.capture='environment';
+  inp.onchange=e=>{ const f=e.target.files[0]; if(!f)return;
+    const img=new Image();
+    img.onload=async()=>{ const max=1080, sc=Math.min(1,max/Math.max(img.width,img.height));
+      const c=document.createElement('canvas'); c.width=Math.round(img.width*sc); c.height=Math.round(img.height*sc);
+      c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+      try{ await photoPut({id:uid(),date:todayISO(),dataURL:c.toDataURL('image/jpeg',0.82)}); toast('Photo saved',true); renderPhotos(); }
+      catch(err){ toast('Could not save photo'); }
+      URL.revokeObjectURL(img.src); };
+    img.onerror=()=>toast('Could not read image');
+    img.src=URL.createObjectURL(f); };
+  inp.click();
+}
+async function renderPhotos(){
+  const box=$('photo-grid'); if(!box)return;
+  const ph=(await photoAll()).sort((a,b)=>b.date.localeCompare(a.date));
+  box.innerHTML=ph.length? ph.map(p=>`<div style="position:relative;cursor:pointer" onclick="viewPhoto('${p.id}')">
+      <img src="${p.dataURL}" style="width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:10px;border:1px solid var(--border)" alt="">
+      <div style="position:absolute;left:6px;bottom:6px;font-family:var(--mono);font-size:10px;background:rgba(0,0,0,.6);padding:2px 6px;border-radius:6px">${fmtDate(p.date)}</div>
+    </div>`).join('')
+    : `<div class="soft" style="grid-column:1/-1">No photos yet — add one to track visual progress.</div>`;
+}
+async function viewPhoto(id){
+  const p=(await photoAll()).find(x=>x.id===id); if(!p)return;
+  const ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.95);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:20px';
+  ov.innerHTML=`<img src="${p.dataURL}" style="max-width:100%;max-height:74vh;border-radius:12px" alt="">
+    <div style="font-family:var(--mono);color:var(--muted)">${fmtDate(p.date)}</div>
+    <div class="row"><button class="btn btn-danger" id="pv-d">Delete</button><button class="btn btn-acc" id="pv-c">Close</button></div>`;
+  ov.querySelector('#pv-c').onclick=()=>ov.remove();
+  ov.querySelector('#pv-d').onclick=async()=>{ if(confirm('Delete this photo?')){ await photoDel(id); ov.remove(); renderPhotos(); } };
+  document.body.appendChild(ov);
+}
 
 /* ═══════════════════════════════════════════════════════════════
    RUNS
@@ -1177,9 +1324,28 @@ async function pushCloud(){
 /* ═══════════════════════════════════════════════════════════════
    INIT
 ═══════════════════════════════════════════════════════════════ */
+/* ── weekly Monday check-in (best-effort while app is open) ── */
+function checkWeeklyReminder(){
+  if(!S.remindWeekly) return;
+  const wk=weekKey();
+  if(S.lastRemindWeek===wk || bodyLoggedThisWeek()) return;  // once per week, and not if already logged
+  S.lastRemindWeek=wk; persist(false);
+  if('Notification' in window && Notification.permission==='granted'){
+    const body='Take a progress photo, weigh in, and log it in the Body tab.';
+    try{
+      if(navigator.serviceWorker?.ready) navigator.serviceWorker.ready
+        .then(reg=>reg.showNotification('MG Training — Monday check-in',{body,icon:'icon.svg',tag:'mgt-weekly'}))
+        .catch(()=>new Notification('MG Training — Monday check-in',{body}));
+      else new Notification('MG Training — Monday check-in',{body});
+    }catch(e){}
+  }
+}
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible') checkWeeklyReminder(); });
+
 (function init(){
   if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
   hydrate(); buildNav(); nav('home');  // a saved draft surfaces as a Resume banner on Home
+  checkWeeklyReminder();
   initFirebase();
 })();
 </script>
