@@ -1,5 +1,6 @@
-const CACHE = 'mgt-v2';
-const ASSETS = ['./', './index.html', './manifest.json', './icon.svg', './icon-maskable.svg'];
+const CACHE = 'mgt-v3';
+const ASSETS = ['./', './index.html', './manifest.json', './icon.svg', './icon-maskable.svg',
+  './assets/lion-outline.png','./assets/lion-fill.png','./assets/wolf-outline.png','./assets/wolf-fill.png','./assets/griffin-outline.png','./assets/griffin-fill.png'];
 
 // Install: pre-cache the app shell
 self.addEventListener('install', e => {
