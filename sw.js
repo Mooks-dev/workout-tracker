@@ -1,4 +1,4 @@
-const CACHE = 'mgt-v5';
+const CACHE = 'mgt-v6';
 const ASSETS = ['./', './index.html', './manifest.json', './icon.svg', './icon-maskable.svg',
   './assets/lion-outline.png','./assets/lion-fill.png','./assets/wolf-outline.png','./assets/wolf-fill.png','./assets/griffin-outline.png','./assets/griffin-fill.png'];
 
