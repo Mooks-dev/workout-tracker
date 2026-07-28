@@ -121,7 +121,7 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
 .nav{position:fixed;bottom:0;left:0;right:0;z-index:40;
   background:rgba(238,228,204,.92);backdrop-filter:blur(12px) saturate(1.1);border-top:1px solid var(--border);
   padding:8px 6px calc(8px + env(safe-area-inset-bottom))}
-.nav-inner{max-width:640px;margin:0 auto;display:grid;grid-template-columns:repeat(6,1fr);gap:2px}
+.nav-inner{max-width:640px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);gap:2px}
 .tab{display:flex;flex-direction:column;align-items:center;gap:4px;padding:7px 2px;border-radius:12px;
   border:1.5px solid transparent;background:none;color:var(--muted);cursor:pointer;transition:.15s}
 .tab svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.7}
@@ -627,6 +627,7 @@ function runsSince(ts){ return S.runs.filter(r=> new Date(r.date+'T00:00:00').ge
 /* ═══════════════════════════════════════════════════════════════
    NAV
 ═══════════════════════════════════════════════════════════════ */
+const CLOCK_ICON='<circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.5 2"/>';
 const ICON={
  /* Helios — temple */
  home:'<path d="M12 3l9 5H3z"/><path d="M5 9v9M9.5 9v9M14.5 9v9M19 9v9"/><path d="M3.5 18.5h17"/>',
@@ -682,6 +683,7 @@ function renderHome(){
   const weekCount=wkSessions.length, monthCount=sessionsSince(ms).length;
   const runWkDone=runsSince(ws).length>0;
   const HOUSE={weights:'HOUSE AUGUSTUS',hiit:'PATH OF THE STAINED',crossfit:'HOUSE BARCA'};
+  const GREETING={weights:'Hic Sunt Leones',hiit:'Hail, Reaper',crossfit:'Hail, Reaper'};
   const ANIM={weights:['lion','640/400'],hiit:['griffin','640/390'],crossfit:['wolf','640/392']};
   const SWAP_IC='<svg viewBox="0 0 24 24"><path d="M4 5v5h5M20 19v-5h-5"/><path d="M19.5 10A8 8 0 006 6.3M4.5 14A8 8 0 0018 17.7"/></svg>';
   const FREE_IC='<svg viewBox="0 0 24 24"><path d="M4 4l9 9M13 4L4 13"/><path d="M16.5 12.5l3.5 3.5-1 3-3-1-.8-.8z"/></svg>';
@@ -700,7 +702,7 @@ function renderHome(){
     top=`
      <div class="helios">
       <div class="h-eyebrow">${HOUSE[p.cat]} · WEEK ${wkNum}</div>
-      <div class="h-hail">Hail, Reaper</div>
+      <div class="h-hail">${GREETING[p.cat]}</div>
       <div class="orbit">
         <div class="rings"></div>
         <svg class="ring" viewBox="0 0 100 100"><circle class="bg" cx="50" cy="50" r="45"/><circle class="fg" cx="50" cy="50" r="45" stroke-dasharray="${RC.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}"/></svg>
@@ -788,7 +790,7 @@ function renderPrograms(){
     PROGRAMS.filter(p=>p.cat===cat).forEach(p=>{
       const on=S.active?.programId===p.id;
       html+=`<div class="item ${on?'hl':''}" onclick="openProgram('${p.id}')">
-        <div class="item-eyebrow">${p.days}-day${on?' · active':''}</div>
+        <div class="item-eyebrow"><span class="tag tag-${p.cat}">${p.days}-DAY</span>${on?` <span class="tag" style="background:rgba(111,122,63,.2);color:var(--good)">ACTIVE</span>`:''}</div>
         <div class="item-title">${esc(p.subtitle)}</div>
         <div class="item-sub">${esc(p.layout)}</div></div>`;
     });
@@ -1000,7 +1002,7 @@ function renderSessionBody(){
   const d=S.draft;
   $('ss-title').textContent=d.title;
   $('ss-sub').textContent=(d.tag?d.tag+' · ':'')+fmtDate(d.date);
-  let html=`<button class="btn btn-block" onclick="openRest(90)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${ICON.history}</svg> Rest timer</button>
+  let html=`<button class="btn btn-block" onclick="openRest(90)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${CLOCK_ICON}</svg> Rest timer</button>
     <div style="height:6px"></div>`;
   d.rows.forEach(r=>html+=rowHTML(r));
   const bankOpts=Object.entries(EX_BANK).map(([g,arr])=>`<optgroup label="${g}">`+arr.map(n=>`<option value="${esc(n)}">`).join('')+`</optgroup>`).join('');
@@ -1037,7 +1039,7 @@ function rowHTML(r){
         prevHTML=`<span class="prev"><span class="${cls}">${sym} ${fromKg(prev.w)}${uLbl()}</span></span>`;
       } else prevHTML=`<span class="prev">first time</span>`;
     }
-    const timer=r.timed?`<button class="mini" onclick="openHold('${esc(r.name)}',${r.timed})"><svg viewBox="0 0 24 24">${ICON.history}</svg>${r.timed}s</button>`:'';
+    const timer=r.timed?`<button class="mini" onclick="openHold('${esc(r.name)}',${r.timed})"><svg viewBox="0 0 24 24">${CLOCK_ICON}</svg>${r.timed}s</button>`:'';
     const note=S.exNotes[r.id];
     const setCount=parseSets(r.scheme);
     const setsOpen=(lg.sets||[]).some(s=>s&&(s.w!=null||s.reps!=null));
@@ -1050,7 +1052,7 @@ function rowHTML(r){
         </div>`;}).join('')+`</div>`:'';
     const wtInput=!isAb?`<div class="wt"><input id="wt-${r.id}" type="number" step="0.5" inputmode="decimal" placeholder="—" value="${wt}" oninput="setW('${r.id}',this.value)"><span class="u">${uLbl()}</span></div>
        <button class="mini${setsOpen?' on':''}" onclick="toggleSetsPanel('${r.id}',this)">sets</button>
-       <button class="mini" onclick="openRest(S.autoRestSec)"><svg viewBox="0 0 24 24">${ICON.history}</svg>rest</button>`:'';
+       <button class="mini" onclick="openRest(S.autoRestSec)"><svg viewBox="0 0 24 24">${CLOCK_ICON}</svg>rest</button>`:'';
     return `<div class="lift ${done?'done':''}" id="row-${r.id}">
       <div class="lift-top">
         <div class="lift-info"><div class="lift-name">${esc(r.name)}</div><div class="lift-scheme">${esc(r.scheme)}</div>
@@ -1078,8 +1080,8 @@ function rowHTML(r){
       <div class="desc">${esc(r.desc)}</div>
       ${ticks}
       <div class="lift-ctl">
-        ${hasSeq?`<button class="mini" onclick="openTimer(TIMERS['${r.id}']())"><svg viewBox="0 0 24 24">${ICON.history}</svg>Start timer</button>`:''}
-        <button class="mini" onclick="openRest(90)"><svg viewBox="0 0 24 24">${ICON.history}</svg>90s rest</button>
+        ${hasSeq?`<button class="mini" onclick="openTimer(TIMERS['${r.id}']())"><svg viewBox="0 0 24 24">${CLOCK_ICON}</svg>Start timer</button>`:''}
+        <button class="mini" onclick="openRest(90)"><svg viewBox="0 0 24 24">${CLOCK_ICON}</svg>90s rest</button>
         <button class="mini" onclick="ssRemoveRow('${r.id}')" title="Remove" style="margin-left:auto">✕</button>
       </div></div>`;
   }
