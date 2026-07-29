@@ -259,32 +259,29 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
 .set-line .wt input{width:78px;font-size:17px}
 #session .mini.sug{border-color:var(--good);color:var(--good);background:rgba(85,96,44,.09)}
 
-/* ── rest dock (3.4): the session stays visible and editable underneath ── */
-.restdock{position:fixed;left:0;right:0;bottom:0;z-index:70;
-  background:rgba(238,228,204,.97);backdrop-filter:blur(12px) saturate(1.1);
-  border-top:2px solid var(--gold);
-  padding:12px 16px calc(12px + env(safe-area-inset-bottom));
-  display:none;align-items:center;gap:12px;
-  transform:translateY(100%);transition:transform .25s ease}
-.restdock.open{display:flex;transform:translateY(0)}
-.rd-bar{position:absolute;left:0;top:0;height:3px;background:var(--acc);
-  transition:width 1s linear;width:100%}
-.rd-time{font-family:var(--num);font-variant-numeric:tabular-nums;
-  font-size:32px;font-weight:600;line-height:1;min-width:84px;color:var(--acc)}
-.rd-lbl{flex:1;min-width:0}
-.rd-lbl .l{font-family:var(--display);letter-spacing:.08em;font-size:10px;
-  text-transform:uppercase;color:var(--muted)}
-.rd-lbl .n{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text)}
-.restdock .mini{min-height:44px}
-/* don't let the dock cover the last row */
-body.resting .ov-body{padding-bottom:calc(130px + env(safe-area-inset-bottom))}
-body.resting .view{padding-bottom:calc(180px + env(safe-area-inset-bottom))}
 .runpip{display:block;width:fit-content;margin:14px auto 0;
   font-family:var(--display);letter-spacing:.1em;font-size:9.5px;padding:6px 13px;border-radius:11px;
   border:1px solid var(--border);background:var(--card);color:var(--muted);
   cursor:pointer;white-space:nowrap}
 .runpip.on{border-color:var(--good);color:var(--good);background:rgba(85,96,44,.09)}
 .ex-note{font-size:12px;color:var(--teal);margin-top:3px;font-style:italic}
+.ex-cue{font-size:12px;color:var(--muted);line-height:1.45;margin-top:4px;max-width:340px}
+/* pre-start preview: lifts + WOD/block breakdown, each item legible on its own line */
+.prev-sec{margin-bottom:14px}
+.prev-sec:last-child{margin-bottom:0}
+.prev-h{font-weight:700;color:var(--text);margin-bottom:6px}
+.prev-lift{margin-bottom:10px}
+.prev-lift:last-child{margin-bottom:0}
+.prev-lift-top{display:flex;justify-content:space-between;gap:10px;color:var(--text);font-weight:600}
+.prev-lift-top .s{font-family:var(--mono);font-weight:400;color:var(--faint);white-space:nowrap}
+.prev-line{color:var(--muted)}
+.wod-format{font-family:var(--mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--gold-d);margin-bottom:8px}
+.wod-items{display:flex;flex-direction:column;gap:6px}
+.wod-item{display:flex;justify-content:space-between;align-items:baseline;gap:10px;
+  border-bottom:1px dashed var(--border);padding-bottom:6px;color:var(--text)}
+.wod-item:last-child{border-bottom:none;padding-bottom:0}
+.wod-item .s{font-family:var(--mono);font-size:12px;color:var(--muted);white-space:nowrap;text-align:right}
+.wod-rest{font-size:12px;color:var(--muted);margin-top:8px;font-style:italic}
 .note-inp{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:10px;color:var(--text);
   font-size:13px;padding:8px 12px;outline:none;margin-top:8px;display:none}
 .note-inp.open{display:block}
@@ -545,15 +542,6 @@ hr.d{border:none;border-top:1px solid var(--border);margin:22px 0}
 <div class="toast" id="toast"></div>
 <div class="ask" id="ask"></div>
 
-<!-- rest dock (3.4) — the session stays visible & editable underneath, unlike the fullscreen timer -->
-<div class="restdock" id="restdock">
-  <div class="rd-bar" id="rd-bar"></div>
-  <div class="rd-time" id="rd-time">0:00</div>
-  <div class="rd-lbl"><div class="l">Rest</div><div class="n" id="rd-next"></div></div>
-  <button class="mini" onclick="restAdd(30)">+30s</button>
-  <button class="mini" onclick="restStop()">Skip</button>
-</div>
-
 <script>
 'use strict';
 /* ═══════════════════════════════════════════════════════════════
@@ -603,17 +591,31 @@ const AB_BANK = {
     {n:'Dead bug',s:'3×8 each side'}]}
 };
 const BLOCK_BANK = {
-  block1:{name:'Block 1 · Classic intervals', desc:'4 rounds of 40 sec on / 20 sec off: KB swings, burpees, DB thrusters, jump squats, mountain climbers. 2 min rest between rounds.'},
-  block2:{name:'Block 2 · Density', desc:'4 × 5-min blocks, 90 sec rest between. B1: 10 DB hang snatch → max burpees. B2: 10 KB swings → max jump squats. B3: 8 DB thrusters → max mountain climbers. B4: 10 DB reverse lunges → max push-ups.'},
-  block3:{name:'Block 3 · Machine intervals', desc:'Rower or assault bike — 10 × 30 sec hard / 60 sec easy. Lower impact.'},
-  block4:{name:'Block 4 · Mixed conditioning', desc:'3 rounds for quality (not time): 15 cal row, 12 KB swings, 10 goblet squats, 8 push-ups. 90 sec rest between rounds.', rounds:3}
+  block1:{name:'Block 1 · Classic intervals', format:'4 rounds · 40s on / 20s off',
+    items:[{n:'KB swings',s:'40s'},{n:'Burpees',s:'40s'},{n:'DB thrusters',s:'40s'},{n:'Jump squats',s:'40s'},{n:'Mountain climbers',s:'40s'}],
+    rest:'2 min rest between rounds'},
+  block2:{name:'Block 2 · Density', format:'4 × 5-min blocks · 90s rest between',
+    items:[{n:'Block 1',s:'10 DB hang snatch → max burpees'},{n:'Block 2',s:'10 KB swings → max jump squats'},
+      {n:'Block 3',s:'8 DB thrusters → max mountain climbers'},{n:'Block 4',s:'10 DB reverse lunges → max push-ups'}]},
+  block3:{name:'Block 3 · Machine intervals', format:'10 rounds · 30s hard / 60s easy',
+    items:[{n:'Row or assault bike',s:'30s hard / 60s easy'}],
+    rest:'Lower impact than blocks 1–2'},
+  block4:{name:'Block 4 · Mixed conditioning', format:'3 rounds for quality (not time)',
+    items:[{n:'Row',s:'15 cal'},{n:'KB swings',s:'12'},{n:'Goblet squat',s:'10'},{n:'Push-up',s:'8'}],
+    rest:'90 sec rest between rounds', rounds:3}
 };
 const WOD_BANK = {
-  wod1:{name:'WOD 1 · AMRAP 15', desc:'12 KB swings, 9 goblet squats, 6 burpees. As many rounds as possible in 15 min.'},
-  wod2:{name:'WOD 2 · For time (21-15-9)', desc:'DB thrusters + pull-ups. Target sub 12 min.'},
-  wod3:{name:'WOD 3 · EMOM 20', desc:'Min 1: 8 KB clean & press. Min 2: 10 DB renegade rows. Min 3: 12 goblet squats. Min 4: 10 KB swings. Repeat ×5.'},
-  wod4:{name:'WOD 4 · Chipper (for time)', desc:'40 cal row, 30 walking lunges, 20 DB push press, 10 burpee box step-ups. Target 12–16 min.'},
-  wod5:{name:'WOD 5 · Couplet (moderate)', desc:'4 rounds not for time: 12 goblet squats, 10 ring/inverted rows, 200 m row. 90 sec rest.', rounds:4}
+  wod1:{name:'WOD 1 · AMRAP 15', format:'As many rounds as possible in 15 min',
+    items:[{n:'KB swings',s:'12'},{n:'Goblet squat',s:'9'},{n:'Burpees',s:'6'}]},
+  wod2:{name:'WOD 2 · For time (21-15-9)', format:'For time · target sub 12 min',
+    items:[{n:'DB thrusters',s:'21-15-9'},{n:'Pull-ups',s:'21-15-9'}]},
+  wod3:{name:'WOD 3 · EMOM 20', format:'Every minute on the minute · 20 min (4 moves ×5)',
+    items:[{n:'Min 1',s:'8 KB clean & press'},{n:'Min 2',s:'10 DB renegade rows'},{n:'Min 3',s:'12 goblet squats'},{n:'Min 4',s:'10 KB swings'}]},
+  wod4:{name:'WOD 4 · Chipper (for time)', format:'For time · target 12–16 min',
+    items:[{n:'Row',s:'40 cal'},{n:'Walking lunge',s:'30'},{n:'DB push press',s:'20'},{n:'Burpee box step-up',s:'10'}]},
+  wod5:{name:'WOD 5 · Couplet (moderate)', format:'4 rounds · not for time',
+    items:[{n:'Goblet squat',s:'12'},{n:'Ring/inverted row',s:'10'},{n:'Row',s:'200m'}],
+    rest:'90 sec rest between rounds', rounds:4}
 };
 
 /* ═══════════════════════════════════════════════════════════════
@@ -713,6 +715,90 @@ const EX_BANK={
  Core:['Ab wheel rollout','Hollow body hold','Hanging leg raise','Hanging knee raise','Bicycle crunch','Reverse crunch','Cable Pallof press','Suitcase carry','RKC plank','Side plank','Plank shoulder taps','Cable crunch','Russian twist','Weighted decline sit-up','V-ups','Tuck hold','Flutter kicks','Heavy farmer carry','Dead bug'],
  Conditioning:['KB swings','Burpees','DB thrusters','Jump squats','Mountain climbers','Row (calories)','Assault bike','Box step-ups','Wall balls','Battle ropes']
 };
+
+/* one-line form cue per exercise — shown in the pre-start preview and on the
+   session row so the right technique is a glance away, not a search away. */
+const EX_DESC={
+ 'Back squat':'Bar on the upper traps, brace the core, squat to depth keeping the chest up and knees tracking the toes.',
+ 'Front squat':'Bar racked on the front delts, elbows high, sit straight down keeping the torso upright.',
+ 'Hack squat':'Feet mid-platform shoulder-width, back flat against the pad, drive through the mid-foot.',
+ 'Hack squat or front squat':'Bar racked on the front delts (or hack squat machine), sit straight down keeping the torso upright.',
+ 'Leg press':'Feet shoulder-width on the platform, lower until knees hit ~90°, keep the lower back flat on the pad.',
+ 'Walking lunge':'Step forward, drop the back knee toward the floor, drive through the front heel to the next step.',
+ 'Bulgarian split squat':'Rear foot elevated, front shin near-vertical, lower straight down and drive through the front foot.',
+ 'Romanian deadlift':'Soft knees, hinge at the hips pushing them back, keep the bar close to the legs.',
+ 'Trap-bar deadlift':'Stand inside the bar, chest up, drive through the floor with a flat back.',
+ 'Deadlift':'Bar over mid-foot, flat back, push the floor away rather than pulling with the lower back.',
+ 'Hip thrust':'Upper back on the bench, drive the hips up to full extension, squeeze the glutes at the top.',
+ 'Leg extension':'Sit tall, extend the knees fully without swinging the torso, control the negative.',
+ 'Seated leg curl':'Pad above the heel, curl through the full range without lifting the hips off the seat.',
+ 'Lying leg curl':'Hips pressed into the bench, curl the heels to the glutes, avoid arching the lower back.',
+ 'Standing calf raise':'Full stretch at the bottom, rise onto the balls of the feet, pause at the top.',
+ 'Seated calf raise':'Knees bent under the pad, press through the forefoot for a full range of motion.',
+ 'Goblet squat':'Hold a dumbbell at the chest, squat between the knees keeping the torso upright.',
+ 'Barbell bench press':'Retract the shoulder blades, bar to mid-chest, drive the feet into the floor as you press.',
+ 'Flat dumbbell bench press':'Dumbbells over the chest, lower under control to a stretch, press up and slightly in.',
+ 'Incline dumbbell press':'Bench at 30–45°, press the dumbbells up and together without flaring the elbows too wide.',
+ 'Overhead press':'Bar starts at the collarbone, press straight overhead, brace the core to avoid arching the back.',
+ 'Dumbbell shoulder press':'Press the dumbbells overhead in a slight arc, avoid locking out with a hard lean-back.',
+ 'Cable fly':'Slight bend in the elbows, sweep the hands together in front of the chest, squeeze at the finish.',
+ 'Dumbbell lateral raise':'Slight bend in the elbows, raise to shoulder height leading with the elbows, no swinging.',
+ 'Dips':'Lean forward slightly for chest emphasis, lower until the shoulders are level with the elbows, press back up.',
+ 'Triceps pushdown':'Elbows pinned to the sides, extend fully without letting the elbows drift forward.',
+ 'Triceps rope pushdown':'Elbows tucked in, pull the rope down and apart at the bottom for a full extension.',
+ 'Cable triceps':'Keep the elbow fixed at the side, extend through the full range under control.',
+ 'Push press':'Small dip at the knees, drive up explosively, punch the bar overhead.',
+ 'Push press technique':'Small dip at the knees, drive up explosively, punch the bar overhead — focus on the leg drive.',
+ 'Weighted pull-up':'Full hang at the bottom, pull the chin over the bar, avoid kipping the legs.',
+ 'Weighted or assisted pull-up':'Full hang at the bottom, pull the chin over the bar; use assistance if needed to hit the reps.',
+ 'Lat pulldown':'Lead with the elbows, pull the bar to the upper chest, control it back up.',
+ 'Bent-over barbell row':'Hinge to ~45°, flat back, row the bar to the lower ribs.',
+ 'Chest-supported row':'Chest anchored on the pad, row with the elbows, squeeze the shoulder blades together.',
+ 'Seated cable row':'Sit tall, row to the torso keeping the elbows close, avoid leaning back to cheat the weight.',
+ 'Face pull':'Pull the rope to eye level, elbows high, externally rotate at the end range.',
+ 'Rear delt fly':'Slight forward lean, raise the dumbbells out to the sides leading with the elbows.',
+ 'Dumbbell curl':'Elbows pinned to the sides, curl without swinging the torso or the shoulders.',
+ 'Hammer curl':'Neutral grip, curl straight up keeping the elbows tucked in.',
+ 'EZ-bar curl':'Elbows fixed at the sides, curl through the full range without leaning back.',
+ 'Cable curl':'Keep the elbows stationary at the sides, curl against constant cable tension.',
+ 'Ab wheel rollout':'Brace the core hard, roll out as far as control allows, pull back without sagging the hips.',
+ 'Hollow body hold':'Lower back pressed into the floor, arms and legs extended, ribs pulled down.',
+ 'Hanging leg raise':'Dead hang, raise straight legs to hip height or higher without swinging.',
+ 'Hanging knee raise':'Dead hang, curl the knees up toward the chest using the abs, not momentum.',
+ 'Bicycle crunch':'Rotate the elbow to the opposite knee, extend the other leg fully, keep the motion slow.',
+ 'Reverse crunch':'Curl the hips off the floor toward the chest, control the legs back down.',
+ 'Cable Pallof press':'Stand side-on to the cable, press straight out and resist the rotation pulling you sideways.',
+ 'Suitcase carry':'Carry the weight in one hand, stay upright and resist leaning to either side.',
+ 'RKC plank':'Squeeze the glutes and quads hard, brace as if bracing for a punch, hold rigid.',
+ 'Side plank':'Stack the hips and shoulders, push the top hip up toward the ceiling.',
+ 'Plank shoulder taps':'Feet wide for stability, tap the opposite shoulder without rotating the hips.',
+ 'Cable crunch':'Kneel under the cable, curl the spine down using the abs, not the hips.',
+ 'Russian twist':'Lean back slightly, rotate the torso side to side keeping the chest up.',
+ 'Weighted decline sit-up':'Anchor the feet, curl up through the spine rather than yanking with the hip flexors.',
+ 'V-ups':'Simultaneously raise the legs and torso, reach the hands toward the toes at the top.',
+ 'Tuck hold':'Balance on the glutes, knees tucked to the chest, chest tall.',
+ 'Flutter kicks':'Lower back pressed into the floor, small fast kicks with the legs extended low.',
+ 'Heavy farmer carry':'Stand tall, shoulders back, walk with control — don’t let the weights swing.',
+ 'Dead bug':'Lower back flat on the floor, extend opposite arm and leg without arching.',
+ 'KB swings':'Hinge at the hips, snap them forward to drive the kettlebell to chest height.',
+ 'Burpees':'Chest to the floor, jump the feet back in, finish with a full jump at the top.',
+ 'DB thrusters':'Squat with the dumbbells at the shoulders, drive up and press overhead in one motion.',
+ 'DB push press':'Small dip at the knees, drive up explosively, punch the dumbbells overhead.',
+ 'Jump squats':'Squat to depth, drive up explosively into a jump, land soft with bent knees.',
+ 'Mountain climbers':'Hands under the shoulders in a plank, drive the knees toward the chest at pace.',
+ 'Row (calories)':'Legs-back-arms drive, then arms-back-legs recover — let the legs do most of the work.',
+ 'Row':'Legs-back-arms drive, then arms-back-legs recover — let the legs do most of the work.',
+ 'Row or assault bike':'Legs-back-arms drive on the rower, or a steady sustainable pace on the bike.',
+ 'Assault bike':'Drive with both arms and legs together, keep a steady, sustainable cadence.',
+ 'Box step-ups':'Full foot on the box, drive through the heel — avoid pushing off the trailing leg.',
+ 'Burpee box step-up':'Burpee on the floor, then step up onto the box instead of jumping.',
+ 'Wall balls':'Squat to depth, drive up and release the ball to the target in one motion.',
+ 'Battle ropes':'Athletic stance, alternate slams from the shoulders, keep the core braced throughout.',
+ 'Push-up':'Hands under the shoulders, lower the chest to the floor keeping the body in a straight line.',
+ 'Pull-ups':'Full hang at the bottom, pull the chin over the bar, avoid kipping the legs.',
+ 'Ring/inverted row':'Body straight, pull the chest to the rings/bar, control the lower back down.'
+};
+function exDesc(name){ return EX_DESC[name]||''; }
 
 /* ═══════════════════════════════════════════════════════════════
    STATE + PERSISTENCE
@@ -1121,13 +1207,27 @@ function openProgram(pid){
   });
   openSheet(); $('sh-body').innerHTML=body;
 }
+/* format + itemized movement list (+ rest note) shared by the pre-start
+   preview and the live session row, so a WOD/block reads the same way
+   wherever it's shown — one line per movement instead of a text blob. */
+function bankBreakdownHTML(b){
+  return `${b.format?`<div class="wod-format">${esc(b.format)}</div>`:''}
+    <div class="wod-items">${(b.items||[]).map(it=>
+      `<div class="wod-item"><span>${esc(it.n)}</span>${it.s?`<span class="s">${esc(it.s)}</span>`:''}</div>`).join('')}</div>
+    ${b.rest?`<div class="wod-rest">${esc(b.rest)}</div>`:''}`;
+}
 function dayContentPreview(d){
   let out=[];
-  if(d.lifts?.length) out.push(d.lifts.map(l=>`${esc(l.n)} <span style="color:var(--faint)">${esc(l.s)}</span>`).join('<br>'));
-  if(d.cond) out.push(`<b>${esc(BLOCK_BANK[d.cond].name)}</b>`);
-  if(d.wod)  out.push(`<b>${esc(WOD_BANK[d.wod].name)}</b>`);
-  if(d.ab)   out.push(`<span class="opt">optional</span> Ab burner ${d.ab} — ${esc(AB_BANK[d.ab].title)}`);
-  return out.join('<br>');
+  if(d.lifts?.length) out.push(`<div class="prev-sec">${d.lifts.map(l=>{
+    const cue=exDesc(l.n);
+    return `<div class="prev-lift"><div class="prev-lift-top"><span>${esc(l.n)}</span><span class="s">${esc(l.s)}</span></div>${cue?`<div class="ex-cue">${esc(cue)}</div>`:''}</div>`;
+  }).join('')}</div>`);
+  if(d.cond){ const b=BLOCK_BANK[d.cond]; out.push(`<div class="prev-sec"><div class="prev-h">${esc(b.name)}</div>${bankBreakdownHTML(b)}</div>`); }
+  if(d.wod){ const w=WOD_BANK[d.wod]; out.push(`<div class="prev-sec"><div class="prev-h">${esc(w.name)}</div>${bankBreakdownHTML(w)}</div>`); }
+  if(d.ab){ const a=AB_BANK[d.ab];
+    out.push(`<div class="prev-sec"><span class="opt">optional</span> Ab burner ${d.ab} — ${esc(a.title)}<div style="margin-top:8px">${a.items.map(it=>
+      `<div class="prev-line">${esc(it.n)} <span style="color:var(--faint)">${esc(it.s)}</span></div>`).join('')}</div></div>`); }
+  return out.join('');
 }
 function setActive(pid){ S.active={programId:pid,startedISO:todayISO()}; persist(); toast('Program set active',true); closeSheet(); nav('home'); }
 async function clearActive(){
@@ -1302,8 +1402,8 @@ function buildRows(day){
   const rows=[];
   if(day.warmup) rows.push({kind:'warmup',id:'warmup',text:day.warmup});
   (day.lifts||[]).forEach(l=>rows.push({kind:'lift',id:l.id||slug(l.n),name:l.n,scheme:l.s}));
-  if(day.cond){ const b=BLOCK_BANK[day.cond]; rows.push({kind:'block',id:day.cond,name:b.name,desc:b.desc,rounds:b.rounds}); }
-  if(day.wod){ const w=WOD_BANK[day.wod]; rows.push({kind:'wod',id:day.wod,name:w.name,desc:w.desc,rounds:w.rounds}); }
+  if(day.cond){ const b=BLOCK_BANK[day.cond]; rows.push({kind:'block',id:day.cond,name:b.name,format:b.format,items:b.items,rest:b.rest,rounds:b.rounds}); }
+  if(day.wod){ const w=WOD_BANK[day.wod]; rows.push({kind:'wod',id:day.wod,name:w.name,format:w.format,items:w.items,rest:w.rest,rounds:w.rounds}); }
   if(day.ab){ const a=AB_BANK[day.ab];
     rows.push({kind:'abhead',ref:day.ab,title:a.title});
     a.items.forEach(it=>rows.push({kind:'ab',id:slug(it.n),name:it.n,scheme:it.s,timed:it.timed})); }
@@ -1405,6 +1505,7 @@ function rowHTML(r){
     return `<div class="lift ${done?'done':''}" id="row-${r.id}">
       <div class="lift-top">
         <div class="lift-info"><div class="lift-name">${esc(r.name)}</div><div class="lift-scheme">${esc(r.scheme)}</div>
+        ${exDesc(r.name)?`<div class="ex-cue">${esc(exDesc(r.name))}</div>`:''}
         <div class="ex-note" id="note-txt-${r.id}" ${note?'':'style="display:none"'}>${esc(note||'')}</div></div>
         <button class="chk ${done?'on':''}" onclick="toggleDone('${r.id}')">${done?'✓':''}</button>
       </div>
@@ -1426,7 +1527,7 @@ function rowHTML(r){
         <div class="lift-info"><div class="lift-name">${esc(r.name)}</div></div>
         <button class="chk ${done?'on':''}" onclick="toggleDone('${r.id}')">${done?'✓':''}</button>
       </div>
-      <div class="desc">${esc(r.desc)}</div>
+      <div class="desc">${bankBreakdownHTML(r)}</div>
       ${ticks}
       <div class="lift-ctl">
         ${hasSeq?`<button class="mini" onclick="openTimer(TIMERS['${r.id}']())"><svg viewBox="0 0 24 24">${CLOCK_ICON}</svg>Start timer</button>`:''}
@@ -1847,48 +1948,12 @@ function beep(freq=880,dur=0.15,type='sine'){
 function vibrate(p){ try{navigator.vibrate&&navigator.vibrate(p);}catch(e){} }
 function openHold(name,sec){ openTimer({title:name,mode:'down',sec}); }
 
-/* ── rest dock (3.4) — replaces the fullscreen timer for plain rest, since
-   rest is the longest idle stretch in a session and the one time the user
-   most needs to still see (and edit) the session underneath. Counts from a
-   wall-clock deadline rather than a tick count, so locking the phone
-   mid-rest doesn't desync the timer. Interval/WOD sequences still use the
-   fullscreen .timer via openTimer — those deserve full attention. */
-let _rest=null;
-function openRest(sec,nextName){
-  restStop();
-  _rest={total:sec,endAt:Date.now()+sec*1000,next:nextName||''};
-  document.body.classList.add('resting');
-  $('rd-next').textContent=_rest.next;
-  $('restdock').classList.add('open');
-  drawRest();
-  _rest.t=setInterval(drawRest,250);
-}
-function restLeft(){ return _rest?Math.max(0,Math.ceil((_rest.endAt-Date.now())/1000)):0; }
-function drawRest(){
-  if(!_rest) return;
-  const left=restLeft();
-  const m=Math.floor(left/60), s=left%60;
-  $('rd-time').textContent=`${m}:${String(s).padStart(2,'0')}`;
-  $('rd-bar').style.width=(100*left/_rest.total)+'%';
-  if(left<=0) restDone();
-}
-function restAdd(n){ if(!_rest) return; _rest.endAt+=n*1000; _rest.total+=n; drawRest(); }
-function restStop(){
-  if(_rest?.t) clearInterval(_rest.t);
-  _rest=null;
-  document.body.classList.remove('resting');
-  $('restdock')?.classList.remove('open');
-}
-function restDone(){
-  restStop();
-  beep(1040,0.5); setTimeout(()=>beep(1240,0.5),160);
-  vibrate([120,60,120,60,220]);
-  toast('Rest done — go',true);
-}
-/* keep the dock's clock right after the screen has been off */
-document.addEventListener('visibilitychange',()=>{ if(!document.hidden) drawRest(); });
-/* iOS blocks audio unless a user gesture unlocked the context first, and
-   restDone's beep fires from a setInterval tick, not a click — unlock early. */
+/* ── rest timer — fullscreen, same engine as any other countdown.
+   cfg.rest marks it for the blue "rest" visual + preset duration chips. */
+function openRest(sec,nextName){ openTimer({title:'Rest',mode:'down',sec,rest:true,next:nextName||''}); }
+function tmSetRest(s){ if(!TM)return; TM.remaining=s; TM.total=s; drawTimer(); }
+/* iOS blocks audio unless a user gesture unlocked the context first, and a
+   timer's completion beep fires from a setInterval tick, not a click — unlock early. */
 ['touchstart','mousedown'].forEach(ev=>document.addEventListener(ev,()=>{
   try{ _ac=_ac||new (window.AudioContext||window.webkitAudioContext)(); _ac.resume(); }catch(e){}
 },{once:true,passive:true}));
@@ -1946,9 +2011,10 @@ function drawTimer(){
     if(TM.idx<cfg.phases.length-1) next='Next: '+cfg.phases[TM.idx+1].label;
     frac=1-(TM.remaining/TM.total);
   } else {
-    /* 'down' mode is now only reached via openHold (timed ab exercises) — plain
-       rest moved to the dock in 3.4, so this is always the 'work' visual. */
-    big=fmtClock(TM.remaining); label=cfg.title; kind='work'; sub='of '+fmtClock(TM.total); frac=1-(TM.remaining/TM.total);
+    /* 'down' mode: rest (cfg.rest — blue visual + duration presets) or a
+       timed hold from openHold (amber 'work' visual, no presets). */
+    big=fmtClock(TM.remaining); label=cfg.title; kind=cfg.rest?'rest':'work'; sub='of '+fmtClock(TM.total); frac=1-(TM.remaining/TM.total);
+    if(cfg.next) next='Next: '+cfg.next;
   }
   t.className='timer active '+kind;
   $('tm-label').textContent=label;
@@ -1956,7 +2022,8 @@ function drawTimer(){
   $('tm-sub').textContent=sub;
   $('tm-next').textContent=next;
   $('tm-fg').style.strokeDasharray=RC; $('tm-fg').style.strokeDashoffset=RC*(1-frac);
-  $('tm-presets').innerHTML='';   // presets were rest-only; rest lives in the dock now
+  $('tm-presets').innerHTML=(cfg.rest&&!TM.done)?[60,90,120,180].map(s=>
+    `<button class="tm-preset ${TM.total===s?'on':''}" onclick="tmSetRest(${s})">${s<60?s+'s':(s/60)+'m'}</button>`).join(''):'';
   // controls
   const c=$('tm-ctl');
   if(TM.done){ c.innerHTML=`<button class="btn btn-acc" style="min-width:200px" onclick="closeTimer()">Done</button>`; return; }
