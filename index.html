@@ -748,7 +748,8 @@ const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&g
 const jsq=s=>String(s??'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;').replace(/</g,'&lt;');
 const slug=s=>String(s).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
-const todayISO=()=>new Date().toISOString().slice(0,10);
+const localISO=d=>{ const t=new Date(d); t.setMinutes(t.getMinutes()-t.getTimezoneOffset()); return t.toISOString().slice(0,10); };
+const todayISO=()=>localISO(new Date());
 function fmtDate(iso){ if(!iso) return ''; return new Date(iso+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'}); }
 function parseSets(sch){ const m=String(sch).match(/^(\d+)/); return m?+m[1]:3; }
 function pace(km,min){ if(!km||!min) return '—'; const s=(min*60)/km, m=Math.floor(s/60); return `${m}:${String(Math.round(s%60)).padStart(2,'0')}`; }
@@ -788,7 +789,7 @@ function weekDays(){
   const out=[], ws=weekStart();
   for(let i=0;i<7;i++){
     const d=new Date(ws+i*864e5);
-    const iso=d.toISOString().slice(0,10);
+    const iso=localISO(d);
     out.push({
       iso,
       label:['M','T','W','T','F','S','S'][i],
