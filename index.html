@@ -82,7 +82,7 @@
    white strip under the app — so paint <html> explicitly instead. */
 html{background:var(--bg)}
 html,body{height:100%}
-body{background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.5;
+body{background:transparent;color:var(--text);font-family:var(--sans);line-height:1.5;
   -webkit-font-smoothing:antialiased;overscroll-behavior-y:none;font-size:16.5px}
 /* the ground is pre-blurred at export — blurring a full-bleed image at runtime
    costs a compositor layer on every scroll for no visual gain */
@@ -719,6 +719,41 @@ body.home-rail #v-home{padding-bottom:calc(24px + env(safe-area-inset-bottom))}
 .tl-i.rest .tl-d{border-style:dashed}
 .tl-n{font-size:14px;color:var(--muted)}
 
+/* mockup tag pills: an outline and a colour, no fill */
+.tag.hard,.tag.mod{background:none;font-family:var(--mono);font-size:8.5px;font-weight:400;
+  letter-spacing:.05em;text-transform:uppercase;padding:3px 7px;border-radius:4px}
+.tag.mod{color:var(--gold);border:1px solid rgba(217,184,119,.42)}
+.tag.hard{color:var(--acc);border:1px solid rgba(211,86,79,.45)}
+.sec-label.t0{margin-top:2px}
+
+.rblock{padding:16px 0;border-bottom:1px solid var(--border)}
+.bars{display:flex;align-items:flex-end;gap:5px;height:66px;margin-top:14px}
+.bar em{position:absolute;bottom:-15px;left:50%;transform:translateX(-50%);
+  font-family:var(--mono);font-size:8px;color:var(--faint);font-style:normal}
+.bar{position:relative}
+.pb-v{font-family:var(--mono);font-size:26px;font-weight:600;color:var(--gold);font-variant-numeric:tabular-nums}
+.pb-l{font-family:var(--mono);font-size:9px;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--muted);margin-top:3px}
+
+.icn.done{box-shadow:0 0 20px rgba(111,216,201,.5),inset 0 0 10px rgba(111,216,201,.22)}
+.icn.gold{background:radial-gradient(circle,rgba(217,184,119,.16),transparent 72%);
+  border-color:rgba(217,184,119,.55);box-shadow:0 0 16px rgba(217,184,119,.24)}
+.icn.gold svg{stroke:var(--gold)}
+.body-sm{font-size:13px;color:var(--muted);margin-top:6px;line-height:1.6}
+.body-sm.live{color:var(--good)}
+.mrow-m.gold{color:var(--gold)}
+
+.cta-block{display:block;text-align:center;margin-top:18px;padding:16px 0 0;
+  border-top:1px solid var(--border);font-family:var(--display);font-weight:600;
+  font-size:17px;color:var(--good);cursor:pointer}
+.cta-block:active{opacity:.6}
+
+.rest-line{display:flex;align-items:center;gap:12px;margin:2px 0 22px;cursor:pointer}
+.rest-line .t{font-family:var(--display);font-weight:500;font-size:16px;color:var(--good)}
+.tbl-foot{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:10px}
+.tbl-foot .prev{margin-left:0;order:-1}
+.tbl-foot .mini:last-child{margin-left:auto}
+
 .navhdr-l{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
   color:var(--good);cursor:pointer;margin-bottom:16px;display:inline-block}
 .rpe-line{display:flex;align-items:center;gap:10px;padding:0 0 12px 58px;
@@ -738,7 +773,7 @@ body.home-rail #v-home{padding-bottom:calc(24px + env(safe-area-inset-bottom))}
 .icn.sm{width:29px;height:29px} .icn.sm svg{width:13px;height:13px} .icn.sm.sq{border-radius:9px}
 .icn.lg{width:50px;height:50px} .icn.lg svg{width:20px;height:20px} .icn.lg.sq{border-radius:16px}
 .icn.xl{width:62px;height:62px} .icn.xl svg{width:25px;height:25px}
-.icn.empty{background:none;border-color:rgba(243,234,212,.22);box-shadow:none}
+.icn.blank{background:none;border-color:rgba(243,234,212,.22);box-shadow:none}
 
 .mrow{display:flex;align-items:center;gap:12px;padding:17px 0;border-bottom:1px solid var(--border);cursor:pointer}
 .mrow:last-child{border-bottom:none}
@@ -1588,21 +1623,34 @@ function renderProgramList(){
 
 function openProgram(pid){
   const p=progById(pid);
-  $('sh-title').textContent=p.subtitle;
-  $('sh-sub').textContent=`${CAT_NAME[p.cat]} · ${p.days}-day`;
+  $('sh-title').textContent=p.title;
+  $('sh-sub').textContent=p.subtitle;
   const active=S.active?.programId===pid;
   $('sh-action').innerHTML=`<button class="btn btn-acc btn-sm" onclick="setActive('${pid}')">${active?'Active ✓':'Set active'}</button>`;
-  let body=`<div class="warmbox" style="border-left-color:var(--acc)"><span class="tag tag-${p.cat}">${CAT_NAME[p.cat]}</span>
-    <div style="margin-top:8px;color:var(--muted)">Weekly layout: ${esc(p.layout)}</div>
-    <div style="margin-top:6px;color:var(--muted)">Run: ${esc(p.run)}</div></div>`;
+  /* the mockup's program screen: a layout note, then the days as plain rows
+     whose icon carries the state — done, next up, or not yet reached */
+  const cur = active ? nextDayIdx(p) : -1;
+  let body=`<div class="rblock">
+      <div class="eyebrow">Layout</div>
+      <div class="body-sm">${esc(p.layout)}</div>
+      <div class="body-sm live" style="margin-top:9px">Run: ${esc(p.run)}</div>
+    </div>
+    <div class="sec-label">${p.D.length} days</div>`;
   p.D.forEach((d,i)=>{
-    body+=`<div class="card" style="margin-top:12px">
-      <div class="spread"><div><div class="item-eyebrow">Day ${i+1}</div><div class="item-title" style="font-size:17px">${esc(d.name)}</div>
-      ${d.sub?`<div class="item-sub">${esc(d.sub)}</div>`:''}</div>
-      ${d.tag?`<span class="tag tag-${d.tag==='Hard'?'hard':'mod'}">${d.tag}</span>`:''}</div>
-      <div class="desc">${dayContentPreview(d)}</div>
-      <button class="btn btn-sm btn-acc btn-block" style="margin-top:12px" onclick="startProgramDay('${pid}',${i})">Start this day</button>
-    </div>`;
+    const nl=(d.lifts||[]).length;
+    const state = cur<0 ? 'empty' : i<cur ? 'done' : i===cur ? 'now' : 'empty';
+    const glyph = state==='done' ? 'check' : state==='now' ? 'play' : null;
+    const iconHTML = glyph
+      ? `<div class="icn ${state==='done'?'done':'gold'}"><svg viewBox="0 0 24 24">${G[glyph]}</svg></div>`
+      : `<div class="icn blank"></div>`;
+    body+=`<div class="mrow" onclick="startProgramDay('${pid}',${i})">
+      ${iconHTML}
+      <div class="mrow-b">
+        <div class="mrow-t">${esc(d.name)}</div>
+        ${d.sub?`<div class="mrow-s">${esc(d.sub)}</div>`:''}
+        <div class="mrow-m ${state==='now'?'gold':''}">${state==='now'?'Next up &middot; ':''}${nl} lift${nl===1?'':'s'}${d.ab?' &middot; Ab '+d.ab:''}</div>
+      </div>
+      ${d.tag?`<span class="tag ${d.tag==='Hard'?'hard':'mod'}">${d.tag}</span>`:''}</div>`;
   });
   openSheet(); $('sh-body').innerHTML=body;
 }
@@ -1708,18 +1756,53 @@ function importData(){
 /* ═══════════════════════════════════════════════════════════════
    WORKOUTS BANK
 ═══════════════════════════════════════════════════════════════ */
-let _arenaQ='',_arenaCat='all';
+let _arenaQ='',_arenaCat='all',_arenaSearch=false;
+function toggleArenaSearch(){
+  _arenaSearch=!_arenaSearch;
+  if(!_arenaSearch) _arenaQ='';
+  renderWorkouts();
+  if(_arenaSearch){ const s=$('arena-q'); if(s) s.focus(); }
+}
 function renderWorkouts(){
   const q=_arenaQ.trim().toLowerCase();
   let html=`<div class="mhdr"><div class="h1">Workouts</div>
-      <div class="mhdr-r">${ic('search','sm')}<span onclick="openBuilder()">${ic('plus','sm sq')}</span></div>
+      <div class="mhdr-r"><span onclick="toggleArenaSearch()">${ic('search','sm')}</span><span onclick="openBuilder()">${ic('plus','sm sq')}</span></div>
     </div>
-    <input class="inp" id="arena-q" placeholder="Search a day or an exercise…" value="${esc(_arenaQ)}"
-      oninput="_arenaQ=this.value;renderWorkouts()" style="margin-bottom:10px">
-    <div class="seg">${[['all','All'],['weights','Weights'],['hiit','HIIT'],['crossfit','WODs']]
-      .map(([k,l])=>`<button class="${_arenaCat===k?'on':''}" onclick="_arenaCat='${k}';renderWorkouts()">${l}</button>`).join('')}</div>`;
+    ${_arenaSearch?`<input class="inp" id="arena-q" placeholder="Search a day or an exercise…" value="${esc(_arenaQ)}"
+      oninput="_arenaQ=this.value;renderWorkouts()" style="margin-bottom:6px">`:''}
+    <div class="chiprow">${[['all','grid','All'],['weights','bell','Weights'],['hiit','bolt','HIIT'],['crossfit','flame','CrossFit']]
+      .map(([k,g,l])=>`<div class="chip ${_arenaCat===k?'on':''}" onclick="_arenaCat='${k}';renderWorkouts()">
+        <svg viewBox="0 0 24 24">${G[g]}</svg><span>${l}</span></div>`).join('')}</div>`;
   const hit=hay=>!q||hay.toLowerCase().includes(q);
   const mine=S.customWorkouts.filter(w=>hit(w.name+' '+(w.lifts||[]).map(l=>l.n).join(' ')));
+  /* dedupe days that are byte-identical across the 3/4/5-day variants of a category */
+  const seen=new Set(), days=[];
+  PROGRAMS.filter(p=>_arenaCat==='all'||p.cat===_arenaCat).forEach(p=>{
+    p.D.forEach((d,i)=>{
+      const key=p.cat+'|'+d.name+'|'+(d.lifts||[]).map(l=>l.n).join(',')+'|'+(d.cond||'')+'|'+(d.wod||'');
+      if(seen.has(key)) return;
+      seen.add(key);
+      if(!hit(d.name+' '+(d.sub||'')+' '+liftsPreview(d))) return;
+      days.push({p,d,i});
+    });
+  });
+  /* the mockup leads with the count, then the program days; custom work is the
+     tail section under "Your workouts" */
+  html+=`<div class="sec-label t0">${days.length} workout${days.length===1?'':'s'}${q?' matching':''}</div>`;
+  if(!days.length&&!mine.length){
+    html+=`<div class="empty">Nothing matches "${esc(_arenaQ)}".</div>`;
+  }
+  days.forEach(({p,d,i})=>{
+    const nl=(d.lifts||[]).length;
+    html+=`<div class="mrow" onclick="startFreestyle('${p.id}',${i})">
+      ${ic(CAT_G[p.cat])}
+      <div class="mrow-b">
+        <div class="mrow-t">${esc(d.name)}</div>
+        <div class="mrow-s">${esc(d.sub||p.subtitle)}</div>
+        <div class="mrow-m">${nl} lift${nl===1?'':'s'}${d.ab?' &middot; Ab burner '+d.ab:''}${d.cond?' &middot; '+esc(BLOCK_BANK[d.cond].name.split('·')[0].trim()):''}</div>
+      </div>
+      ${d.tag?`<span class="tag ${d.tag==='Hard'?'hard':'mod'}">${d.tag}</span>`:''}</div>`;
+  });
   if(mine.length){
     html+=`<div class="sec-label">Your workouts</div>`;
     mine.forEach(w=>{
@@ -1732,32 +1815,6 @@ function renderWorkouts(){
         <span class="mrow-r" onclick="event.stopPropagation();deleteCustom('${w.id}')">&times;</span></div>`;
     });
   }
-  /* dedupe days that are byte-identical across the 3/4/5-day variants of a category */
-  const seen=new Set(), days=[];
-  PROGRAMS.filter(p=>_arenaCat==='all'||p.cat===_arenaCat).forEach(p=>{
-    p.D.forEach((d,i)=>{
-      const key=p.cat+'|'+d.name+'|'+(d.lifts||[]).map(l=>l.n).join(',')+'|'+(d.cond||'')+'|'+(d.wod||'');
-      if(seen.has(key)) return;
-      seen.add(key);
-      if(!hit(d.name+' '+(d.sub||'')+' '+liftsPreview(d))) return;
-      days.push({p,d,i});
-    });
-  });
-  html+=`<div class="sec-label">Program days (freestyle)${q?` · ${days.length} match${days.length===1?'':'es'}`:''}</div>`;
-  if(!days.length&&!mine.length){
-    html+=`<div class="empty">Nothing matches "${esc(_arenaQ)}".</div>`;
-  }
-  days.forEach(({p,d,i})=>{
-    const nl=(d.lifts||[]).length;
-    html+=`<div class="mrow" onclick="startFreestyle('${p.id}',${i})">
-      ${ic(CAT_G[p.cat],'sq')}
-      <div class="mrow-b">
-        <div class="mrow-t">${esc(d.name)}</div>
-        <div class="mrow-s">${esc(d.sub||p.subtitle)}</div>
-        <div class="mrow-m">${nl} lift${nl===1?'':'s'}${d.ab?' &middot; Ab burner '+d.ab:''}${d.cond?' &middot; '+esc(BLOCK_BANK[d.cond].name.split('·')[0].trim()):''}</div>
-      </div>
-      ${d.tag?`<span class="tag tag-${d.tag==='Hard'?'hard':'mod'}">${d.tag}</span>`:''}</div>`;
-  });
   $('v-workouts').innerHTML=html;
   /* innerHTML wipes focus — put the caret back so typing doesn't drop characters */
   if(_arenaQ){
@@ -1834,7 +1891,7 @@ function buildRows(day){
 function startProgramDay(pid,idx){
   const p=progById(pid), d=p.D[idx];
   openWorkoutDetail(d,{type:'program',programId:pid,dayName:d.name,cat:p.cat},
-    `${p.title} · ${d.name}`, d.tag, `Day ${idx+1} of ${p.D.length}`);
+    d.name, d.tag, `Day ${idx+1} of ${p.D.length}${d.sub?' · '+d.sub:''}`);
 }
 /* …except the one-tap "today's session" path from Home. */
 function riseNow(pid,idx){
@@ -1852,11 +1909,10 @@ function openWorkoutDetail(day,source,title,tag,sub){
   $('sh-sub').textContent=sub||'';
   $('sh-action').innerHTML='';
   openSheet();
-  $('sh-body').innerHTML=`<div class="card">
-    ${tag?`<span class="tag tag-${tag==='Hard'?'hard':'mod'}">${tag}</span>`:''}
-    <div class="desc" style="margin-top:${tag?'12px':'0'}">${dayContentPreview(day)}</div>
-  </div>
-  <button class="btn btn-acc btn-block btn-lg" style="margin-top:16px" onclick="beginPending()">Start session</button>`;
+  $('sh-body').innerHTML=`
+    ${tag?`<span class="tag ${tag==='Hard'?'hard':'mod'}">${tag==='Hard'?'Hard':'Moderate'}</span>`:''}
+    <div class="desc" style="margin-top:${tag?'14px':'0'}">${dayContentPreview(day)}</div>
+    <div class="cta-block" onclick="beginPending()">Start session</div>`;
 }
 function beginPending(){ if(!_pending)return; const p=_pending; _pending=null; closeSheet(); _start(p.day,p.source,p.title,p.tag); }
 async function _start(day,source,title,tag){
@@ -1875,8 +1931,7 @@ function renderSessionBody(){
   const d=S.draft;
   $('ss-title').textContent=d.title;
   $('ss-sub').textContent=(d.tag?d.tag+' · ':'')+fmtDate(d.date);
-  let html=`<button class="btn btn-block" onclick="openRest(90)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${CLOCK_ICON}</svg> Rest timer</button>
-    <div style="height:6px"></div>`;
+  let html=`<div class="rest-line" onclick="openRest(90)">${ic('clock','sm')}<span class="t">Rest timer</span></div>`;
   d.rows.forEach(r=>html+=rowHTML(r));
   const bankOpts=Object.entries(EX_BANK).map(([g,arr])=>`<optgroup label="${g}">`+arr.map(n=>`<option value="${esc(n)}">`).join('')+`</optgroup>`).join('');
   html+=`<div class="grp">Add / swap exercise</div>
@@ -1912,7 +1967,7 @@ function rowHTML(r){
         if(c!=null&&c>prev.w){cls='up';sym='↑';} if(c!=null&&c<prev.w){cls='dn';sym='↓';}
         const detail=[prev.reps?`×${prev.reps}`:'',prev.rpe?`@${prev.rpe}`:''].filter(Boolean).join(' ');
         prevHTML=`<span class="prev"><span class="${cls}">${sym} ${fromKg(prev.w)}${uLbl()}${detail?' '+detail:''}</span></span>`;
-      } else prevHTML=`<span class="prev">first time</span>`;
+      } else prevHTML='';
     }
     const timer=r.timed?`<button class="mini" onclick="openHold('${jsq(r.name)}',${r.timed})"><svg viewBox="0 0 24 24">${CLOCK_ICON}</svg>${r.timed}s</button>`:'';
     const note=S.exNotes[r.id];
@@ -1923,17 +1978,21 @@ function rowHTML(r){
     const wtInput=!isAb?`<div class="wt"><input id="wt-${r.id}" type="number" step="0.5" inputmode="decimal" placeholder="${sug?fromKg(sug.kg):'—'}" value="${wt}" oninput="setW('${r.id}',this.value,false)" onchange="setW('${r.id}',this.value,true)" onblur="setW('${r.id}',this.value,true)"><span class="u">${uLbl()}</span></div>
        <button class="mini" onclick="openRest(S.autoRestSec,nextRowName('${r.id}'))"><svg viewBox="0 0 24 24">${CLOCK_ICON}</svg>rest</button>
        ${sug&&sug.changed?`<button class="mini sug" onclick="acceptSuggest('${r.id}',${sug.kg})" aria-label="${esc(sug.why)}">→ ${fromKg(sug.kg)}${uLbl()}</button>`:''}`:'';
+    /* mockup order: name + scheme (carrying last session's load), then the
+       table, then a thin foot holding the delta and the controls */
+    const lastBit=(!isAb&&prev)?` &middot; last ${fromKg(prev.w)}${uLbl()}`:'';
     return `<div class="lift ${done?'done':''}" id="row-${r.id}">
       <div class="lift-top">
-        <div class="lift-info"><div class="lift-name">${esc(r.name)}</div><div class="lift-scheme">${esc(r.scheme)}</div>
+        <div class="lift-info"><div class="lift-name">${esc(r.name)}</div>
+        <div class="lift-scheme">${esc(r.scheme)}${lastBit}</div>
         ${exDesc(r.name)?`<div class="ex-cue">${esc(exDesc(r.name))}</div>`:''}
         <div class="ex-note" id="note-txt-${r.id}" ${note?'':'style="display:none"'}>${esc(note||'')}</div></div>
         <button class="chk ${done?'on':''}" onclick="toggleDone('${r.id}')">${done?'✓':''}</button>
       </div>
-      <div class="lift-ctl">${wtInput}${timer}${prevHTML}
-        <button class="mini" onclick="toggleNote('${r.id}')" title="Exercise note">✎</button>
-        <button class="mini" onclick="ssRemoveRow('${r.id}')" title="Remove" style="margin-left:auto">✕</button></div>
       ${setsPanel}
+      <div class="lift-ctl tbl-foot">${prevHTML}${wtInput}${timer}
+        <button class="mini" onclick="toggleNote('${r.id}')" title="Exercise note">✎</button>
+        <button class="mini" onclick="ssRemoveRow('${r.id}')" title="Remove">✕</button></div>
       <input class="note-inp" id="note-${r.id}" placeholder="Note (e.g. seat pin 5, wide grip) — saved for every session" value="${esc(note||'')}" oninput="setExNote('${r.id}',this.value)">
     </div>`;
   }
@@ -2000,9 +2059,9 @@ function setRowsHTML(id,n){
       <span class="v"><input type="number" inputmode="numeric" placeholder="—"
         value="${st.reps??''}" oninput="setSetR('${id}',${i},this.value)"></span>
     </div>
-    <div class="rpe-line"><span>RPE</span><input type="number" min="1" max="10" step="0.5"
+    ${(cls==='now'||st.rpe!=null&&st.rpe!=='')?`<div class="rpe-line"><span>RPE</span><input type="number" min="1" max="10" step="0.5"
       inputmode="decimal" placeholder="—" value="${st.rpe??''}"
-      oninput="setSetRPE('${id}',${i},this.value)"></div>`;
+      oninput="setSetRPE('${id}',${i},this.value)"></div>`:''}`;
   }).join('');
   return `<div class="tbl">${head}${rows}</div>`;
 }
@@ -2138,47 +2197,75 @@ function editSession(id){
    HISTORY
 ═══════════════════════════════════════════════════════════════ */
 let _hf={period:'all',type:'all',view:'log'};
+let _hfOpen=false;
 function setHF(k,v){ _hf[k]=v; renderHistory(); }
+function toggleHF(){ _hfOpen=!_hfOpen; renderHistory(); }
+/* which glyph a past session gets in the list — runs read differently to lifts */
+const sessGlyph=s=>s.source?.kind==='run'||/run/i.test(s.title||'')?'run':(CAT_G[s.source?.cat]||'bell');
 function renderHistory(){   // Sessions / Progress / Body
   const el=$('v-history');
+  /* the mockup's History is just a title, a filter control and the list — the
+     segmented controls live behind the filter icon so the default view is clean */
   const head=`<div class="mhdr"><div class="h1">History</div>
-      <div class="mhdr-r">${ic('filter','sm')}</div></div>
-    <div class="seg" style="margin-top:14px">
+      <div class="mhdr-r"><span onclick="toggleHF()">${ic('filter','sm')}</span></div></div>
+    ${_hfOpen?`<div class="seg" style="margin-top:4px">
       <button class="${_hf.view==='log'?'on':''}" onclick="setHF('view','log')">Sessions</button>
       <button class="${_hf.view==='progress'?'on':''}" onclick="setHF('view','progress')">Progress</button>
-      <button class="${_hf.view==='body'?'on':''}" onclick="setHF('view','body')">Body</button></div>`;
+      <button class="${_hf.view==='body'?'on':''}" onclick="setHF('view','body')">Body</button></div>`:''}`;
   if(_hf.view==='progress'){ el.innerHTML=head+progressInner(); return; }
   if(_hf.view==='body'){ el.innerHTML=head+bodyInner(); renderPhotos(); return; }
-  const viewSeg='';
   let list=[...S.sessions].sort((a,b)=>b.date.localeCompare(a.date));
   if(_hf.period==='week'){ const ws=weekStart(); list=list.filter(s=>new Date(s.date+'T00:00:00').getTime()>=ws); }
   else if(_hf.period==='month'){ const ms=monthStart(); list=list.filter(s=>new Date(s.date+'T00:00:00').getTime()>=ms); }
   if(_hf.type!=='all') list=list.filter(s=>(s.source?.cat||'')===_hf.type);
   const periods=[['all','All time'],['month','Month'],['week','Week']];
   const types=[['all','All'],['weights','Weights'],['hiit','HIIT'],['crossfit','CrossFit'],['custom','Custom']];
+  const ms=monthStart();
+  const thisMonth=S.sessions.filter(s=>new Date(s.date+'T00:00:00').getTime()>=ms).length;
   let html=`${head}
-    <div class="seg">${periods.map(([k,l])=>`<button class="${_hf.period===k?'on':''}" onclick="setHF('period','${k}')">${l}</button>`).join('')}</div>
-    <div class="seg">${types.map(([k,l])=>`<button class="${_hf.type===k?'on':''}" style="min-width:64px;font-size:13px;padding:9px" onclick="setHF('type','${k}')">${l}</button>`).join('')}</div>
-    <div class="lede" style="margin-bottom:14px">${list.length} session${list.length!==1?'s':''}.</div>`;
+    ${_hfOpen?`<div class="seg">${periods.map(([k,l])=>`<button class="${_hf.period===k?'on':''}" onclick="setHF('period','${k}')">${l}</button>`).join('')}</div>
+    <div class="seg">${types.map(([k,l])=>`<button class="${_hf.type===k?'on':''}" style="min-width:64px;font-size:13px;padding:9px" onclick="setHF('type','${k}')">${l}</button>`).join('')}</div>`:''}
+    <div class="mstrip">
+      <div><div class="v">${thisMonth}</div><div class="l">This month</div></div>
+      <div><div class="v">${weekStreak()}</div><div class="l">Week streak</div></div>
+      <div><div class="v">${S.sessions.length}</div><div class="l">All time</div></div>
+    </div>`;
   if(!list.length){ html+=`<div class="empty">No sessions in this filter.</div>`; el.innerHTML=html; return; }
+  /* grouped by month, the way the mockup heads each run of rows */
+  let lastMonth='';
   html+=list.map(s=>{
-    const rows=(s.rows||[]).filter(r=>r.kind==='lift'||r.kind==='ab'||r.kind==='block'||r.kind==='wod');
-    const body=rows.map(r=>{ const lg=s.log?.[r.id]||{};
-      const val=lg.weight!=null&&lg.weight!==''?fromKg(lg.weight)+' '+uLbl():(lg.done?'done':(lg.rounds?lg.rounds.filter(Boolean).length+' rounds':''));
-      const ic=lg.done?'<span style="color:var(--good)">✓</span>':'<span style="color:var(--faint)">·</span>';
-      return `<div class="log-row" style="padding:8px 0"><span style="width:16px">${ic}</span><span class="log-sub" style="flex:1;color:var(--text)">${esc(r.name)}</span><span class="log-sub">${esc(val)}</span></div>`;
-    }).join('');
-    return `<div class="item" style="cursor:default" onclick="this.querySelector('.hbody').style.display=this.querySelector('.hbody').style.display==='block'?'none':'block'">
-      <div class="spread"><div><div class="item-title" style="font-size:16px">${esc(s.title)}</div>
-      <div class="item-sub">${fmtDate(s.date)} · ${s.doneCount||0} done</div></div>
-      ${s.tag?`<span class="tag tag-${s.tag==='Hard'?'hard':'mod'}">${s.tag}</span>`:''}</div>
-      <div class="hbody" style="display:none;margin-top:12px;border-top:1px solid var(--border);padding-top:8px">
-        ${body}${s.notes?`<div class="soft" style="margin-top:8px;font-style:italic">${esc(s.notes)}</div>`:''}
-        <div class="row" style="margin-top:12px"><button class="pill" onclick="event.stopPropagation();editSession('${s.id}')">Edit</button>
-        <button class="pill" onclick="event.stopPropagation();delSession('${s.id}')">Delete</button></div>
-      </div></div>`;
+    const mLbl=new Date(s.date+'T00:00:00').toLocaleDateString('en-GB',{month:'long'});
+    const hdr=mLbl!==lastMonth?(lastMonth=mLbl,`<div class="sec-label">${mLbl}</div>`):'';
+    const nl=(s.rows||[]).filter(r=>r.kind==='lift').length;
+    const sub=s.source?.name||(s.source?.cat?s.source.cat:'')||'Session';
+    return `${hdr}<div class="mrow" onclick="toggleSess('${s.id}',this)">
+      ${ic(sessGlyph(s))}
+      <div class="mrow-b">
+        <div class="mrow-t">${esc(s.title)}</div>
+        <div class="mrow-m">${esc(sub)}</div>
+      </div>
+      <div class="mrow-r">${fmtDate(s.date)}${nl?`<em>${nl} lift${nl===1?'':'s'}</em>`:''}</div></div>`;
   }).join('');
   el.innerHTML=html;
+}
+/* expanding a row shows the logged rows plus edit / delete, without boxing it */
+function toggleSess(id,row){
+  const open=row.nextElementSibling&&row.nextElementSibling.classList.contains('hbody');
+  if(open){ row.nextElementSibling.remove(); return; }
+  const s=S.sessions.find(x=>x.id===id); if(!s) return;
+  const rows=(s.rows||[]).filter(r=>['lift','ab','block','wod'].includes(r.kind));
+  const body=rows.map(r=>{ const lg=s.log?.[r.id]||{};
+    const val=lg.weight!=null&&lg.weight!==''?fromKg(lg.weight)+' '+uLbl():(lg.done?'done':(lg.rounds?lg.rounds.filter(Boolean).length+' rounds':''));
+    const mk=lg.done?'<span style="color:var(--good)">✓</span>':'<span style="color:var(--faint)">·</span>';
+    return `<div class="log-row" style="padding:8px 0"><span style="width:16px">${mk}</span><span class="log-sub" style="flex:1;color:var(--text)">${esc(r.name)}</span><span class="log-sub">${esc(val)}</span></div>`;
+  }).join('');
+  const d=document.createElement('div');
+  d.className='hbody';
+  d.style.cssText='padding:4px 0 16px 48px;border-bottom:1px solid var(--border)';
+  d.innerHTML=`${body}${s.notes?`<div class="soft" style="margin-top:8px;font-style:italic">${esc(s.notes)}</div>`:''}
+    <div class="row" style="margin-top:12px"><button class="pill" onclick="editSession('${s.id}')">Edit</button>
+    <button class="pill" onclick="delSession('${s.id}')">Delete</button></div>`;
+  row.after(d);
 }
 async function delSession(id){
   if(!await ask("Delete this session? This can't be undone.",{ok:'Delete',danger:true})) return;
@@ -2320,41 +2407,47 @@ function fmtMin(m){ const mm=Math.floor(m), ss=Math.round((m-mm)*60); return `${
 function renderRuns(){
   const due=fiveKDue();
   const pb=bestFiveK();
-  const goalMin=25;                                          // 5k @ 5:00/km
-  let pbCard='';
-  if(pb){
-    const hit=pb.min<=goalMin;
-    pbCard=`<div class="card" style="margin-bottom:12px">
-      <div class="spread"><div><div class="item-eyebrow">5k personal best</div>
-        <div class="stat-val" style="color:${hit?'var(--good)':'var(--text)'}">${fmtMin(pb.min)}<small>${pace(pb.km||5,pb.min)}/km</small></div>
-        <div class="item-sub" style="margin-top:4px">${fmtDate(pb.date)} · goal ${goalMin}:00 ${hit?'✓ beaten':'— '+fmtMin(pb.min-goalMin>0?pb.min-goalMin:goalMin-pb.min)+' '+(pb.min>goalMin?'to shave':'under')}</div></div>
-        <span style="font-size:26px">${hit?'🏅':'🎯'}</span></div>
-    </div>`;
-  }
+  /* the mockup leads with the PB as a row: cup, then the time and its pace */
+  const pbRow = pb ? `<div class="mrow" style="cursor:default">
+      ${ic('cup','lg')}
+      <div class="mrow-b">
+        <div class="pb-v">${fmtMin(pb.min)}</div>
+        <div class="pb-l">5k best &middot; ${pace(pb.km||5,pb.min)} / km</div>
+      </div></div>` : '';
   const wk=weeklyKm(8);
   let kmChart='';
   if(wk.some(w=>w.km>0)){
     const max=Math.max(...wk.map(w=>w.km),1);
-    kmChart=`<div class="card" style="margin-bottom:12px"><div class="item-eyebrow">Weekly distance</div>
-      <div class="bars" style="margin-top:18px">${wk.map((w,i)=>{ const h=8+(w.km/max)*70;
+    kmChart=`<div class="rblock"><div class="eyebrow">Weekly distance</div>
+      <div class="bars">${wk.map((w,i)=>{ const h=8+(w.km/max)*58;
         const d=new Date(w.t0);
-        return `<div class="bar ${i===wk.length-1?'last':''}" style="height:${h}px"><span>${w.km||''}</span><em>${d.getDate()}/${d.getMonth()+1}</em></div>`;}).join('')}</div>
-      <div style="height:22px"></div></div>`;
+        return `<div class="bar ${i===wk.length-1?'last':''}" style="height:${h}px"><em>${d.getDate()}/${d.getMonth()+1}</em></div>`;}).join('')}</div>
+      <div style="height:20px"></div></div>`;
   }
-  const list=[...S.runs].sort((a,b)=>b.date.localeCompare(a.date)).map(r=>
-    `<div class="log-row"><span class="log-date">${fmtDate(r.date)}</span>
-     <span class="log-main" style="color:${isHard5k(r)?'var(--acc)':'var(--blue)'}">${r.km?r.km+' km':'—'}</span>
-     <span class="log-sub" style="flex:1">${r.min?r.min+' min':''} ${r.km&&r.min?'· '+pace(r.km,r.min)+'/km':''} ${isHard5k(r)?'· 5k effort':''}</span>
-     <span class="pill" onclick="delRun('${r.id}')">✕</span></div>`).join('');
-  $('v-runs').innerHTML=`<div class="mhdr"><div class="h1">Runs</div></div>
-    <div class="lede">Easy Zone 2, 30&ndash;40 min. Every 2nd&ndash;3rd week, run 5k at 5:00/km.</div>
-    ${due?`<div class="banner">${esc(due)}</div>`:''}${pbCard}${kmChart}
-    <div class="card">
+  const runs=[...S.runs].sort((a,b)=>b.date.localeCompare(a.date));
+  const list=runs.map(r=>`<div class="mrow" onclick="delRunAsk('${r.id}')">
+      ${ic('run')}
+      <div class="mrow-b">
+        <div class="mrow-t">${r.km?r.km.toFixed(1)+' km':'&mdash;'}</div>
+        <div class="mrow-m ${isHard5k(r)?'acc-x':''}">${r.min?Math.round(r.min)+' min':''}${r.km&&r.min?' &middot; '+pace(r.km,r.min)+' / km':''}${isHard5k(r)?' &middot; 5k effort':''}</div>
+      </div>
+      <div class="mrow-r">${fmtDate(r.date)}</div></div>`).join('');
+  $('v-runs').innerHTML=`<div class="mhdr"><div class="h1">Runs</div>
+      <div class="mhdr-r"><span onclick="openRunLog()">${ic('plus','sm sq')}</span></div></div>
+    ${due?`<div class="banner">${esc(due)}</div>`:''}
+    ${pbRow}${kmChart}
+    ${_runOpen?`<div class="rblock">
       <div class="row-t"><input class="inp" id="r-km" type="number" step="0.1" inputmode="decimal" placeholder="Distance km" style="flex:1">
         <input class="inp" id="r-min" type="number" step="1" inputmode="decimal" placeholder="Minutes" style="flex:1"></div>
-      <button class="btn btn-acc btn-block" style="margin-top:12px" onclick="logRun()">Log run</button>
-    </div>
-    <div class="card" style="margin-top:12px">${list||'<div class="empty">No runs logged yet.</div>'}</div>`;
+      <button class="btn btn-acc btn-block" style="margin-top:12px" onclick="logRun()">Log run</button></div>`:''}
+    <div class="sec-label">Recent</div>
+    ${list||'<div class="empty">No runs logged yet.</div>'}`;
+}
+let _runOpen=false;
+function openRunLog(){ _runOpen=!_runOpen; renderRuns(); }
+async function delRunAsk(id){
+  if(!await ask('Delete this run?',{ok:'Delete',danger:true})) return;
+  delRun(id);
 }
 function logRun(){ const km=parseFloat($('r-km').value), min=parseFloat($('r-min').value);
   if(isNaN(km)&&isNaN(min)){ toast('Enter distance or time'); return; }
