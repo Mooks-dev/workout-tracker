@@ -76,6 +76,11 @@
   --blue:var(--good); --teal:var(--good);
   --weights:var(--cat-weights); --hiit:var(--cat-hiit); --crossfit:var(--cat-crossfit);
 }
+/* iOS standalone: html/body are locked to the viewport height, so the
+   home-indicator inset sits outside the document box. Relying on body's
+   background propagating to the canvas isn't dependable there — it left a
+   white strip under the app — so paint <html> explicitly instead. */
+html{background:var(--bg)}
 html,body{height:100%}
 body{background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.5;
   -webkit-font-smoothing:antialiased;overscroll-behavior-y:none;font-size:16.5px}
@@ -611,7 +616,7 @@ hr.d{border:none;border-top:1px solid var(--border);margin:22px 0}
 
 /* ── Home: the monolith ── */
 body.home-rail .nav{display:none}
-body.home-rail #v-home{padding-bottom:24px}
+body.home-rail #v-home{padding-bottom:calc(24px + env(safe-area-inset-bottom))}
 .mono{display:flex;flex-direction:column;min-height:calc(100vh - 150px)}
 .b-wrap{display:flex;align-items:center;gap:16px;flex:1}
 .b-spine{display:flex;flex-direction:column;gap:6px;flex-shrink:0}
