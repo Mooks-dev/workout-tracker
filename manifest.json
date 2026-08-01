@@ -1,15 +1,25 @@
 {
   "name": "Per Aspera",
   "short_name": "Per Aspera",
-  "description": "Roman training tracker — programs, workouts, runs and progress",
+  "description": "Roman training tracker \u2014 programs, workouts, runs and progress",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#e7dcc4",
-  "theme_color": "#e7dcc4",
+  "background_color": "#0b0a08",
+  "theme_color": "#0b0a08",
   "orientation": "portrait-primary",
   "icons": [
-    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
-    { "src": "icon-maskable.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+    {
+      "src": "assets/icon-dragon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icon-dragon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }

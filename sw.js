@@ -1,8 +1,11 @@
-const CACHE = 'mgt-v9';
+const CACHE = 'mgt-v10';
 const ASSETS = ['./', './index.html', './manifest.json', './icon.svg', './icon-maskable.svg',
   './assets/lion-outline.png','./assets/lion-fill.png','./assets/wolf-outline.png','./assets/wolf-fill.png','./assets/griffin-outline.png','./assets/griffin-fill.png',
-  './assets/fonts/cinzel-400-normal.woff2','./assets/fonts/eb-garamond-400-normal.woff2','./assets/fonts/eb-garamond-400-italic.woff2',
-  './assets/fonts/ibm-plex-mono-400-normal.woff2','./assets/fonts/ibm-plex-mono-500-normal.woff2','./assets/fonts/ibm-plex-mono-600-normal.woff2'];
+  './assets/fonts/eb-garamond-400-normal.woff2','./assets/fonts/eb-garamond-400-italic.woff2',
+  './assets/fonts/ibm-plex-mono-400-normal.woff2','./assets/fonts/ibm-plex-mono-500-normal.woff2','./assets/fonts/ibm-plex-mono-600-normal.woff2',
+  './assets/forest-bg.jpg',
+  './assets/icon-dragon-512.png',
+  './assets/fonts/cormorant-garamond-400-normal.woff2'];
 
 // Install: pre-cache the app shell
 self.addEventListener('install', e => {

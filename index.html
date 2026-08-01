@@ -7,26 +7,20 @@
 
 <!-- PWA -->
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#e7dcc4">
+<meta name="theme-color" content="#0b0a08">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Per Aspera">
-<link rel="apple-touch-icon" href="icon.svg">
+<link rel="apple-touch-icon" href="assets/icon-dragon-512.png">
 
 <style>
 /* ── self-hosted fonts (Appendix B) — the app is offline-first everywhere
    except its typography if these come off a CDN; a cold first launch with
    no signal would silently fall back to Georgia. Latin-only subset (this
    app is English-only), ~126KB total, precached by the service worker. */
-@font-face{font-family:'Cinzel';font-style:normal;font-weight:400;font-display:swap;
-  src:url('assets/fonts/cinzel-400-normal.woff2') format('woff2');
-  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
-@font-face{font-family:'Cinzel';font-style:normal;font-weight:600;font-display:swap;
-  src:url('assets/fonts/cinzel-400-normal.woff2') format('woff2');
-  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
-@font-face{font-family:'Cinzel';font-style:normal;font-weight:700;font-display:swap;
-  src:url('assets/fonts/cinzel-400-normal.woff2') format('woff2');
+@font-face{font-family:'Cormorant Garamond';font-style:normal;font-weight:400 600;font-display:swap;
+  src:url('assets/fonts/cormorant-garamond-400-normal.woff2') format('woff2');
   unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:'EB Garamond';font-style:italic;font-weight:400;font-display:swap;
   src:url('assets/fonts/eb-garamond-400-italic.woff2') format('woff2');
@@ -52,37 +46,44 @@
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
-  /* ── surfaces ── */
-  --bg:#e7dcc4; --bg2:#efe6d2; --card:#f4eddc; --card2:#eadfc4;
-  --border:#cdb994;                 /* was #d6c6a2 — too low-contrast to read as an edge */
+  /* ── the forest ground. Everything floats on it: there are no cards in this
+     theme, only hairline rules, so --card/--card2 are transparent and the old
+     card rules resolve to nothing rather than needing to be hunted down. ── */
+  --bg:#0b0a08; --bg2:#14110d; --card:transparent; --card2:rgba(255,255,255,.05);
+  --border:rgba(217,184,119,.16);   /* the hairline that replaced every card edge */
   /* ── brand ── */
-  --acc:#8f1a1a;                    /* oxblood, primary action — 8.4:1 on card */
-  --acc-h:#a52323;
-  --ink:#f9f3e4;                    /* text on oxblood */
-  --gold:#a67f22;                   /* rings, brackets, borders */
-  --gold-d:#7f6018;                 /* gold, text-safe on card — 5.4:1 */
-  /* ── text: every value below passes AA on --card ── */
-  --text:#2c2318;                   /* 12.1:1 */
-  --muted:#6b5a3c;                  /* 5.9:1 — was #8a7856 @ 3.9:1, under AA */
-  --faint:#8a7856;                  /* 3.9:1 — decorative and placeholders ONLY, never body copy */
+  --acc:#d3564f;                    /* alert / hard sessions / eyebrows */
+  --acc-h:#e0685f;
+  --ink:#1a1410;                    /* text on a solid accent */
+  --gold:#d9b877;                   /* structure: labels, dates, icon strokes */
+  --gold-d:#e3c68f;                 /* gold that must carry text on the dark ground */
+  /* ── text ── */
+  --text:#f3ead4;                   /* 13.6:1 on the ground */
+  --muted:rgba(243,234,212,.62);
+  --faint:rgba(243,234,212,.38);    /* decorative and placeholders only */
   /* ── semantic ── */
-  --bad:#8f1a1a;
-  --good:#55602c;                   /* 5.2:1 — was #6f7a3f @ 3.2:1 */
-  --warn:#8a5a10;
+  --bad:#d3564f;
+  --good:#6fd8c9;                   /* live / done / interactive */
+  --warn:#e0a33c;
   /* ── category ── */
-  --cat-weights:#8f1a1a; --cat-hiit:#8a5a10; --cat-crossfit:#33514f;
-  /* ── type: three roles, three fonts, names that are true ── */
-  --display:'Cinzel','EB Garamond',Georgia,serif;                    /* headings, small caps labels */
-  --body:'EB Garamond',Georgia,'Times New Roman',serif;              /* prose */
-  --num:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace; /* numbers that change or align */
-  /* ── deprecated aliases, kept so the rest of the sheet needs no other edits ── */
+  --cat-weights:#d9b877; --cat-hiit:#e0a33c; --cat-crossfit:#6fd8c9;
+  /* ── type ── */
+  --display:'Cormorant Garamond','EB Garamond',Georgia,serif;
+  --body:'EB Garamond',Georgia,'Times New Roman',serif;
+  --num:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  /* ── aliases kept so the rest of the sheet needs no edits ── */
   --sans:var(--body); --mono:var(--num);
-  --blue:var(--gold); --teal:var(--gold);
+  --blue:var(--good); --teal:var(--good);
   --weights:var(--cat-weights); --hiit:var(--cat-hiit); --crossfit:var(--cat-crossfit);
 }
 html,body{height:100%}
-body{background:radial-gradient(120% 80% at 50% -10%,var(--bg2),var(--bg)) fixed;color:var(--text);font-family:var(--sans);line-height:1.5;
+body{background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.5;
   -webkit-font-smoothing:antialiased;overscroll-behavior-y:none;font-size:16.5px}
+/* the ground is pre-blurred at export — blurring a full-bleed image at runtime
+   costs a compositor layer on every scroll for no visual gain */
+body::before{content:'';position:fixed;inset:0;z-index:-2;background:url('assets/forest-bg.jpg') center/cover no-repeat}
+body::after{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:linear-gradient(180deg,rgba(6,5,4,.82) 0%,rgba(6,5,4,.5) 13%,rgba(6,5,4,.2) 32%,rgba(6,5,4,.38) 62%,rgba(6,5,4,.8) 100%)}
 /* ── Roman display type for headings & labels ── */
 .h1,.item-title,.stat-val,.hero-h1,.tm-big,.ov-title .t,.seg button,.btn-acc,.btn-lg{font-family:var(--display);letter-spacing:.01em}
 .eyebrow,.sec-label,.stat-lbl,.item-eyebrow,.grp,.tab span,.tag,.badge,.tm-label,.lbl,.log-date{font-family:var(--display)!important;letter-spacing:.14em}
@@ -491,6 +492,236 @@ hr.d{border:none;border-top:1px solid var(--border);margin:22px 0}
 .tally>div{padding:15px 4px}
 .tally .tv{font-size:22px}
 .tally .tl{font-size:9px}
+/* ══════════════════════════════════════════════════════════════════════
+   FOREST THEME — the whole app floats. Nothing is boxed: every surface
+   that used to be a card becomes a hairline-separated row on the ground.
+   Written as a layer at the end so the rules above stay readable and one
+   block can be lifted out if the theme is ever reverted.
+   ══════════════════════════════════════════════════════════════════════ */
+.card,.stat,.warmbox{background:none;border:none;border-bottom:1px solid var(--border);
+  border-radius:0;padding:16px 0;box-shadow:none}
+.card+.card{margin-top:0}
+.card:last-child,.stat:last-child{border-bottom:none}
+.stats,.stat-grid{gap:0}
+
+/* lifts: drop the frame, the texture and the corner brackets entirely */
+.lift,.lift:focus-within,.lift.done{background:none;border:none;
+  border-bottom:1px solid var(--border);border-radius:0;padding:17px 0;margin-bottom:0}
+.lift::before,.lift::after{display:none}
+.lift-name{font-family:var(--display);font-weight:500;font-size:19px;line-height:1.15}
+.lift-scheme{background:none;border:none;padding:0;margin-top:5px;color:var(--gold);
+  font-size:10px;letter-spacing:.05em}
+.lift.done{opacity:.62}
+
+/* inputs shed their boxes too — a rule under the number is enough */
+.inp{background:none;border:none;border-bottom:1px solid var(--border);border-radius:0;
+  padding:11px 2px;color:var(--text)}
+.inp:focus{border-bottom-color:var(--good)}
+.inp::placeholder{color:var(--faint)}
+.wt input{color:var(--text);border-bottom-color:rgba(217,184,119,.5)}
+.reps-inp,.rpe-inp{background:none;border:none;border-bottom:1px solid var(--border);
+  border-radius:0;color:var(--text)}
+
+/* buttons read as type, not chrome */
+.btn{background:none;border:none;color:var(--good);font-family:var(--display);
+  font-weight:600;font-size:15px;letter-spacing:.03em;padding:13px 4px}
+.btn-acc{background:none;color:var(--good);border:none}
+.btn-acc:hover{background:none;color:var(--good)}
+.btn-block{border-top:1px solid var(--border);border-radius:0;padding-top:15px;width:100%}
+.btn-danger{color:var(--bad);border:none;background:none}
+.btn-sm{font-size:13px}
+.mini{background:none;border:none;color:var(--good);font-family:var(--mono);font-size:10.5px;padding:7px 2px}
+#session .mini{background:none;border:none;color:var(--good);border-radius:0}
+#session .mini:hover{background:none;color:var(--good)}
+#session .mini.on,#session .mini.sug{background:none;border:none;color:var(--gold)}
+
+/* filters read as a row of words, so they need real space between them —
+   flex:1 with no gap ran "CrossFit" and "Custom" together */
+.seg{gap:18px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.seg button{flex:0 0 auto;min-width:0;background:none;border:none;border-radius:0;color:var(--muted);
+  font-family:var(--mono);font-size:11px;letter-spacing:.04em;padding:12px 0;white-space:nowrap}
+.seg button.on{background:none;color:var(--good);border:none}
+
+/* list rows float like everything else */
+.item{background:none;border:none;border-bottom:1px solid var(--border);border-radius:0;
+  padding:17px 0;box-shadow:none}
+.item:last-child{border-bottom:none}
+.item.hl{border-bottom-color:rgba(217,184,119,.45)}
+.pill{background:none;border:none;color:var(--muted)}
+.pill.on{color:var(--good)}
+
+/* chrome: the nav and the sheet stop being panels */
+.nav{background:linear-gradient(0deg,rgba(6,5,4,.86),rgba(6,5,4,0));
+  backdrop-filter:none;-webkit-backdrop-filter:none;border-top:none}
+.tab{color:var(--muted)}
+.tab.active{color:var(--good)}
+.ov-head{background:linear-gradient(180deg,rgba(6,5,4,.9),rgba(6,5,4,.35));
+  backdrop-filter:none;-webkit-backdrop-filter:none;border-bottom:none}
+.ov-back{background:none;border:1px solid rgba(243,234,212,.26);border-radius:50%}
+.ov-title .t{font-family:var(--display);font-weight:500;font-size:19px}
+
+/* overlays get their own copy of the ground so the view beneath is hidden
+   without flattening them to a solid colour */
+.overlay,.sheet-inner{background:url('assets/forest-bg.jpg') center/cover no-repeat fixed}
+.overlay::before,.sheet-inner::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:0;
+  background:linear-gradient(180deg,rgba(6,5,4,.82) 0%,rgba(6,5,4,.5) 13%,rgba(6,5,4,.2) 32%,rgba(6,5,4,.38) 62%,rgba(6,5,4,.8) 100%)}
+.overlay>*,.sheet-inner>*{position:relative;z-index:1}
+
+.timer,.timer.rest,.timer.work,.timer.go{background:url('assets/forest-bg.jpg') center/cover no-repeat fixed}
+.timer::before{content:'';position:absolute;inset:0;background:rgba(6,5,4,.72);pointer-events:none;z-index:0}
+.timer>*{position:relative;z-index:1}
+.tm-ring .bg{stroke:rgba(217,184,119,.2)}
+.timer.rest .tm-ring .fg,.timer .tm-ring .fg{stroke:var(--good)}
+.timer.go .tm-ring .fg{stroke:var(--gold)}
+.tm-preset{background:none;border:none;color:var(--muted)}
+.tm-preset.on{color:var(--good)}
+.tm-circ{background:none;border:1px solid rgba(243,234,212,.2);color:var(--muted)}
+
+.ask{background:rgba(6,5,4,.72)}
+.ask-box{background:#12100c;border:1px solid var(--border);box-shadow:0 18px 50px rgba(0,0,0,.6)}
+.toast{background:#12100c;border:1px solid var(--border);color:var(--text)}
+
+/* week strip and charts */
+.wk{background:none;border:none;border-bottom:1px solid var(--border);border-radius:0}
+.wk.now{border-bottom-color:var(--good)}
+.bar{background:linear-gradient(180deg,rgba(111,216,201,.5),rgba(111,216,201,.14));
+  border:none;border-radius:4px 4px 0 0}
+.bar.last{background:linear-gradient(180deg,rgba(217,184,119,.8),rgba(217,184,119,.22))}
+.mbar{background:rgba(111,216,201,.18);border:none;border-radius:4px 4px 0 0}
+.mbar.last{background:rgba(217,184,119,.4)}
+.tick{background:none;border:none;border-bottom:1px solid var(--border);border-radius:0;color:var(--faint)}
+.tick.on{color:var(--good);border-bottom-color:var(--good)}
+.log-row{border-bottom:1px solid var(--border)}
+.chk{background:none;border:1px solid rgba(111,216,201,.4);border-radius:50%;clip-path:none;
+  color:var(--good);width:38px;height:38px}
+.chk.on{background:radial-gradient(circle,rgba(111,216,201,.18),transparent 72%);
+  border-color:rgba(111,216,201,.6);color:var(--good);filter:drop-shadow(0 0 10px rgba(111,216,201,.35))}
+.note-inp{background:none;border:none;border-bottom:1px solid var(--border);border-radius:0}
+.ex-note{color:var(--good)}
+
+/* type: Cormorant is softer and lighter than Cinzel, so headings need less
+   tracking and a touch more size to hold the same weight on the page */
+.h1{font-family:var(--display);font-weight:500;font-size:34px;letter-spacing:.005em;line-height:1.05}
+.item-title{font-family:var(--display);font-weight:500;font-size:20px;letter-spacing:0}
+.hero-h1{font-family:var(--display);font-weight:500;letter-spacing:.005em}
+.eyebrow,.sec-label,.stat-lbl,.item-eyebrow,.grp,.tag,.badge,.lbl,.log-date{
+  font-family:var(--mono)!important;letter-spacing:.11em}
+.tab span,.tm-label{font-family:var(--display)!important;font-weight:600;letter-spacing:.03em}
+.h1,.item-title,.hero-h1,.ov-title .t{text-shadow:0 1px 7px rgba(0,0,0,.75)}
+
+/* ── Home: the monolith ── */
+body.home-rail .nav{display:none}
+body.home-rail #v-home{padding-bottom:24px}
+.mono{display:flex;flex-direction:column;min-height:calc(100vh - 150px)}
+.b-wrap{display:flex;align-items:center;gap:16px;flex:1}
+.b-spine{display:flex;flex-direction:column;gap:6px;flex-shrink:0}
+.b-spine i{width:3px;height:26px;border-radius:2px;background:rgba(243,234,212,.16)}
+.b-spine i.on{background:var(--good)}
+.b-spine i.now{background:var(--gold);height:34px}
+.b-mid{flex:1;min-width:0}
+.b-eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--acc);margin-bottom:12px}
+.b-big{font-family:var(--display);font-weight:500;font-size:clamp(34px,11vw,46px);line-height:1.02;
+  color:var(--text);text-shadow:0 4px 22px rgba(0,0,0,.7);margin-bottom:14px}
+.b-sub{font-family:var(--mono);font-size:10px;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:28px}
+.b-cta{font-family:var(--display);font-weight:600;font-size:21px;letter-spacing:.06em;
+  color:var(--good);cursor:pointer;display:inline-block}
+.b-cta:active{opacity:.6}
+.railR{display:flex;flex-direction:column;gap:18px;align-items:center;flex-shrink:0;width:56px}
+.rr{display:flex;flex-direction:column;align-items:center;gap:5px;color:rgba(243,234,212,.5);cursor:pointer}
+.rr svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.4;
+  box-sizing:content-box;padding:10px;border-radius:50%;border:1px solid rgba(243,234,212,.24)}
+.rr span{font-family:var(--mono);font-size:7.5px;letter-spacing:.05em;text-transform:uppercase}
+.rr.on{color:var(--good)}
+.rr.on svg{border-color:rgba(111,216,201,.5);box-shadow:0 0 14px rgba(111,216,201,.3)}
+.b-foot{display:flex;justify-content:space-between;gap:8px;border-top:1px solid var(--border);
+  padding-top:14px;margin-top:20px;font-family:var(--mono);font-size:9px;letter-spacing:.05em;
+  text-transform:uppercase;color:var(--faint)}
+.b-foot span{cursor:pointer}
+
+/* ── Plans landing: three floating paths, the middle one lit ── */
+.hub{display:flex;flex-direction:column;min-height:calc(100vh - 190px)}
+.hubttl{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:6px}
+.rails{position:relative;height:62px;margin-top:44px}
+.rails i{position:absolute;top:0;width:1px;height:62px;
+  background:linear-gradient(180deg,rgba(217,184,119,.28),rgba(217,184,119,0))}
+.catrow{display:flex;align-items:flex-start;justify-content:space-between;margin-top:-8px;
+  touch-action:pan-y}
+.catcol{flex:1;display:flex;flex-direction:column;align-items:center;gap:14px;cursor:pointer}
+.cat{position:relative;display:flex;align-items:center;justify-content:center}
+.cat .ring{position:relative;z-index:2;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;border:1px solid rgba(243,234,212,.24);transition:.25s}
+.cat .ring svg{fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:.25s}
+.cat .halo{position:absolute;border-radius:50%;z-index:1;opacity:0;transition:opacity .25s}
+.catcol .ring{width:56px;height:56px}
+.catcol .ring svg{width:26px;height:26px;stroke:rgba(243,234,212,.5)}
+.catname{font-family:var(--display);font-weight:500;font-size:14px;color:rgba(243,234,212,.5);transition:.25s}
+.catcol.on{margin-top:-16px}
+.catcol.on .ring{width:86px;height:86px;border-color:rgba(217,184,119,.85);
+  box-shadow:0 0 0 1px rgba(217,184,119,.25),inset 0 0 18px rgba(217,184,119,.14)}
+.catcol.on .ring svg{width:40px;height:40px;stroke:#fff6df}
+.catcol.on .halo{width:130px;height:130px;opacity:1;
+  background:radial-gradient(circle,rgba(217,184,119,.5) 0%,rgba(217,184,119,.16) 42%,transparent 70%)}
+.catcol.on .catname{font-weight:600;font-size:21px;color:#fff6df;text-shadow:0 0 16px rgba(217,184,119,.5)}
+.hubmeta{text-align:center;margin-top:34px}
+.hm-sub{font-size:13px;color:var(--muted)}
+.hm-count{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--faint);margin-top:7px}
+.dots3{display:flex;gap:7px;justify-content:center;margin-top:26px}
+.dots3 i{width:5px;height:5px;border-radius:50%;background:rgba(243,234,212,.22);cursor:pointer}
+.dots3 i.on{background:var(--gold);box-shadow:0 0 8px rgba(217,184,119,.6)}
+.hubcta{text-align:center;margin-top:auto;padding-top:18px;border-top:1px solid var(--border);
+  font-family:var(--display);font-weight:600;font-size:16px;color:var(--good);cursor:pointer}
+
+/* ── numbered preview ── */
+.nrow{display:flex;gap:13px;padding:13px 0;border-bottom:1px solid var(--border)}
+.nrow:last-child{border-bottom:none}
+.num{font-family:var(--mono);font-size:11px;color:var(--gold);width:20px;flex-shrink:0;padding-top:4px}
+.nrow.is-opt .num{color:var(--faint)}
+.nname{font-family:var(--display);font-weight:500;font-size:18px;color:var(--text);line-height:1.15}
+.nscheme{font-family:var(--mono);font-size:10px;color:var(--good);margin-top:5px}
+.ncue{font-size:12.5px;color:rgba(243,234,212,.52);line-height:1.6;margin-top:7px}
+
+/* ── set table (RPE lives in the per-set row, not a column) ── */
+.tbl{margin-top:16px}
+.tbl .th,.tbl .tr{display:grid;grid-template-columns:44px 1fr 1fr;gap:14px;align-items:center}
+.tbl .th{padding-bottom:10px;border-bottom:1px solid var(--border)}
+.tbl .th span{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--faint);text-align:center}
+.tbl .th span:first-child{text-align:left}
+.tbl .tr{padding:12px 0;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:16px;
+  color:var(--text);font-variant-numeric:tabular-nums}
+.tbl .tr:last-child{border-bottom:none}
+.tbl .tr>span:first-child{color:var(--faint);font-size:11px}
+.tbl .tr .v{text-align:center}
+.tbl .tr .v input{width:100%;text-align:center;background:none;border:none;color:var(--text);
+  font-family:var(--mono);font-size:16px;padding:4px 0;outline:none}
+.tbl .tr .v input::placeholder{color:var(--faint)}
+.tbl .tr.done>span:first-child{color:var(--good)}
+.tbl .tr.now{background:linear-gradient(90deg,rgba(217,184,119,.09),transparent)}
+.tbl .tr.now>span:first-child{color:var(--gold)}
+
+/* ── block timeline ── */
+.tline{margin-top:16px}
+.tl-i{display:flex;align-items:center;gap:12px;padding:10px 0;position:relative}
+.tl-t{font-family:var(--mono);font-size:10px;color:var(--faint);width:30px;flex-shrink:0;text-align:right}
+.tl-d{width:9px;height:9px;border-radius:50%;border:1px solid rgba(243,234,212,.3);flex-shrink:0}
+.tl-i::after{content:'';position:absolute;left:46px;top:58%;width:1px;height:26px;background:var(--border)}
+.tl-i:last-child::after{display:none}
+.tl-i.done .tl-d{background:var(--good);border-color:var(--good)}
+.tl-i.rest .tl-d{border-style:dashed}
+.tl-n{font-size:14px;color:var(--muted)}
+
+.navhdr-l{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--good);cursor:pointer;margin-bottom:16px;display:inline-block}
+.rpe-line{display:flex;align-items:center;gap:10px;padding:0 0 12px 58px;
+  border-bottom:1px solid var(--border);font-family:var(--mono);font-size:10px;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.rpe-line input{width:56px;background:none;border:none;border-bottom:1px solid var(--border);
+  color:var(--text);font-family:var(--mono);font-size:13px;padding:2px 0;outline:none;text-align:center}
+.tbl .tr{border-bottom:none}
 </style>
 </head>
 <body>
@@ -1026,6 +1257,9 @@ function nav(view){
   S.view=view;
   TABS.forEach(([id])=>{ $('v-'+id).classList.toggle('active',id===view); $('tab-'+id).classList.toggle('active',id===view); });
   $('acct').style.display=view==='home'?'flex':'none';
+  /* Home carries its own navigation rail, so the bottom bar would be a
+     second copy of the same five destinations */
+  document.body.classList.toggle('home-rail',view==='home');
   render(view);
   document.querySelector('.view.active')?.scrollTo?.(0,0);
   window.scrollTo(0,0);
@@ -1066,64 +1300,63 @@ function renderHome(){
   const ANIM={weights:['lion','640/400'],hiit:['griffin','640/390'],crossfit:['wolf','640/392']};
   const SWAP_IC='<svg viewBox="0 0 24 24"><path d="M4 5v5h5M20 19v-5h-5"/><path d="M19.5 10A8 8 0 006 6.3M4.5 14A8 8 0 0018 17.7"/></svg>';
   const FREE_IC='<svg viewBox="0 0 24 24"><path d="M4 4l9 9M13 4L4 13"/><path d="M16.5 12.5l3.5 3.5-1 3-3-1-.8-.8z"/></svg>';
+  /* ── Home is the monolith: one big name, one action, and the navigation
+     as a rail down the right. No bottom bar on this screen — the rail is it. ── */
+  const RAIL=[['home','Today'],['programs','Plans'],['workouts','Workouts'],
+              ['history','History'],['runs','Runs']];
+  const rail=`<div class="railR">`+RAIL.map(([v,label])=>
+      `<div class="rr ${v==='home'?'on':''}" onclick="nav('${v}')"><svg viewBox="0 0 24 24">${ICON[v]}</svg><span>${label}</span></div>`
+    ).join('')+`</div>`;
   let top;
   if(S.active){
     const p=progById(S.active.programId);
     const progWk=wkSessions.filter(s=>s.source?.type==='program' && s.source.programId===p.id).length;
     const progDone=Math.min(progWk,p.D.length);
-    const cur=nextDayIdx(p);                      // next program day, user-correctable
+    const cur=nextDayIdx(p);
     const d=p.D[cur];
     const wkNum=programWeek();
-    /* the weekly Zone 2 run is prescribed by the program, so it counts toward the week (3.5) */
     const runDone=runWkDone?1:0;
-    const target=p.D.length+1;                    // program days + one run
+    const target=p.D.length+1;
     const frac=(progDone+runDone)/target;
-    const off=RC*(1-frac);
-    const fill=frac;
-    const an=ANIM[p.cat];
+    /* the spine is the week: one segment per program day plus the run */
+    const spine=Array.from({length:target},(_,i)=>
+      `<i class="${i<progDone+runDone?'on':i===progDone+runDone?'now':''}"></i>`).join('');
     top=`
-     <div class="helios">
-      <div class="h-eyebrow">${HOUSE[p.cat]} · WEEK ${wkNum}</div>
-      <div class="h-hail">${GREETING[p.cat]}</div>
-      <div class="orbit">
-        <div class="rings"></div>
-        <svg class="ring" viewBox="0 0 100 100"><circle class="bg" cx="50" cy="50" r="45"/><circle class="fg" cx="50" cy="50" r="45" stroke-dasharray="${RC.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}"/></svg>
-        <div class="node tl" onclick="openProgram('${p.id}')">${SWAP_IC}<div class="nlbl">SWAP</div></div>
-        <div class="node tr" onclick="nav('workouts')">${FREE_IC}<div class="nlbl">FREE</div></div>
-        <div class="node bl" onclick="goBody()"><div class="nval">${bw!=null?fromKg(bw):'—'}<small>${uLbl()}</small></div><div class="nlbl">MASS</div></div>
-        <div class="node br" onclick="nav('history')"><div class="nval">${weekStreak()}<small>WK</small></div><div class="nlbl">UNBROKEN</div></div>
-        <div class="disc">
-          <div class="spark">✦</div>
-          <div class="day"><span class="daynudge" onclick="event.stopPropagation();bumpDay('${p.id}',-1)">‹</span>DAY ${cur+1} / ${p.D.length}<span class="daynudge" onclick="event.stopPropagation();bumpDay('${p.id}',1)">›</span></div>
-          <div class="wname">${esc(d.name)}</div>
-          <button class="rise" onclick="riseNow('${p.id}',${cur})">RISE</button>
+     <div class="mono">
+      <div class="b-wrap">
+        <div class="b-spine">${spine}</div>
+        <div class="b-mid">
+          <div class="b-eyebrow"><span class="daynudge" onclick="bumpDay('${p.id}',-1)">&lsaquo;</span>Day ${cur+1} of ${p.D.length}<span class="daynudge" onclick="bumpDay('${p.id}',1)">&rsaquo;</span></div>
+          <div class="b-big">${esc(d.name)}</div>
+          <div class="b-sub">${esc(CAT_NAME[p.cat])} &middot; Week ${wkNum}</div>
+          <div class="b-cta" onclick="riseNow('${p.id}',${cur})">Start workout</div>
         </div>
+        ${rail}
       </div>
-      <div class="runpip ${runDone?'on':''}" onclick="nav('runs')">${runDone?'✓ ':''}ZONE 2 RUN</div>
-      <div class="sigil" style="aspect-ratio:${an[1]}" aria-label="Week ${Math.round(fill*100)}% complete">
-        <img src="assets/${an[0]}-outline.png" alt="">
-        <img class="fill" style="--t:${(100-fill*100).toFixed(1)}%" src="assets/${an[0]}-fill.png" alt="">
+      <div class="b-foot">
+        <span onclick="nav('history')">${weekCount} this week</span>
+        <span onclick="nav('history')">${weekStreak()} wk unbroken</span>
+        <span onclick="goBody()">${bw!=null?fromKg(bw)+' '+uLbl():'— '+uLbl()}</span>
       </div>
      </div>`;
   } else {
     top=`
-     <div class="helios">
-      <div class="h-eyebrow">NO HOUSE SWORN</div>
-      <div class="h-hail">Hail, Reaper</div>
-      <div class="orbit">
-        <div class="rings"></div>
-        <svg class="ring" viewBox="0 0 100 100"><circle class="bg" cx="50" cy="50" r="45"/></svg>
-        <div class="node tr" onclick="nav('workouts')">${FREE_IC}<div class="nlbl">FREE</div></div>
-        <div class="node bl" onclick="goBody()"><div class="nval">${bw!=null?fromKg(bw):'—'}<small>${uLbl()}</small></div><div class="nlbl">MASS</div></div>
-        <div class="node br" onclick="nav('history')"><div class="nval">${weekStreak()}<small>WK</small></div><div class="nlbl">UNBROKEN</div></div>
-        <div class="disc">
-          <div class="spark">✦</div>
-          <div class="day">CHOOSE YOUR PATH</div>
-          <div class="wname" style="font-size:26px">The Rising</div>
-          <button class="rise" onclick="nav('programs')">ENLIST</button>
+     <div class="mono">
+      <div class="b-wrap">
+        <div class="b-spine"><i></i><i></i><i></i><i></i></div>
+        <div class="b-mid">
+          <div class="b-eyebrow">No plan yet</div>
+          <div class="b-big">Hail,<br>Reaper</div>
+          <div class="b-sub">Choose a path to begin</div>
+          <div class="b-cta" onclick="nav('programs')">Choose a plan</div>
         </div>
+        ${rail}
       </div>
-      <div class="sigil" style="aspect-ratio:640/461;opacity:.4"><img src="assets/lion-outline.png" alt=""></div>
+      <div class="b-foot">
+        <span onclick="nav('history')">${weekCount} this week</span>
+        <span onclick="nav('history')">${weekStreak()} wk unbroken</span>
+        <span onclick="goBody()">${bw!=null?fromKg(bw)+' '+uLbl():'— '+uLbl()}</span>
+      </div>
      </div>`;
   }
   const tally=`<div class="tally" style="grid-template-columns:repeat(4,1fr)">
@@ -1160,7 +1393,9 @@ function renderHome(){
       <div style="color:var(--muted);font-size:13px">All ${S.sessions.length} session${S.sessions.length!==1?'s':''} are safe on this device — nothing is lost. Tap to retry, or export a backup from Settings.</div>
     </div>`:'';
   const weekStrip=`<div class="sec-label">This week</div>`+weekStripHTML();
-  $('v-home').innerHTML=syncErr+resume+deload+checkin+top+tally+weekStrip;
+  /* the monolith deliberately shows almost nothing; banners still surface
+     because they need action, but the tally and week strip now live in History */
+  $('v-home').innerHTML=syncErr+resume+deload+checkin+top;
 }
 function liftsPreview(d){
   const parts=(d.lifts||[]).map(l=>l.n);
@@ -1172,21 +1407,79 @@ function liftsPreview(d){
 /* ═══════════════════════════════════════════════════════════════
    PROGRAMS
 ═══════════════════════════════════════════════════════════════ */
+/* Plans opens on a chooser rather than a list: three paths, the middle one lit.
+   _planCat is the highlighted index, _planIn is whether we've drilled in. */
+let _planCat=1, _planIn=false;
+const PLAN_CATS=[
+  ['weights','Weights','Barbell work, progressive overload'],
+  ['hiit','HIIT','Alternating hard &amp; moderate'],
+  ['crossfit','CrossFit','Strength piece plus a metcon'],
+];
+const CAT_GLYPH={
+  weights:'<path d="M10 22v20M20 14v36M44 14v36M54 22v20M20 32h24"/>',
+  hiit:'<path d="M35 6 14 36h16l-3 22 21-30H32z"/>',
+  crossfit:'<path d="M32 56a15 15 0 0 0 15-15c0-7.5-5-12.5-8.8-20-1.2 5-3.8 7.5-5 11.2C32 26 29.5 22 27 15.5c-5 7.5-10 16.2-10 25.5A15 15 0 0 0 32 56z"/>',
+};
+function planPick(i){ _planCat=(i+PLAN_CATS.length)%PLAN_CATS.length; renderPrograms(); }
+function planEnter(){ _planIn=true; renderPrograms(); }
+function planBack(){ _planIn=false; renderPrograms(); }
+
 function renderPrograms(){
-  let html=`<div class="eyebrow">Campaigns</div><div class="h1">Legion</div>
-    <div class="lede">Pick one and run it for 6–8 weeks. Deload a week, then continue or switch.</div>`;
-  ['weights','hiit','crossfit'].forEach(cat=>{
-    html+=`<div class="sec-label">${CAT_NAME[cat]}</div>`;
-    PROGRAMS.filter(p=>p.cat===cat).forEach(p=>{
-      const on=S.active?.programId===p.id;
-      html+=`<div class="item ${on?'hl':''}" onclick="openProgram('${p.id}')">
-        <div class="item-eyebrow"><span class="tag tag-${p.cat}">${p.days}-DAY</span>${on?` <span class="tag" style="background:rgba(111,122,63,.2);color:var(--good)">ACTIVE</span>`:''}</div>
-        <div class="item-title">${esc(p.subtitle)}</div>
-        <div class="item-sub">${esc(p.layout)}</div></div>`;
-    });
+  if(_planIn) return renderProgramList();
+  const [cat,name,blurb]=PLAN_CATS[_planCat];
+  const n=PROGRAMS.filter(p=>p.cat===cat).length;
+  const cols=PLAN_CATS.map(([c,label],i)=>
+    `<div class="catcol ${i===_planCat?'on':''}" onclick="planPick(${i})">
+       <div class="cat"><div class="halo"></div>
+         <div class="ring"><svg viewBox="0 0 64 64">${CAT_GLYPH[c]}</svg></div></div>
+       <div class="catname">${label}</div>
+     </div>`).join('');
+  $('v-programs').innerHTML=`
+    <div class="hub">
+      <div class="hubttl">Choose your path</div>
+      <div class="rails"><i style="left:16%"></i><i style="left:50%"></i><i style="left:84%"></i></div>
+      <div class="catrow" id="catrow">${cols}</div>
+      <div class="hubmeta">
+        <div class="hm-sub">${blurb}</div>
+        <div class="hm-count">${n} program${n!==1?'s':''}</div>
+      </div>
+      <div class="dots3">${PLAN_CATS.map((_,i)=>
+        `<i class="${i===_planCat?'on':''}" onclick="planPick(${i})"></i>`).join('')}</div>
+      <div class="hubcta" onclick="planEnter()">Select &rarr;</div>
+    </div>`;
+  bindHubSwipe();
+}
+
+/* Pointer events rather than touch, so a mouse drag works the same as a finger.
+   A tap on a side emblem already selects it, so swiping is an accelerator and
+   never the only way in. */
+function bindHubSwipe(){
+  const row=$('catrow'); if(!row) return;
+  let x0=null;
+  row.addEventListener('pointerdown',e=>{ x0=e.clientX; });
+  row.addEventListener('pointerup',e=>{
+    if(x0==null) return;
+    const dx=e.clientX-x0; x0=null;
+    if(Math.abs(dx)>40) planPick(_planCat+(dx<0?1:-1));
+  });
+  row.addEventListener('pointercancel',()=>{ x0=null; });
+}
+
+function renderProgramList(){
+  const [cat,name]=PLAN_CATS[_planCat];
+  let html=`<div class="navhdr-l" onclick="planBack()">&lsaquo; All paths</div>
+    <div class="eyebrow">${esc(CAT_NAME[cat])}</div><div class="h1">${name}</div>
+    <div class="lede">Pick one and run it for 6&ndash;8 weeks. Deload a week, then continue or switch.</div>`;
+  PROGRAMS.filter(p=>p.cat===cat).forEach(p=>{
+    const on=S.active?.programId===p.id;
+    html+=`<div class="item ${on?'hl':''}" onclick="openProgram('${p.id}')">
+      <div class="item-eyebrow"><span class="tag tag-${p.cat}">${p.days}-DAY</span>${on?` <span class="tag" style="color:var(--good)">ACTIVE</span>`:''}</div>
+      <div class="item-title">${esc(p.subtitle)}</div>
+      <div class="item-sub">${esc(p.layout)}</div></div>`;
   });
   $('v-programs').innerHTML=html;
 }
+
 function openProgram(pid){
   const p=progById(pid);
   $('sh-title').textContent=p.subtitle;
@@ -1211,25 +1504,40 @@ function openProgram(pid){
    preview and the live session row, so a WOD/block reads the same way
    wherever it's shown — one line per movement instead of a text blob. */
 function bankBreakdownHTML(b){
+  /* a block reads as a run down the page: duration on the left, each movement a
+     node, the rest between rounds shown as its own step rather than a footnote */
+  const items=(b.items||[]).map(it=>
+    `<div class="tl-i"><span class="tl-t">${esc(it.s||'')}</span><span class="tl-d"></span>
+       <span class="tl-n">${esc(it.n)}</span></div>`).join('');
+  const rest=b.rest?`<div class="tl-i rest"><span class="tl-t"></span><span class="tl-d"></span>
+       <span class="tl-n">${esc(b.rest)}</span></div>`:'';
   return `${b.format?`<div class="wod-format">${esc(b.format)}</div>`:''}
-    <div class="wod-items">${(b.items||[]).map(it=>
-      `<div class="wod-item"><span>${esc(it.n)}</span>${it.s?`<span class="s">${esc(it.s)}</span>`:''}</div>`).join('')}</div>
-    ${b.rest?`<div class="wod-rest">${esc(b.rest)}</div>`:''}`;
+    <div class="tline">${items}${rest}</div>`;
 }
 function dayContentPreview(d){
   let out=[];
-  if(d.lifts?.length) out.push(`<div class="prev-sec">${d.lifts.map(l=>{
+  /* numbered: the numeral anchors each lift, sets and reps are called out in
+     the accent, and the cue is indented under both */
+  if(d.lifts?.length) out.push(`<div class="prev-sec">${d.lifts.map((l,i)=>{
     const cue=exDesc(l.n);
-    return `<div class="prev-lift"><div class="prev-lift-top"><span>${esc(l.n)}</span><span class="s">${esc(l.s)}</span></div>${cue?`<div class="ex-cue">${esc(cue)}</div>`:''}</div>`;
+    const m=String(l.s).match(/^(\d+)\s*[×x]\s*(.+)$/);
+    const scheme=m?`${m[1]} sets · ${m[2]} reps`:l.s;
+    return `<div class="nrow"><div class="num">${String(i+1).padStart(2,'0')}</div><div class="nbody">
+      <div class="nname">${esc(l.n)}</div>
+      <div class="nscheme">${esc(scheme)}</div>
+      ${cue?`<div class="ncue">${esc(cue)}</div>`:''}</div></div>`;
   }).join('')}</div>`);
   if(d.cond){ const b=BLOCK_BANK[d.cond]; out.push(`<div class="prev-sec"><div class="prev-h">${esc(b.name)}</div>${bankBreakdownHTML(b)}</div>`); }
   if(d.wod){ const w=WOD_BANK[d.wod]; out.push(`<div class="prev-sec"><div class="prev-h">${esc(w.name)}</div>${bankBreakdownHTML(w)}</div>`); }
   if(d.ab){ const a=AB_BANK[d.ab];
-    out.push(`<div class="prev-sec"><span class="opt">optional</span> Ab burner ${d.ab} — ${esc(a.title)}<div style="margin-top:8px">${a.items.map(it=>
-      `<div class="prev-line">${esc(it.n)} <span style="color:var(--faint)">${esc(it.s)}</span></div>`).join('')}</div></div>`); }
+    out.push(`<div class="prev-sec"><div class="nrow is-opt"><div class="num">—</div><div class="nbody">
+      <div class="nname">Ab burner ${d.ab}</div>
+      <div class="nscheme">${esc(a.title)} · optional</div>
+      <div class="ncue">${a.items.map(it=>esc(it.n)+' '+esc(it.s)).join(' · ')}</div></div></div></div>`); }
   return out.join('');
 }
-function setActive(pid){ S.active={programId:pid,startedISO:todayISO()}; persist(); toast('Program set active',true); closeSheet(); nav('home'); }
+function setActive(pid){ S.active={programId:pid,startedISO:todayISO()};
+  const ci=PLAN_CATS.findIndex(c=>c[0]===progById(pid).cat); if(ci>=0) _planCat=ci; persist(); toast('Program set active',true); closeSheet(); nav('home'); }
 async function clearActive(){
   if(!await ask('End the active program? Your logged sessions stay.',{ok:'End program',danger:true})) return;
   S.active=null; persist(); renderHome();
@@ -1561,21 +1869,29 @@ function setCountFor(id){
       fill them without re-rendering (and losing focus on) the whole session ── */
 function setRowsHTML(id,n){
   const l=S.draft.log[id]||{};
-  return Array.from({length:n},(_,i)=>{
+  const done=(l.sets||[]).filter(x=>x&&x.w!=null&&x.reps!=null).length;
+  /* three columns only — RPE was the least-used and cost the most width, so it
+     sits under the row it belongs to rather than squeezing kg and reps */
+  const head=`<div class="th"><span>Set</span><span>${uLbl()}</span><span>Reps</span></div>`;
+  const rows=Array.from({length:n},(_,i)=>{
     const st=(l.sets||[])[i]||{};
-    return `<div class="set-line"><span class="set-lbl">S${i+1}</span>
-      <div class="wt"><input type="number" step="0.5" inputmode="decimal" placeholder="—"
+    const filled=st.w!=null&&st.reps!=null;
+    const cls=filled?'done':(i===done?'now':'');
+    return `<div class="tr ${cls}">
+      <span>${i+1}</span>
+      <span class="v"><input type="number" step="0.5" inputmode="decimal" placeholder="—"
         value="${st.w!=null?fromKg(st.w):''}"
         oninput="setSetW('${id}',${i},this.value,false)"
         onchange="setSetW('${id}',${i},this.value,true)"
-        onblur="setSetW('${id}',${i},this.value,true)"><span class="u">${uLbl()}</span></div>
-      <span class="x">×</span>
-      <input class="reps-inp" type="number" inputmode="numeric" placeholder="reps"
-        value="${st.reps??''}" oninput="setSetR('${id}',${i},this.value)">
-      <input class="rpe-inp" type="number" min="1" max="10" step="0.5" inputmode="decimal" placeholder="RPE"
-        value="${st.rpe??''}" oninput="setSetRPE('${id}',${i},this.value)">
-    </div>`;
+        onblur="setSetW('${id}',${i},this.value,true)"></span>
+      <span class="v"><input type="number" inputmode="numeric" placeholder="—"
+        value="${st.reps??''}" oninput="setSetR('${id}',${i},this.value)"></span>
+    </div>
+    <div class="rpe-line"><span>RPE</span><input type="number" min="1" max="10" step="0.5"
+      inputmode="decimal" placeholder="—" value="${st.rpe??''}"
+      oninput="setSetRPE('${id}',${i},this.value)"></div>`;
   }).join('');
+  return `<div class="tbl">${head}${rows}</div>`;
 }
 function renderSetRows(id){ const p=$('sets-'+id); if(p) p.innerHTML=setRowsHTML(id,setCountFor(id)); }
 /* commit=false on every keystroke (persists silently); commit=true only on
@@ -2137,7 +2453,7 @@ function checkWeeklyReminder(){
     const body='Take a progress photo, weigh in, and log it in the Body tab.';
     try{
       if(navigator.serviceWorker?.ready) navigator.serviceWorker.ready
-        .then(reg=>reg.showNotification('MG Training — Monday check-in',{body,icon:'icon.svg',tag:'mgt-weekly'}))
+        .then(reg=>reg.showNotification('MG Training — Monday check-in',{body,icon:'assets/icon-dragon-512.png',tag:'mgt-weekly'}))
         .catch(()=>new Notification('MG Training — Monday check-in',{body}));
       else new Notification('MG Training — Monday check-in',{body});
     }catch(e){}
