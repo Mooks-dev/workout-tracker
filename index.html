@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Per Aspera</title>
+<title>Sisu</title>
 
 <!-- PWA -->
 <link rel="manifest" href="manifest.json">
@@ -11,7 +11,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Per Aspera">
+<meta name="apple-mobile-web-app-title" content="Sisu">
 <link rel="apple-touch-icon" href="assets/icon-dragon-512.png">
 
 <style>
@@ -256,11 +256,6 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
 .reps-inp{width:64px;background:var(--card2);border:1px solid var(--border);border-radius:10px;color:var(--text);
   font-family:var(--mono);font-size:14px;padding:8px 10px;text-align:center;outline:none}
 .reps-inp:focus{border-color:var(--acc)}
-.rpe-inp{width:58px;background:var(--card2);border:1px solid var(--border);border-radius:10px;
-  color:var(--text);font-family:var(--num);font-variant-numeric:tabular-nums;font-size:14px;
-  padding:8px 6px;text-align:center;outline:none}
-.rpe-inp:focus{border-color:var(--gold)}
-.rpe-inp::placeholder{color:var(--faint);font-size:10px;letter-spacing:.06em}
 .set-line{gap:7px}
 .set-line .wt input{width:78px;font-size:17px}
 #session .mini.sug{border-color:var(--good);color:var(--good);background:rgba(85,96,44,.09)}
@@ -524,9 +519,7 @@ hr.d{border:none;border-top:1px solid var(--border);margin:22px 0}
 .inp:focus{border-bottom-color:var(--good)}
 .inp::placeholder{color:var(--faint)}
 .wt input{color:var(--text);border-bottom-color:rgba(217,184,119,.5)}
-.reps-inp,.rpe-inp{background:none;border:none;border-bottom:1px solid var(--border);
-  border-radius:0;color:var(--text)}
-
+.reps-inp,
 /* buttons read as type, not chrome */
 .btn{background:none;border:none;color:var(--good);font-family:var(--display);
   font-weight:600;font-size:15px;letter-spacing:.03em;padding:13px 4px}
@@ -649,9 +642,6 @@ body.home-rail #v-home{padding-bottom:calc(24px + env(safe-area-inset-bottom))}
 .hub{display:flex;flex-direction:column;min-height:calc(100vh - 190px)}
 .hubttl{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
   color:var(--muted);margin-bottom:6px}
-.rails{position:relative;height:62px;margin-top:44px}
-.rails i{position:absolute;top:0;width:1px;height:62px;
-  background:linear-gradient(180deg,rgba(217,184,119,.28),rgba(217,184,119,0))}
 .catrow{display:flex;align-items:flex-start;justify-content:space-between;margin-top:-8px;
   touch-action:pan-y}
 .catcol{flex:1;display:flex;flex-direction:column;align-items:center;gap:14px;cursor:pointer}
@@ -689,7 +679,7 @@ body.home-rail #v-home{padding-bottom:calc(24px + env(safe-area-inset-bottom))}
 .nscheme{font-family:var(--mono);font-size:10px;color:var(--good);margin-top:5px}
 .ncue{font-size:12.5px;color:rgba(243,234,212,.52);line-height:1.6;margin-top:7px}
 
-/* ── set table (RPE lives in the per-set row, not a column) ── */
+/* ── set table ── */
 .tbl{margin-top:16px}
 .tbl .th,.tbl .tr{display:grid;grid-template-columns:44px 1fr 1fr;gap:14px;align-items:center}
 .tbl .th{padding-bottom:10px;border-bottom:1px solid var(--border)}
@@ -754,13 +744,17 @@ body.home-rail #v-home{padding-bottom:calc(24px + env(safe-area-inset-bottom))}
 .tbl-foot .prev{margin-left:0;order:-1}
 .tbl-foot .mini:last-child{margin-left:auto}
 
+.pgr{touch-action:pan-y}
+.pgr-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:4px}
+.pgr-t{font-family:var(--display);font-weight:500;font-size:27px;line-height:1.08;color:var(--text)}
+.pgr-s{font-size:13px;color:var(--muted);margin-top:3px}
+.pgr-pos{font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--faint);
+  flex-shrink:0;padding-top:8px}
+.pgr-hint{text-align:center;margin-top:14px;font-family:var(--mono);font-size:9px;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+
 .navhdr-l{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
   color:var(--good);cursor:pointer;margin-bottom:16px;display:inline-block}
-.rpe-line{display:flex;align-items:center;gap:10px;padding:0 0 12px 58px;
-  border-bottom:1px solid var(--border);font-family:var(--mono);font-size:10px;
-  letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
-.rpe-line input{width:56px;background:none;border:none;border-bottom:1px solid var(--border);
-  color:var(--text);font-family:var(--mono);font-size:13px;padding:2px 0;outline:none;text-align:center}
 .tbl .tr{border-bottom:none}
 /* ── the mockup's row: an icon, then title / sub / meta ── */
 .icn{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;
@@ -1530,7 +1524,7 @@ const CAT_GLYPH={
   hiit:'<path d="M35 6 14 36h16l-3 22 21-30H32z"/>',
   crossfit:'<path d="M32 56a15 15 0 0 0 15-15c0-7.5-5-12.5-8.8-20-1.2 5-3.8 7.5-5 11.2C32 26 29.5 22 27 15.5c-5 7.5-10 16.2-10 25.5A15 15 0 0 0 32 56z"/>',
 };
-let _planTapAt=0, _planTapIdx=-1;
+let _planTapAt=0, _planTapIdx=-1, _progIdx=0;
 function planPick(i){ _planCat=(i+PLAN_CATS.length)%PLAN_CATS.length; renderPrograms(); }
 /* one tap highlights, two opens. Tracked by hand rather than using dblclick so
    the same gesture works from a finger, where dblclick is unreliable. */
@@ -1539,7 +1533,7 @@ function planTap(i){
   if(i===_planTapIdx && now-_planTapAt<400){ _planTapAt=0; _planTapIdx=-1; _planCat=i; return planEnter(); }
   _planTapAt=now; _planTapIdx=i; planPick(i);
 }
-function planEnter(){ _planIn=true; renderPrograms(); }
+function planEnter(){ _planIn=true; _progIdx=0; renderPrograms(); }
 function planBack(){ _planIn=false; renderPrograms(); }
 
 function renderPrograms(){
@@ -1562,7 +1556,6 @@ function renderPrograms(){
     <div class="hub">
       <div class="hubttl">Choose a category</div>
       <div class="hubmid">
-        <div class="rails"><i style="left:16%"></i><i style="left:50%"></i><i style="left:84%"></i></div>
         <div class="catrow" id="catrow">${cols}</div>
         <div class="hubmeta">
           <div class="hm-sub">${blurb}</div>
@@ -1589,48 +1582,51 @@ function bindHubSwipe(){
 }
 
 function renderProgramList(){
-  const [cat,name]=PLAN_CATS[_planCat];
+  const [cat]=PLAN_CATS[_planCat];
   const list=PROGRAMS.filter(p=>p.cat===cat);
-  let feat='';
-  if(S.active && progById(S.active.programId).cat===cat){
-    const p=progById(S.active.programId), cur=nextDayIdx(p), d=p.D[cur];
-    const dots=p.D.map((_,i)=>`<i class="${i<cur?'on':i===cur?'now':''}"></i>`).join('');
-    feat=`<div class="feat" onclick="riseNow('${p.id}',${cur})">
-        ${ic('play','lg sq')}
-        <div class="feat-b">
-          <div class="eyebrow" style="color:var(--acc)">Continue</div>
-          <div class="feat-t">${esc(p.title)}</div>
-          <div class="mrow-s">Day ${cur+1} of ${p.D.length} &middot; ${esc(d.name)}</div>
-          <div class="dots">${dots}</div>
+  if(_progIdx>=list.length) _progIdx=0;
+  const p=list[_progIdx];
+  const active=S.active?.programId===p.id;
+  /* one program at a time, in full — swipe across rather than tapping in */
+  $('v-programs').innerHTML=`
+    <div class="navhdr-l" onclick="planBack()">&lsaquo; All categories</div>
+    <div class="pgr" id="pgr">
+      <div class="pgr-head">
+        <div class="pgr-ttl">
+          <div class="pgr-t">${esc(p.title)}</div>
+          <div class="pgr-s">${esc(p.subtitle)}</div>
         </div>
+        <div class="pgr-pos">${_progIdx+1} / ${list.length}</div>
       </div>
-      <div class="feat-cta" onclick="riseNow('${p.id}',${cur})">Resume &rarr;</div>`;
-  }
-  const rows=list.map(p=>{
-    const on=S.active?.programId===p.id;
-    return `<div class="mrow" onclick="openProgram('${p.id}')">
-      ${ic(CAT_G[p.cat], on?'lg sq':'sm sq')}
-      <div class="mrow-b">
-        <div class="mrow-t">${esc(p.title)}</div>
-        <div class="mrow-s">${esc(p.subtitle)}</div>
-        <div class="mrow-m ${on?'live':''}">${on?'Active now':esc(p.layout)}</div>
-      </div></div>`;
-  }).join('');
-  $('v-programs').innerHTML=`<div class="navhdr-l" onclick="planBack()">&lsaquo; All categories</div>
-    ${feat}<div class="sec-label">${list.length} program${list.length!==1?'s':''}</div>${rows}`;
+      ${programBreakdownHTML(p)}
+      <div class="cta-block" onclick="${active?`riseNow('${p.id}',${nextDayIdx(p)})`:`setActive('${p.id}')`}">
+        ${active?'Resume &rarr;':'Set as my plan'}</div>
+      <div class="pgr-hint">${list.length>1?'Swipe across for the '+(list.length-1)+' other '+(list.length===2?'plan':'plans'):''}</div>
+    </div>`;
+  bindProgSwipe(list.length);
+}
+/* same pointer-based gesture as the category hub: mouse and finger behave
+   identically, and a drag under 40px stays a tap so the day rows still work */
+function bindProgSwipe(n){
+  const el=$('pgr'); if(!el||n<2) return;
+  let x0=null,y0=null;
+  el.addEventListener('pointerdown',e=>{ x0=e.clientX; y0=e.clientY; });
+  el.addEventListener('pointerup',e=>{
+    if(x0==null) return;
+    const dx=e.clientX-x0, dy=e.clientY-y0; x0=null;
+    if(Math.abs(dx)>40 && Math.abs(dx)>Math.abs(dy)){
+      _progIdx=(_progIdx+(dx<0?1:-1)+n)%n;
+      renderProgramList();
+    }
+  });
+  el.addEventListener('pointercancel',()=>{ x0=null; });
 }
 
-
-function openProgram(pid){
-  const p=progById(pid);
-  $('sh-title').textContent=p.title;
-  $('sh-sub').textContent=p.subtitle;
-  const active=S.active?.programId===pid;
-  $('sh-action').innerHTML=`<button class="btn btn-acc btn-sm" onclick="setActive('${pid}')">${active?'Active ✓':'Set active'}</button>`;
-  /* the mockup's program screen: a layout note, then the days as plain rows
-     whose icon carries the state — done, next up, or not yet reached */
+/* the day rows + layout note, shared by the swipeable Plans pager */
+function programBreakdownHTML(p){
+  const active=S.active?.programId===p.id;
   const cur = active ? nextDayIdx(p) : -1;
-  let body=`<div class="rblock">
+  let out=`<div class="rblock">
       <div class="eyebrow">Layout</div>
       <div class="body-sm">${esc(p.layout)}</div>
       <div class="body-sm live" style="margin-top:9px">Run: ${esc(p.run)}</div>
@@ -1638,12 +1634,12 @@ function openProgram(pid){
     <div class="sec-label">${p.D.length} days</div>`;
   p.D.forEach((d,i)=>{
     const nl=(d.lifts||[]).length;
-    const state = cur<0 ? 'empty' : i<cur ? 'done' : i===cur ? 'now' : 'empty';
+    const state = cur<0 ? 'blank' : i<cur ? 'done' : i===cur ? 'now' : 'blank';
     const glyph = state==='done' ? 'check' : state==='now' ? 'play' : null;
     const iconHTML = glyph
       ? `<div class="icn ${state==='done'?'done':'gold'}"><svg viewBox="0 0 24 24">${G[glyph]}</svg></div>`
       : `<div class="icn blank"></div>`;
-    body+=`<div class="mrow" onclick="startProgramDay('${pid}',${i})">
+    out+=`<div class="mrow" onclick="startProgramDay('${p.id}',${i})">
       ${iconHTML}
       <div class="mrow-b">
         <div class="mrow-t">${esc(d.name)}</div>
@@ -1652,7 +1648,15 @@ function openProgram(pid){
       </div>
       ${d.tag?`<span class="tag ${d.tag==='Hard'?'hard':'mod'}">${d.tag}</span>`:''}</div>`;
   });
-  openSheet(); $('sh-body').innerHTML=body;
+  return out;
+}
+function openProgram(pid){
+  const p=progById(pid);
+  $('sh-title').textContent=p.title;
+  $('sh-sub').textContent=p.subtitle;
+  const active=S.active?.programId===pid;
+  $('sh-action').innerHTML=`<button class="btn btn-acc btn-sm" onclick="setActive('${pid}')">${active?'Active ✓':'Set active'}</button>`;
+  openSheet(); $('sh-body').innerHTML=programBreakdownHTML(p);
 }
 /* format + itemized movement list (+ rest note) shared by the pre-start
    preview and the live session row, so a WOD/block reads the same way
@@ -1710,10 +1714,9 @@ function drawSettings(){
     </div>
     <div class="sec-label">Rest timer</div>
     <div class="card">
-      <div class="spread"><div><div class="item-title" style="font-size:15px">Auto-start on check-off</div>
-        <div class="item-sub">Ticking a lift ✓ opens the rest timer (abs use 45 s).</div></div>
-        <button class="pill ${S.autoRest?'on':''}" onclick="S.autoRest=!S.autoRest;persist();drawSettings()">${S.autoRest?'On':'Off'}</button></div>
-      ${S.autoRest?`<div class="seg" style="margin-top:14px;margin-bottom:0">${[[60,'1m'],[90,'90s'],[120,'2m'],[180,'3m']].map(([s,l])=>`<button class="${S.autoRestSec===s?'on':''}" onclick="S.autoRestSec=${s};persist();drawSettings()">${l}</button>`).join('')}</div>`:''}
+      <div class="spread"><div><div class="item-title" style="font-size:15px">Default rest</div>
+        <div class="item-sub">Used by the rest control on each lift.</div></div></div>
+      <div class="seg" style="margin-top:14px;margin-bottom:0">${[[60,'1m'],[90,'90s'],[120,'2m'],[180,'3m']].map(([s,l])=>`<button class="${S.autoRestSec===s?'on':''}" onclick="S.autoRestSec=${s};persist();drawSettings()">${l}</button>`).join('')}</div>
     </div>
     <div class="sec-label">Weekly check-in</div>
     <div class="card">
@@ -1965,7 +1968,7 @@ function rowHTML(r){
       if(prev){
         const c=setsTop(lg); let cls='',sym='→';
         if(c!=null&&c>prev.w){cls='up';sym='↑';} if(c!=null&&c<prev.w){cls='dn';sym='↓';}
-        const detail=[prev.reps?`×${prev.reps}`:'',prev.rpe?`@${prev.rpe}`:''].filter(Boolean).join(' ');
+        const detail=prev.reps?`×${prev.reps}`:'';
         prevHTML=`<span class="prev"><span class="${cls}">${sym} ${fromKg(prev.w)}${uLbl()}${detail?' '+detail:''}</span></span>`;
       } else prevHTML='';
     }
@@ -2020,7 +2023,7 @@ function rowHTML(r){
 function refreshPrev(id,kg){
   const row=$('row-'+id); const prev=prevWeight(id); const pEl=row?.querySelector('.prev');
   if(pEl&&prev){ let cls='',sym='→'; if(kg!=null&&kg>prev.w){cls='up';sym='↑';} if(kg!=null&&kg<prev.w){cls='dn';sym='↓';}
-    const detail=[prev.reps?`×${prev.reps}`:'',prev.rpe?`@${prev.rpe}`:''].filter(Boolean).join(' ');
+    const detail=prev.reps?`×${prev.reps}`:'';
     pEl.innerHTML=`<span class="${cls}">${sym} ${fromKg(prev.w)}${uLbl()}${detail?' '+detail:''}</span>`; }
 }
 function checkPR(id,l,kg,name){
@@ -2042,8 +2045,7 @@ function setCountFor(id){
 function setRowsHTML(id,n){
   const l=S.draft.log[id]||{};
   const done=(l.sets||[]).filter(x=>x&&x.w!=null&&x.reps!=null).length;
-  /* three columns only — RPE was the least-used and cost the most width, so it
-     sits under the row it belongs to rather than squeezing kg and reps */
+  /* three columns: the set number, the load and the reps */
   const head=`<div class="th"><span>Set</span><span>${uLbl()}</span><span>Reps</span></div>`;
   const rows=Array.from({length:n},(_,i)=>{
     const st=(l.sets||[])[i]||{};
@@ -2059,9 +2061,7 @@ function setRowsHTML(id,n){
       <span class="v"><input type="number" inputmode="numeric" placeholder="—"
         value="${st.reps??''}" oninput="setSetR('${id}',${i},this.value)"></span>
     </div>
-    ${(cls==='now'||st.rpe!=null&&st.rpe!=='')?`<div class="rpe-line"><span>RPE</span><input type="number" min="1" max="10" step="0.5"
-      inputmode="decimal" placeholder="—" value="${st.rpe??''}"
-      oninput="setSetRPE('${id}',${i},this.value)"></div>`:''}`;
+`;
   }).join('');
   return `<div class="tbl">${head}${rows}</div>`;
 }
@@ -2098,12 +2098,6 @@ function setSetW(id,i,v,commit){
 function setSetR(id,i,v){
   const l=S.draft.log[id]=S.draft.log[id]||{}; if(!l.sets)l.sets=[];
   l.sets[i]=l.sets[i]||{}; l.sets[i].reps=v!==''?parseInt(v):null; persist(false);
-}
-function setSetRPE(id,i,v){
-  const l=S.draft.log[id]=S.draft.log[id]||{}; if(!l.sets)l.sets=[];
-  l.sets[i]=l.sets[i]||{};
-  l.sets[i].rpe=v===''?null:Math.min(10,Math.max(1,+v));
-  persist(false);
 }
 /* ── suggested next load (3.3) — fills the placeholder, never writes silently;
       the user still has to tap Accept or type their own number. ── */
@@ -2144,11 +2138,8 @@ function setExNote(id,v){
 function toggleDone(id){ const l=S.draft.log[id]=S.draft.log[id]||{}; l.done=!l.done; persist(false);
   const row=$('row-'+id); row.classList.toggle('done',l.done); row.querySelector('.chk').classList.toggle('on',l.done);
   row.querySelector('.chk').textContent=l.done?'✓':'';
-  if(l.done && S.autoRest){                                 // auto-rest on check-off
-    const r=S.draft.rows.find(x=>x.id===id);
-    if(r?.kind==='lift') openRest(S.autoRestSec,nextRowName(id));
-    else if(r?.kind==='ab') openRest(45,nextRowName(id));   // doc: 45 sec between ab exercises
-  } }
+  /* ticking a set just records it — the rest timer is started deliberately,
+     from the row's own rest control, never as a side effect of checking off */ }
 function toggleRound(id,i,total){ const l=S.draft.log[id]=S.draft.log[id]||{}; if(!l.rounds)l.rounds=Array(total).fill(false);
   l.rounds[i]=!l.rounds[i]; const all=l.rounds.every(Boolean); l.done=all; persist(false); renderSessionBody(); }
 function ssAddExercise(){
@@ -2660,9 +2651,9 @@ function checkWeeklyReminder(){
     const body='Take a progress photo, weigh in, and log it in the Body tab.';
     try{
       if(navigator.serviceWorker?.ready) navigator.serviceWorker.ready
-        .then(reg=>reg.showNotification('Per Aspera — Monday check-in',{body,icon:'assets/icon-dragon-512.png',tag:'mgt-weekly'}))
-        .catch(()=>new Notification('Per Aspera — Monday check-in',{body}));
-      else new Notification('Per Aspera — Monday check-in',{body});
+        .then(reg=>reg.showNotification('Sisu — Monday check-in',{body,icon:'assets/icon-dragon-512.png',tag:'mgt-weekly'}))
+        .catch(()=>new Notification('Sisu — Monday check-in',{body}));
+      else new Notification('Sisu — Monday check-in',{body});
     }catch(e){}
   }
 }

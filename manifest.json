@@ -1,7 +1,7 @@
 {
-  "name": "Per Aspera",
-  "short_name": "Per Aspera",
-  "description": "Roman training tracker \u2014 programs, workouts, runs and progress",
+  "name": "Sisu",
+  "short_name": "Sisu",
+  "description": "Training tracker \u2014 programs, workouts, runs and progress",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

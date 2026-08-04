@@ -1,4 +1,4 @@
-const CACHE = 'mgt-v13';
+const CACHE = 'mgt-v14';
 const ASSETS = ['./', './index.html', './manifest.json', './icon.svg', './icon-maskable.svg',
   './assets/lion-outline.png','./assets/lion-fill.png','./assets/wolf-outline.png','./assets/wolf-fill.png','./assets/griffin-outline.png','./assets/griffin-fill.png',
   './assets/fonts/eb-garamond-400-normal.woff2','./assets/fonts/eb-garamond-400-italic.woff2',
