@@ -642,8 +642,12 @@ body.home-rail #v-home{padding-bottom:calc(24px + env(safe-area-inset-bottom))}
 .hub{display:flex;flex-direction:column;min-height:calc(100vh - 190px)}
 .hubttl{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
   color:var(--muted);margin-bottom:6px}
-.catrow{display:flex;align-items:flex-start;justify-content:space-between;margin-top:-8px;
-  touch-action:pan-y}
+/* the wrapper bleeds past the view padding so emblems can leave the screen */
+.catwrap{overflow:hidden;margin:0 -22px}
+.catrow{display:flex;align-items:flex-start;width:166.667%;
+  transform:translateX(-20%);touch-action:pan-y}
+.catrow.anim{transition:transform .3s cubic-bezier(.22,.61,.36,1)}
+@media (prefers-reduced-motion: reduce){.catrow.anim{transition:none}}
 .catcol{flex:1;display:flex;flex-direction:column;align-items:center;gap:14px;cursor:pointer}
 .cat{position:relative;display:flex;align-items:center;justify-content:center}
 .cat .ring{position:relative;z-index:2;border-radius:50%;display:flex;align-items:center;
@@ -704,7 +708,7 @@ body.home-rail #v-home{padding-bottom:calc(24px + env(safe-area-inset-bottom))}
 .tl-t{font-family:var(--mono);font-size:10px;color:var(--faint);width:30px;flex-shrink:0;text-align:right}
 .tl-d{width:9px;height:9px;border-radius:50%;border:1px solid rgba(243,234,212,.3);flex-shrink:0}
 .tl-i::after{content:'';position:absolute;left:46px;top:58%;width:1px;height:26px;background:var(--border)}
-.tl-i:last-child::after{display:none}
+.tl-i:last-child::after,.tl-i.last::after{display:none}
 .tl-i.done .tl-d{background:var(--good);border-color:var(--good)}
 .tl-i.rest .tl-d{border-style:dashed}
 .tl-n{font-size:14px;color:var(--muted)}
@@ -752,6 +756,43 @@ body.home-rail #v-home{padding-bottom:calc(24px + env(safe-area-inset-bottom))}
   flex-shrink:0;padding-top:8px}
 .pgr-hint{text-align:center;margin-top:14px;font-family:var(--mono);font-size:9px;
   letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+
+/* ── block / WOD timer: clock above, the movement timeline untouched below ── */
+.timer.block{justify-content:flex-start;align-items:stretch;text-align:left;
+  padding:calc(30px + env(safe-area-inset-top)) 18px calc(20px + env(safe-area-inset-bottom))}
+.timer.block .tm-label,.timer.block .tm-ring,.timer.block .tm-next,
+.timer.block .tm-presets,.timer.block .tm-ctl{display:none}
+.btm{display:none;flex-direction:column;height:100%;position:relative;z-index:1}
+.timer.block .btm{display:flex}
+.btm-hdr{display:flex;align-items:center;gap:13px;margin-bottom:18px}
+.btm-back{width:16px;height:16px;flex-shrink:0;box-sizing:content-box;padding:10px;border-radius:50%;
+  border:1px solid rgba(243,234,212,.26);cursor:pointer}
+.btm-back svg{width:16px;height:16px;stroke:var(--text);fill:none;stroke-width:1.6;
+  stroke-linecap:round;stroke-linejoin:round;display:block}
+.btm-b{flex:1;min-width:0}
+.btm-t{font-family:var(--display);font-weight:500;font-size:21px;color:var(--text)}
+.btm-s{font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;color:var(--muted);margin-top:3px}
+.btm-r{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;color:var(--gold);flex-shrink:0}
+.wod-f{font-family:var(--mono);font-size:10px;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:6px}
+.tclock{text-align:center;padding:16px 0 20px;border-bottom:1px solid var(--border);margin-bottom:4px}
+.tc-n{font-family:var(--display);font-weight:500;font-size:24px;color:var(--text)}
+.tc-v{font-family:var(--mono);font-size:52px;font-weight:600;color:var(--gold);line-height:1;margin-top:10px;
+  font-variant-numeric:tabular-nums;text-shadow:0 0 32px rgba(217,184,119,.35)}
+.tc-bar{height:2px;background:rgba(243,234,212,.12);border-radius:2px;margin-top:18px;overflow:hidden}
+.tc-bar i{display:block;height:100%;background:var(--gold);box-shadow:0 0 8px rgba(217,184,119,.6);
+  transition:width .95s linear}
+.tctl{display:flex;gap:26px;justify-content:center;margin-top:auto;padding-top:18px;
+  border-top:1px solid var(--border)}
+.tctl .tc{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:12px;
+  color:var(--good);cursor:pointer;padding:8px 4px}
+.tctl .tc svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.7;
+  stroke-linecap:round;stroke-linejoin:round}
+/* the live dot is the only lit thing in the list */
+.tl-i.now .tl-d{border-color:var(--gold);
+  box-shadow:0 0 0 4px rgba(217,184,119,.16),0 0 14px rgba(217,184,119,.5)}
+.tl-i.now .tl-n{color:var(--text)}
+.tl-i.done .tl-n{color:rgba(243,234,212,.38)}
 
 .navhdr-l{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
   color:var(--good);cursor:pointer;margin-bottom:16px;display:inline-block}
@@ -858,6 +899,7 @@ body.home-rail #v-home{padding-bottom:calc(24px + env(safe-area-inset-bottom))}
   <div class="tm-next" id="tm-next"></div>
   <div class="tm-presets" id="tm-presets"></div>
   <div class="tm-ctl" id="tm-ctl"></div>
+  <div class="btm" id="btm"></div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -1346,7 +1388,10 @@ const G={
  pen:'<path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
  filter:'<path d="M4 6h16M8 12h8M11 18h2"/>',
  cup:'<path d="M8 21h8M12 17v4M18 4h3v3a5 5 0 0 1-5 5H8a5 5 0 0 1-5-5V4h3"/><path d="M6 4h12v3a6 6 0 0 1-12 0z"/>',
- run:'<circle cx="17" cy="5" r="2"/><path d="M10 21l2-6 3 2 2-5M4 21l4-7 2 2"/>'
+ run:'<circle cx="17" cy="5" r="2"/><path d="M10 21l2-6 3 2 2-5M4 21l4-7 2 2"/>',
+ back:'<path d="M15 18l-6-6 6-6"/>',
+ pause:'<path d="M9 5v14M15 5v14"/>',
+ skip:'<path d="M5 5l9 7-9 7z"/><path d="M18 5v14"/>'
 };
 const CAT_G={weights:'bell',hiit:'bolt',crossfit:'flame'};
 const ic=(g,cls='')=>`<div class="icn ${cls}"><svg viewBox="0 0 24 24">${G[g]}</svg></div>`;
@@ -1528,10 +1573,13 @@ let _planTapAt=0, _planTapIdx=-1, _progIdx=0;
 function planPick(i){ _planCat=(i+PLAN_CATS.length)%PLAN_CATS.length; renderPrograms(); }
 /* one tap highlights, two opens. Tracked by hand rather than using dblclick so
    the same gesture works from a finger, where dblclick is unreliable. */
-function planTap(i){
+function planTap(i,slot){
+  if(_planDragged) return;                 // that was a swipe, not a tap
   const now=Date.now();
   if(i===_planTapIdx && now-_planTapAt<400){ _planTapAt=0; _planTapIdx=-1; _planCat=i; return planEnter(); }
-  _planTapAt=now; _planTapIdx=i; planPick(i);
+  _planTapAt=now; _planTapIdx=i;
+  const dir=slot!=null?slot-2:0;
+  if(dir) slideTo(dir);                    // a side emblem travels in, same as a swipe
 }
 function planEnter(){ _planIn=true; _progIdx=0; renderPrograms(); }
 function planBack(){ _planIn=false; renderPrograms(); }
@@ -1543,10 +1591,14 @@ function renderPrograms(){
   /* the selection always occupies the middle slot and the others rotate around
      it, so "the lit one is the one in the centre" stays true however you got here */
   const N=PLAN_CATS.length;
-  const order=[(_planCat-1+N)%N,_planCat,(_planCat+1)%N];
+  /* five slots, not three: the row is 5/3 of the screen and sits offset so the
+     selection is centred, which means the emblem that slides in already exists
+     off-screen. With three categories the wrap makes the outer pair land on
+     exactly the right ones. */
+  const order=[-2,-1,0,1,2].map(d=>(_planCat+d+N*2)%N);
   const cols=order.map((idx,slot)=>{
     const [c,label]=PLAN_CATS[idx];
-    return `<div class="catcol ${slot===1?'on':''}" onclick="planTap(${idx})">
+    return `<div class="catcol ${slot===2?'on':''}" onclick="planTap(${idx},${slot})">
        <div class="cat"><div class="halo"></div>
          <div class="ring"><svg viewBox="0 0 64 64">${CAT_GLYPH[c]}</svg></div></div>
        <div class="catname">${label}</div>
@@ -1556,7 +1608,7 @@ function renderPrograms(){
     <div class="hub">
       <div class="hubttl">Choose a category</div>
       <div class="hubmid">
-        <div class="catrow" id="catrow">${cols}</div>
+        <div class="catwrap"><div class="catrow" id="catrow">${cols}</div></div>
         <div class="hubmeta">
           <div class="hm-sub">${blurb}</div>
           <div class="hm-count">${n} program${n!==1?'s':''} &middot; double-tap to open</div>
@@ -1567,18 +1619,64 @@ function renderPrograms(){
 }
 
 /* Pointer events rather than touch, so a mouse drag works the same as a finger.
-   A tap on a side emblem already selects it, so swiping is an accelerator and
-   never the only way in. */
+   The row tracks the finger 1:1 while you drag and then settles, rather than
+   jumping on release — a discrete jump was what made this feel wrong. Only the
+   emblem row travels; the heading and the blurb underneath cross-fade, because
+   this is a picker inside one screen, not navigation between screens. */
+const REST_X=-20;                        // percent: centres slot 2 of 5
+let _planDragged=false;
+const _reduceMotion=()=>window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function slideTo(dir){
+  const row=$('catrow');
+  if(!row||!dir||_reduceMotion()) return planPick(_planCat+dir);
+  const wrap=row.parentElement, w=wrap.clientWidth;
+  const to=row.children[2+dir];
+  if(!to) return planPick(_planCat+dir);
+  /* light the incoming emblem now so it grows during the slide rather than
+     snapping to full size after it */
+  row.children[2].classList.remove('on');
+  to.classList.add('on');
+  row.classList.add('anim');
+  row.style.transform=`translateX(calc(${REST_X}% + ${-dir*w/3}px))`;
+  let settled=false;
+  const done=()=>{ if(settled) return; settled=true;
+    row.removeEventListener('transitionend',done); planPick(_planCat+dir); };
+  row.addEventListener('transitionend',done);
+  setTimeout(done,420);                  // transitionend can be missed if the tab blurs
+}
+
 function bindHubSwipe(){
   const row=$('catrow'); if(!row) return;
-  let x0=null;
-  row.addEventListener('pointerdown',e=>{ x0=e.clientX; });
+  const wrap=row.parentElement;
+  let x0=null,y0=null,w=0,dragging=false;
+  const reset=()=>{ row.classList.add('anim'); row.style.transform=`translateX(${REST_X}%)`; };
+  row.addEventListener('pointerdown',e=>{
+    x0=e.clientX; y0=e.clientY; w=wrap.clientWidth; dragging=false;
+    row.classList.remove('anim');        // track the finger with no easing in the way
+  });
+  row.addEventListener('pointermove',e=>{
+    if(x0==null) return;
+    const dx=e.clientX-x0, dy=e.clientY-y0;
+    if(!dragging){
+      if(Math.abs(dx)<6) return;                       // still ambiguous
+      if(Math.abs(dy)>Math.abs(dx)){ x0=null; return; } // vertical — let the page scroll
+      dragging=true;
+    }
+    row.style.transform=`translateX(calc(${REST_X}% + ${dx}px))`;
+  });
   row.addEventListener('pointerup',e=>{
     if(x0==null) return;
     const dx=e.clientX-x0; x0=null;
-    if(Math.abs(dx)>40) planPick(_planCat+(dx<0?1:-1));
+    if(dragging){
+      _planDragged=true;                               // don't let this fire a tap too
+      setTimeout(()=>_planDragged=false,0);
+      /* a fifth of the screen is enough to mean it — anything less springs back */
+      if(Math.abs(dx)>w*0.18) return slideTo(dx<0?1:-1);
+    }
+    reset(); dragging=false;
   });
-  row.addEventListener('pointercancel',()=>{ x0=null; });
+  row.addEventListener('pointercancel',()=>{ x0=null; dragging=false; reset(); });
 }
 
 function renderProgramList(){
@@ -2511,8 +2609,15 @@ function tick(){
   drawTimer();
 }
 function fmtClock(s){ const m=Math.floor(s/60); return `${m}:${String(s%60).padStart(2,'0')}`; }
+/* a block/WOD sequence that carries a movement list gets the timeline
+   presentation instead of the ring — the list stays exactly as it reads in the
+   preview, and a clock above it names what you're on */
+const isBlockSeq=()=>TM&&TM.mode==='seq'&&Array.isArray(TM.cfg.moves);
 function drawTimer(){
   const t=$('timer'); const cfg=TM.cfg;
+  if(isBlockSeq()&&!TM.done){ drawBlockTimer(); return; }
+  $('btm').innerHTML='';
+  t.classList.remove('block');
   let big,label,sub,next='',frac,kind;
   if(TM.mode==='up'){
     big=fmtClock(TM.elapsed); label=cfg.title; kind='work';
@@ -2551,22 +2656,87 @@ function drawTimer(){
       <button class="btn ${TM.mode==='seq'?'btn-acc':''}" style="min-width:200px" onclick="${TM.mode==='seq'?'tmSkip()':'closeTimer()'}">${TM.mode==='seq'?'Skip':'Close'}</button>
     </div>`;
 }
+function drawBlockTimer(){
+  const cfg=TM.cfg, ph=cfg.phases[TM.idx], t=$('timer');
+  t.className='timer active block '+(ph.kind==='rest'?'rest':'work');
+  const frac=1-(TM.remaining/TM.total);
+  /* three states the clock can be in: on a movement, in the short "off"
+     between two, or in the long rest between rounds */
+  let now, sub;
+  if(ph.kind==='work'){ now=cfg.moves[ph.mi].n; sub=`Round ${ph.round} of ${cfg.rounds} · ${cfg.scheme}`; }
+  else if(ph.off){ const nx=cfg.moves[ph.mi+1]; now='Off'; sub=nx?`Next · ${nx.n}`:'Round done'; }
+  else { now='Rest'; sub=`Round ${ph.round+1} of ${cfg.rounds} next`; }
+
+  const rows=cfg.moves.map((m,i)=>{
+    /* within the current round: anything before the live movement is done.
+       During an "off" the movement just finished counts as done too. */
+    const passed = ph.mi<0 ? true : (ph.off ? i<=ph.mi : i<ph.mi);
+    const live = ph.kind==='work' && i===ph.mi;
+    return `<div class="tl-i ${live?'now quiet':passed?'done':''}">
+      <div class="tl-t">${m.s>=60?Math.round(m.s/60)+'m':m.s+'s'}</div>
+      <div class="tl-d"></div><div class="tl-n">${esc(m.n)}</div></div>`;
+  }).join('');
+  const restRow = cfg.roundRest && ph.round<cfg.rounds
+    ? `<div class="tl-i rest last ${ph.mi<0?'now quiet':''}">
+         <div class="tl-t">${Math.round(cfg.roundRest/60)}m</div>
+         <div class="tl-d"></div><div class="tl-n">Rest, then round ${ph.round+1}</div></div>`
+    : `<div class="tl-i last" style="visibility:hidden"><div class="tl-t"></div><div class="tl-d"></div></div>`;
+
+  $('btm').innerHTML=`
+    <div class="btm-hdr">
+      <div class="btm-back" onclick="closeTimer()"><svg viewBox="0 0 24 24">${G.back}</svg></div>
+      <div class="btm-b"><div class="btm-t">${esc(cfg.title)}</div>
+        <div class="btm-s">${esc(cfg.sub||'')}</div></div>
+      <div class="btm-r">${ph.round} / ${cfg.rounds}</div>
+    </div>
+    <div class="wod-f">${esc(sub)}</div>
+    <div class="tclock">
+      <div class="tc-n">${esc(now)}</div>
+      <div class="tc-v">${fmtClock(TM.remaining)}</div>
+      <div class="tc-bar"><i style="width:${Math.round(frac*100)}%"></i></div>
+    </div>
+    <div class="tline">${rows}${restRow}</div>
+    <div class="tctl">
+      <div class="tc" onclick="tmToggle()"><svg viewBox="0 0 24 24">${TM.running?G.pause:G.play}</svg>
+        <span>${TM.running?'Pause':'Resume'}</span></div>
+      <div class="tc" onclick="tmSkip()"><svg viewBox="0 0 24 24">${G.skip}</svg><span>Skip</span></div>
+    </div>`;
+}
 function tmToggle(){ TM.running=!TM.running; drawTimer(); }
 function tmAdd(s){ if(TM.mode==='up')return; TM.remaining=Math.max(1,TM.remaining+s); TM.total=Math.max(TM.total,TM.remaining); drawTimer(); }
 function tmSkip(){ if(TM.mode!=='seq')return; TM.remaining=1; }
 
 /* ── timer configs for blocks / wods ── */
+/* Blocks are described as {moves, rounds, off, roundRest} rather than a flat
+   phase list, because the running timer draws the movement timeline and needs
+   to know which movement each phase belongs to. seqBlock() flattens them. */
+function seqBlock({title,sub='',moves,rounds=1,off=0,roundRest=0,scheme=''}){
+  const ph=[];
+  for(let r=1;r<=rounds;r++){
+    moves.forEach((m,i)=>{
+      ph.push({label:m.n,sec:m.s,kind:'work',mi:i,round:r});
+      const last = r===rounds && i===moves.length-1;
+      if(off && !last) ph.push({label:'Off',sec:off,kind:'rest',mi:i,round:r,off:true});
+    });
+    if(roundRest && r<rounds)
+      ph.push({label:`Rest — round ${r+1} next`,sec:roundRest,kind:'rest',mi:-1,round:r});
+  }
+  return {title,sub,mode:'seq',phases:ph,moves,rounds,scheme,roundRest};
+}
 const TIMERS={
-  block1:()=>{ const mv=['KB swings','Burpees','DB thrusters','Jump squats','Mountain climbers'],ph=[];
-    for(let r=1;r<=4;r++){ mv.forEach(m=>{ph.push({label:`R${r} · ${m}`,sec:40,kind:'work'});ph.push({label:'Off',sec:20,kind:'rest'});});
-      if(r<4) ph.push({label:`Round ${r} done — rest`,sec:120,kind:'rest'});} return {title:'Block 1',mode:'seq',phases:ph}; },
-  block2:()=>{ const b=['B1 · Snatch + burpees','B2 · Swings + jump squats','B3 · Thrusters + climbers','B4 · Lunges + push-ups'],ph=[];
-    b.forEach((l,i)=>{ph.push({label:l,sec:300,kind:'work'}); if(i<3)ph.push({label:'Rest',sec:90,kind:'rest'});}); return {title:'Block 2',mode:'seq',phases:ph}; },
-  block3:()=>{ const ph=[]; for(let i=1;i<=10;i++){ph.push({label:`Interval ${i} · Hard`,sec:30,kind:'work'});ph.push({label:'Easy',sec:60,kind:'rest'});} return {title:'Block 3',mode:'seq',phases:ph}; },
+  block1:()=>seqBlock({title:'Block 1',sub:'Classic intervals',scheme:'40s on / 20s off',
+    moves:['KB swings','Burpees','DB thrusters','Jump squats','Mountain climbers'].map(n=>({n,s:40})),
+    rounds:4, off:20, roundRest:120}),
+  block2:()=>seqBlock({title:'Block 2',sub:'Five-minute blocks',scheme:'5 min work / 90s rest',
+    moves:['Snatch + burpees','Swings + jump squats','Thrusters + climbers','Lunges + push-ups'].map(n=>({n,s:300})),
+    rounds:1, off:90}),
+  block3:()=>seqBlock({title:'Block 3',sub:'Hard / easy intervals',scheme:'30s hard / 60s easy',
+    moves:[{n:'Hard',s:30},{n:'Easy',s:60}], rounds:10}),
   wod1:()=>({title:'AMRAP 15',mode:'down',sec:900}),
   wod2:()=>({title:'WOD 2 · for time',mode:'up',target:720}),
-  wod3:()=>{ const tk=['8 KB clean & press','10 renegade rows','12 goblet squats','10 KB swings'],ph=[];
-    for(let i=0;i<20;i++)ph.push({label:`Min ${i+1} · ${tk[i%4]}`,sec:60,kind:'work'}); return {title:'EMOM 20',mode:'seq',phases:ph}; },
+  wod3:()=>seqBlock({title:'EMOM 20',sub:'Every minute on the minute',scheme:'1 min each',
+    moves:['8 KB clean & press','10 renegade rows','12 goblet squats','10 KB swings'].map(n=>({n,s:60})),
+    rounds:5}),
   wod4:()=>({title:'Chipper · for time',mode:'up',target:900})
 };
 
