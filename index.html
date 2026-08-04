@@ -643,7 +643,7 @@ body.home-rail #v-home{padding-bottom:calc(24px + env(safe-area-inset-bottom))}
 .hubttl{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
   color:var(--muted);margin-bottom:6px}
 /* the wrapper bleeds past the view padding so emblems can leave the screen */
-.catwrap{overflow:hidden;margin:0 -22px}
+.catwrap{overflow:hidden;margin:-64px -22px -32px;padding:64px 0 32px}
 .catrow{display:flex;align-items:flex-start;width:166.667%;
   transform:translateX(-20%);touch-action:pan-y}
 .catrow.anim{transition:transform .3s cubic-bezier(.22,.61,.36,1)}
@@ -775,12 +775,12 @@ body.home-rail #v-home{padding-bottom:calc(24px + env(safe-area-inset-bottom))}
 .btm-r{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;color:var(--gold);flex-shrink:0}
 .wod-f{font-family:var(--mono);font-size:10px;letter-spacing:.07em;text-transform:uppercase;
   color:var(--gold);margin-bottom:6px}
-.tclock{text-align:center;padding:16px 0 20px;border-bottom:1px solid var(--border);margin-bottom:4px}
-.tc-n{font-family:var(--display);font-weight:500;font-size:24px;color:var(--text)}
-.tc-v{font-family:var(--mono);font-size:52px;font-weight:600;color:var(--gold);line-height:1;margin-top:10px;
-  font-variant-numeric:tabular-nums;text-shadow:0 0 32px rgba(217,184,119,.35)}
-.tc-bar{height:2px;background:rgba(243,234,212,.12);border-radius:2px;margin-top:18px;overflow:hidden}
-.tc-bar i{display:block;height:100%;background:var(--gold);box-shadow:0 0 8px rgba(217,184,119,.6);
+.tclock{text-align:center;padding:18px 0 22px;border-bottom:1px solid var(--border);margin-bottom:4px}
+.tc-n{font-family:var(--display);font-weight:500;font-size:32px;line-height:1.1;color:var(--text)}
+.tc-v{font-family:var(--mono);font-size:78px;font-weight:600;color:var(--text);line-height:1;margin-top:12px;
+  font-variant-numeric:tabular-nums;text-shadow:0 0 34px rgba(0,0,0,.8)}
+.tc-bar{height:5px;background:rgba(243,234,212,.12);border-radius:3px;margin-top:22px;overflow:hidden}
+.tc-bar i{display:block;height:100%;background:var(--good);box-shadow:0 0 12px rgba(111,216,201,.7);
   transition:width .95s linear}
 .tctl{display:flex;gap:26px;justify-content:center;margin-top:auto;padding-top:18px;
   border-top:1px solid var(--border)}
@@ -789,10 +789,23 @@ body.home-rail #v-home{padding-bottom:calc(24px + env(safe-area-inset-bottom))}
 .tctl .tc svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.7;
   stroke-linecap:round;stroke-linejoin:round}
 /* the live dot is the only lit thing in the list */
-.tl-i.now .tl-d{border-color:var(--gold);
-  box-shadow:0 0 0 4px rgba(217,184,119,.16),0 0 14px rgba(217,184,119,.5)}
+/* the live dot is the only lit thing in the list */
+.tl-i.now .tl-d{border-color:var(--good);
+  box-shadow:0 0 0 5px rgba(111,216,201,.16),0 0 16px rgba(111,216,201,.55)}
 .tl-i.now .tl-n{color:var(--text)}
 .tl-i.done .tl-n{color:rgba(243,234,212,.38)}
+/* everything in the running timer is sized to be read at arm's length —
+   scoped to .timer.block so the static block preview keeps its own scale */
+.timer.block .tl-i{padding:15px 0;gap:15px}
+.timer.block .tl-t{font-size:12.5px;width:38px}
+.timer.block .tl-d{width:13px;height:13px}
+.timer.block .tl-i::after{left:57px;height:34px}
+.timer.block .tl-n{font-size:19px}
+.timer.block .btm-t{font-size:24px}
+.timer.block .btm-s,.timer.block .btm-r{font-size:11px}
+.timer.block .wod-f{font-size:12px}
+.timer.block .tctl .tc{font-size:14px;padding:10px 6px}
+.timer.block .tctl .tc svg{width:17px;height:17px}
 
 .navhdr-l{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
   color:var(--good);cursor:pointer;margin-bottom:16px;display:inline-block}
@@ -925,6 +938,15 @@ const FB_READY = !String(FIREBASE_CONFIG.apiKey).startsWith("PASTE");
    BANKS  (from MG Training Plans doc)
 ═══════════════════════════════════════════════════════════════ */
 const AB_BANK = {
+  /* I and J are the August plan's two circuits — 3 rounds, 45 sec between */
+  I:{title:'August circuit 1', items:[
+    {n:'Ab wheel rollout',s:'3×10'},
+    {n:'Hollow body hold',s:'3×30 sec',timed:30},
+    {n:'Hanging knee raise',s:'3×12'}]},
+  J:{title:'August circuit 2', items:[
+    {n:'Bicycle crunch',s:'3×20 each side'},
+    {n:'Reverse crunch',s:'3×15'},
+    {n:'Plank shoulder tap',s:'3×12 each side'}]},
   A:{title:'Anti-extension', items:[
     {n:'Ab wheel rollout',s:'3×8–10'},
     {n:'Hollow body hold',s:'3×30–40 sec',timed:40}]},
@@ -988,6 +1010,23 @@ const WOD_BANK = {
    Set id whenever the display name is ambiguous or might change. */
 const L=(n,s,id)=>({n,s,id:id||null});
 const PROGRAMS=[
+ {id:'aug',cat:'august',days:'4',title:'August, 4 Week',subtitle:'3 lifting days + conditioning',
+  layout:'Mon A, Tue rest / easy run, Wed B, Thu rest, Fri C, Sat D, Sun rest',
+  run:'Easy 30 min at conversational pace on Tuesday. Deliberately not the 5k time trial — Zone 2 adds fat oxidation without the recovery cost. Run 5k hard once a fortnight at most, on the Saturday in place of conditioning.',
+  note:'Week 1 (4–10 Aug) establish baselines, 2–3 reps in reserve. Week 2 (11–17 Aug) +2.5kg on the main lifts, RIR 2. Week 3 (18–24 Aug) +2.5kg again or add a set, RIR 1. Week 4 (25–31 Aug) same loads, final sets to near failure, retest bench and squat.',
+  D:[
+   {name:'A — Upper',sub:'Push emphasis',tag:'Moderate',
+    lifts:[L('Barbell bench press','4×6–8'),L('Overhead press','3×8–10'),L('Weighted or assisted pull-up','3×8–10','pull-up-weighted'),L('Incline dumbbell press','3×10–12'),L('Dumbbell lateral raise','3×12–15'),L('Rear delt fly','3×12–15'),L('Triceps dip','3×10–12')]},
+   {name:'B — Lower + core',sub:'Squat emphasis',tag:'Hard',
+    lifts:[L('Back squat','4×6–8'),L('Romanian deadlift','3×8–10'),L('Bulgarian split squat','3×10 each leg'),L('Kettlebell swing','3×15'),L('Walking lunge','3×12 each leg')],ab:'I'},
+   {name:'C — Upper',sub:'Pull emphasis',tag:'Moderate',
+    lifts:[L('Barbell bent-over row','4×6–8'),L('Weighted or assisted pull-up','4×6–8','pull-up-weighted'),L('Single-arm dumbbell row','3×10–12 each'),L('Dumbbell floor press','3×10–12'),L('Barbell curl','3×10–12'),L('Farmer carry','3×30 m')],ab:'J'},
+   {name:'D — Conditioning',sub:'HIIT intervals · weeks 1 & 3',tag:'Hard',
+    warmup:'5 min easy, then mobilise the hips and shoulders',
+    lifts:[],cond:'block1',
+    alt:{name:'D — Conditioning',sub:'CrossFit style · weeks 2 & 4',
+         lifts:[L('Goblet squat','4×5 heavy')],cond:null,wod:'wod3'}}
+  ]},
  {id:'w3',cat:'weights',days:'3',title:'Weights, 3 Day',subtitle:'Full Body ×3',
   layout:'Mon FB-A, Wed FB-B, Fri FB-C, run Sat/Sun',run:'One easy Zone 2 run, Sat or Sun.',
   D:[
@@ -1068,7 +1107,7 @@ const PROGRAMS=[
    {name:'Conditioning + Chipper',sub:'Conditioning focus + WOD 4',tag:'Moderate',lifts:[L('Front squat','3×5 technique','front-squat')],wod:'wod4',ab:'D'}
   ]}
 ];
-const CAT_NAME={weights:'Weights',hiit:'HIIT',crossfit:'CrossFit / WODs'};
+const CAT_NAME={august:'August programme',weights:'Weights',hiit:'HIIT',crossfit:'CrossFit / WODs'};
 
 /* exercise bank for building custom workouts */
 const EX_BANK={
@@ -1082,6 +1121,14 @@ const EX_BANK={
 /* one-line form cue per exercise — shown in the pre-start preview and on the
    session row so the right technique is a glance away, not a search away. */
 const EX_DESC={
+ 'Triceps dip':'Lean slightly forward, elbows tucked back rather than flared, lower until the upper arms are parallel.',
+ 'Kettlebell swing':'Hinge at the hips not the knees, snap the hips through, let the bell float to chest height.',
+ 'Barbell bent-over row':'Hinge to about 45°, flat back, pull the bar to the lower ribs and control it down.',
+ 'Single-arm dumbbell row':'Brace on a bench, pull the dumbbell to the hip keeping the shoulder square to the floor.',
+ 'Dumbbell floor press':'Lie flat, upper arms stop on the floor, press straight up without flaring the elbows.',
+ 'Barbell curl':'Elbows pinned at the sides, curl without swinging the hips, lower under control.',
+ 'Farmer carry':'Stand tall, shoulders back, walk with short steady steps and do not let the ribs flare.',
+ 'Plank shoulder tap':'Plank with the feet wide, tap the opposite shoulder without letting the hips rotate.',
  'Back squat':'Bar on the upper traps, brace the core, squat to depth keeping the chest up and knees tracking the toes.',
  'Front squat':'Bar racked on the front delts, elbows high, sit straight down keeping the torso upright.',
  'Hack squat':'Feet mid-platform shoulder-width, back flat against the pad, drive through the mid-foot.',
@@ -1393,7 +1440,7 @@ const G={
  pause:'<path d="M9 5v14M15 5v14"/>',
  skip:'<path d="M5 5l9 7-9 7z"/><path d="M18 5v14"/>'
 };
-const CAT_G={weights:'bell',hiit:'bolt',crossfit:'flame'};
+const CAT_G={august:'grid',weights:'bell',hiit:'bolt',crossfit:'flame'};
 const ic=(g,cls='')=>`<div class="icn ${cls}"><svg viewBox="0 0 24 24">${G[g]}</svg></div>`;
 
 const HERO_ICON='<svg viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M4 8v8M8 4v16M16 4v16M20 8v8M2 12h2M20 12h2"/></svg>';
@@ -1558,13 +1605,15 @@ function liftsPreview(d){
 ═══════════════════════════════════════════════════════════════ */
 /* Plans opens on a chooser rather than a list: three paths, the middle one lit.
    _planCat is the highlighted index, _planIn is whether we've drilled in. */
-let _planCat=1, _planIn=false;
+let _planCat=0, _planIn=false;
 const PLAN_CATS=[
+  ['august','August','Four weeks, 4–31 Aug'],
   ['weights','Weights','Barbell work, progressive overload'],
   ['hiit','HIIT','Alternating hard &amp; moderate'],
   ['crossfit','CrossFit','Strength piece plus a metcon'],
 ];
 const CAT_GLYPH={
+  august:'<path d="M32 8v48M14 20l18-12 18 12M14 44l18 12 18-12M14 20v24M50 20v24"/>',
   weights:'<path d="M10 22v20M20 14v36M44 14v36M54 22v20M20 32h24"/>',
   hiit:'<path d="M35 6 14 36h16l-3 22 21-30H32z"/>',
   crossfit:'<path d="M32 56a15 15 0 0 0 15-15c0-7.5-5-12.5-8.8-20-1.2 5-3.8 7.5-5 11.2C32 26 29.5 22 27 15.5c-5 7.5-10 16.2-10 25.5A15 15 0 0 0 32 56z"/>',
@@ -1729,8 +1778,11 @@ function programBreakdownHTML(p){
       <div class="body-sm">${esc(p.layout)}</div>
       <div class="body-sm live" style="margin-top:9px">Run: ${esc(p.run)}</div>
     </div>
+    ${p.note?`<div class="rblock"><div class="eyebrow">Progression</div>
+      <div class="body-sm">${esc(p.note)}</div></div>`:''}
     <div class="sec-label">${p.D.length} days</div>`;
-  p.D.forEach((d,i)=>{
+  p.D.forEach((d0,i)=>{
+    const d=resolveDay(d0);
     const nl=(d.lifts||[]).length;
     const state = cur<0 ? 'blank' : i<cur ? 'done' : i===cur ? 'now' : 'blank';
     const glyph = state==='done' ? 'check' : state==='now' ? 'play' : null;
@@ -1742,7 +1794,7 @@ function programBreakdownHTML(p){
       <div class="mrow-b">
         <div class="mrow-t">${esc(d.name)}</div>
         ${d.sub?`<div class="mrow-s">${esc(d.sub)}</div>`:''}
-        <div class="mrow-m ${state==='now'?'gold':''}">${state==='now'?'Next up &middot; ':''}${nl} lift${nl===1?'':'s'}${d.ab?' &middot; Ab '+d.ab:''}</div>
+        <div class="mrow-m ${state==='now'?'gold':''}">${state==='now'?'Next up &middot; ':''}${nl?nl+' lift'+(nl===1?'':'s'):'conditioning'}${d.cond?' &middot; '+esc(BLOCK_BANK[d.cond]?BLOCK_BANK[d.cond].name.split('·')[0].trim():WOD_BANK[d.cond]?WOD_BANK[d.cond].name:''):''}${d.ab?' &middot; Ab '+d.ab:''}</div>
       </div>
       ${d.tag?`<span class="tag ${d.tag==='Hard'?'hard':'mod'}">${d.tag}</span>`:''}</div>`;
   });
@@ -1981,25 +2033,36 @@ function buildRows(day){
   const rows=[];
   if(day.warmup) rows.push({kind:'warmup',id:'warmup',text:day.warmup});
   (day.lifts||[]).forEach(l=>rows.push({kind:'lift',id:l.id||slug(l.n),name:l.n,scheme:l.s}));
-  if(day.cond){ const b=BLOCK_BANK[day.cond]; rows.push({kind:'block',id:day.cond,name:b.name,format:b.format,items:b.items,rest:b.rest,rounds:b.rounds}); }
-  if(day.wod){ const w=WOD_BANK[day.wod]; rows.push({kind:'wod',id:day.wod,name:w.name,format:w.format,items:w.items,rest:w.rest,rounds:w.rounds}); }
+  if(day.cond&&BLOCK_BANK[day.cond]){ const b=BLOCK_BANK[day.cond]; rows.push({kind:'block',id:day.cond,name:b.name,format:b.format,items:b.items,rest:b.rest,rounds:b.rounds}); }
+  if(day.wod&&WOD_BANK[day.wod]){ const w=WOD_BANK[day.wod]; rows.push({kind:'wod',id:day.wod,name:w.name,format:w.format,items:w.items,rest:w.rest,rounds:w.rounds}); }
   if(day.ab){ const a=AB_BANK[day.ab];
     rows.push({kind:'abhead',ref:day.ab,title:a.title});
     a.items.forEach(it=>rows.push({kind:'ab',id:slug(it.n),name:it.n,scheme:it.s,timed:it.timed})); }
   return rows;
 }
+/* Which week of the active plan we're in, 1-based, wrapping at 4. Used by the
+   August programme, whose conditioning day alternates HIIT / CrossFit. */
+function planWeek(){
+  const iso=S.active?.startedISO; if(!iso) return 1;
+  const wks=Math.floor((Date.now()-new Date(iso+'T00:00:00').getTime())/6048e5);
+  return ((wks%4)+4)%4+1;
+}
+/* A day carrying .alt swaps to it on even weeks. Everything downstream —
+   preview, session rows, the block timer — sees a plain day object. */
+function resolveDay(d){ return (d&&d.alt&&planWeek()%2===0) ? {...d,...d.alt} : d; }
+
 /* Preview everywhere — see what you're in for before you commit. */
 function startProgramDay(pid,idx){
-  const p=progById(pid), d=p.D[idx];
+  const p=progById(pid), d=resolveDay(p.D[idx]);
   openWorkoutDetail(d,{type:'program',programId:pid,dayName:d.name,cat:p.cat},
     d.name, d.tag, `Day ${idx+1} of ${p.D.length}${d.sub?' · '+d.sub:''}`);
 }
 /* …except the one-tap "today's session" path from Home. */
 function riseNow(pid,idx){
-  const p=progById(pid), d=p.D[idx];
+  const p=progById(pid), d=resolveDay(p.D[idx]);
   _start(d,{type:'program',programId:pid,dayName:d.name,cat:p.cat},`${p.title} · ${d.name}`,d.tag);
 }
-function startFreestyle(pid,idx){ const p=progById(pid); openWorkoutDetail(p.D[idx],{type:'freestyle',dayName:p.D[idx].name,cat:p.cat},p.D[idx].name,p.D[idx].tag,`${p.subtitle} · freestyle`); }
+function startFreestyle(pid,idx){ const p=progById(pid); openWorkoutDetail(resolveDay(p.D[idx]),{type:'freestyle',dayName:p.D[idx].name,cat:p.cat},p.D[idx].name,p.D[idx].tag,`${p.subtitle} · freestyle`); }
 function startCustom(id){ const w=S.customWorkouts.find(x=>x.id===id); if(!w)return; openWorkoutDetail(w,{type:'custom',workoutId:id,cat:'custom'},w.name,null,'Custom workout'); }
 
 /* ── workout detail → single Start session button ── */

@@ -1,4 +1,4 @@
-const CACHE = 'mgt-v16';
+const CACHE = 'mgt-v17';
 const ASSETS = ['./', './index.html', './manifest.json',
   './assets/fonts/eb-garamond-400-normal.woff2','./assets/fonts/eb-garamond-400-italic.woff2',
   './assets/fonts/ibm-plex-mono-400-normal.woff2','./assets/fonts/ibm-plex-mono-500-normal.woff2','./assets/fonts/ibm-plex-mono-600-normal.woff2',
