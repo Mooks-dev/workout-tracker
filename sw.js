@@ -1,6 +1,5 @@
-const CACHE = 'mgt-v14';
-const ASSETS = ['./', './index.html', './manifest.json', './icon.svg', './icon-maskable.svg',
-  './assets/lion-outline.png','./assets/lion-fill.png','./assets/wolf-outline.png','./assets/wolf-fill.png','./assets/griffin-outline.png','./assets/griffin-fill.png',
+const CACHE = 'mgt-v15';
+const ASSETS = ['./', './index.html', './manifest.json',
   './assets/fonts/eb-garamond-400-normal.woff2','./assets/fonts/eb-garamond-400-italic.woff2',
   './assets/fonts/ibm-plex-mono-400-normal.woff2','./assets/fonts/ibm-plex-mono-500-normal.woff2','./assets/fonts/ibm-plex-mono-600-normal.woff2',
   './assets/forest-bg.jpg',
