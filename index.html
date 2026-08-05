@@ -757,55 +757,82 @@ body.home-rail #v-home{padding-bottom:calc(24px + env(safe-area-inset-bottom))}
 .pgr-hint{text-align:center;margin-top:14px;font-family:var(--mono);font-size:9px;
   letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
 
-/* ── block / WOD timer: clock above, the movement timeline untouched below ── */
-.timer.block{justify-content:flex-start;align-items:stretch;text-align:left;
-  padding:calc(30px + env(safe-area-inset-top)) 18px calc(20px + env(safe-area-inset-bottom))}
-.timer.block .tm-label,.timer.block .tm-ring,.timer.block .tm-next,
-.timer.block .tm-presets,.timer.block .tm-ctl{display:none}
-.btm{display:none;flex-direction:column;height:100%;position:relative;z-index:1}
-.timer.block .btm{display:flex}
-.btm-hdr{display:flex;align-items:center;gap:13px;margin-bottom:18px}
-.btm-back{width:16px;height:16px;flex-shrink:0;box-sizing:content-box;padding:10px;border-radius:50%;
+/* ── the workout timer: landscape two-column, stacking if held upright ──
+   The clock's own size is set in JS (fitClock) because it depends on how many
+   characters the value has — 24 and 12:34 cannot share a font-size. */
+.timer.wod{justify-content:flex-start;align-items:stretch;text-align:left;
+  padding:calc(16px + env(safe-area-inset-top)) 20px calc(14px + env(safe-area-inset-bottom))}
+.timer.wod .tm-label,.timer.wod .tm-ring,.timer.wod .tm-next,
+.timer.wod .tm-presets,.timer.wod .tm-ctl{display:none}
+.btm{display:none;height:100%;position:relative;z-index:1}
+.timer.wod .btm{display:block}
+.wt{display:flex;flex-direction:column;height:100%}
+.wt-hdr{display:flex;align-items:center;gap:12px;flex-shrink:0}
+.wt-back{width:16px;height:16px;flex-shrink:0;box-sizing:content-box;padding:9px;border-radius:50%;
   border:1px solid rgba(243,234,212,.26);cursor:pointer}
-.btm-back svg{width:16px;height:16px;stroke:var(--text);fill:none;stroke-width:1.6;
+.wt-back svg{width:16px;height:16px;stroke:var(--text);fill:none;stroke-width:1.7;
   stroke-linecap:round;stroke-linejoin:round;display:block}
-.btm-b{flex:1;min-width:0}
-.btm-t{font-family:var(--display);font-weight:500;font-size:21px;color:var(--text)}
-.btm-s{font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;color:var(--muted);margin-top:3px}
-.btm-r{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;color:var(--gold);flex-shrink:0}
-.wod-f{font-family:var(--mono);font-size:10px;letter-spacing:.07em;text-transform:uppercase;
-  color:var(--gold);margin-bottom:6px}
-.tclock{text-align:center;padding:18px 0 22px;border-bottom:1px solid var(--border);margin-bottom:4px}
-.tc-n{font-family:var(--display);font-weight:500;font-size:32px;line-height:1.1;color:var(--text)}
-.tc-v{font-family:var(--mono);font-size:78px;font-weight:600;color:var(--text);line-height:1;margin-top:12px;
-  font-variant-numeric:tabular-nums;text-shadow:0 0 34px rgba(0,0,0,.8)}
-.tc-bar{height:5px;background:rgba(243,234,212,.12);border-radius:3px;margin-top:22px;overflow:hidden}
-.tc-bar i{display:block;height:100%;background:var(--good);box-shadow:0 0 12px rgba(111,216,201,.7);
-  transition:width .95s linear}
-.tctl{display:flex;gap:26px;justify-content:center;margin-top:auto;padding-top:18px;
-  border-top:1px solid var(--border)}
-.tctl .tc{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:12px;
-  color:var(--good);cursor:pointer;padding:8px 4px}
-.tctl .tc svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.7;
+.wt-hb{flex:1;min-width:0}
+.wt-t{font-family:var(--display);font-weight:500;font-size:20px;color:var(--text)}
+.wt-s{font-family:var(--mono);font-size:10px;letter-spacing:.05em;color:var(--gold);margin-top:2px}
+
+.wt-body{flex:1;display:flex;align-items:center;gap:26px;min-height:0}
+.wt-l{flex:1;min-width:0}
+.wt-r{width:46%;max-width:340px;flex-shrink:0;text-align:center}
+.wt-clock{font-family:var(--mono);font-weight:600;line-height:.9;color:var(--text);
+  font-variant-numeric:tabular-nums;text-shadow:0 6px 40px rgba(0,0,0,.85)}
+.wt-sub{font-family:var(--mono);font-size:11px;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--muted);margin-top:12px}
+.wt-bar{height:7px;background:rgba(243,234,212,.12);border-radius:4px;margin-top:14px;overflow:hidden}
+.wt-bar i{display:block;height:100%;background:var(--good);
+  box-shadow:0 0 12px rgba(111,216,201,.7);transition:width .95s linear}
+
+/* held upright the two columns stack — same screen, no rotation required */
+@media (orientation:portrait){
+  .wt-body{flex-direction:column;justify-content:center;gap:22px}
+  .wt-l,.wt-r{width:100%;max-width:none}
+  .wt-r{order:-1}
+}
+
+.wt-lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:9px}
+.wt-now{font-family:var(--display);font-weight:500;font-size:clamp(30px,7vw,44px);line-height:1.02;
+  margin-bottom:16px}
+.wt-next{font-family:var(--display);font-weight:500;font-size:23px;color:var(--muted);
+  border-top:1px solid var(--border);padding-top:12px}
+.wt-next span{display:block;font-family:var(--mono);font-size:9px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--faint);margin-bottom:5px}
+.wt-then{font-family:var(--mono);font-size:10.5px;color:var(--faint);margin-top:7px}
+
+/* the movement list — every row carries its rep count */
+.wt-list{display:flex;flex-direction:column}
+.wt-i{display:flex;align-items:baseline;justify-content:space-between;gap:14px;
+  padding:9px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.wt-i:last-child{border-bottom:none}
+.wt-n{font-family:var(--display);font-weight:500;font-size:25px;color:var(--muted);line-height:1.1}
+.wt-reps{font-family:var(--mono);font-size:22px;font-weight:600;color:var(--muted);flex-shrink:0;
+  font-variant-numeric:tabular-nums}
+.wt-i.now .wt-n{color:var(--text)}
+.wt-i.now .wt-reps{color:var(--good)}
+.wt-i.now{border-bottom-color:rgba(111,216,201,.45)}
+.wt-i.done .wt-n,.wt-i.done .wt-reps{color:rgba(243,234,212,.28)}
+.wt-list.dim .wt-n{font-size:18px} .wt-list.dim .wt-reps{font-size:16px}
+.wt-up{border-top:1px solid var(--border);padding-top:4px;margin-top:10px;opacity:.7}
+.wt-hero{margin-bottom:10px}
+.wt-hn{display:block;font-family:var(--display);font-weight:500;font-size:clamp(28px,6.5vw,38px);line-height:1.02}
+.wt-hr{display:block;font-family:var(--mono);font-size:30px;font-weight:600;color:var(--good);
+  font-variant-numeric:tabular-nums;margin-top:4px}
+.wt-ladder{font-family:var(--mono);font-size:15px;letter-spacing:.08em;color:var(--faint);margin-top:12px}
+.wt-ladder b{font-weight:600;color:var(--faint)}
+.wt-ladder b.now{color:var(--good);font-size:19px}
+.wt-ladder b.done{color:rgba(243,234,212,.25)}
+
+.wt-ctl{display:flex;gap:24px;justify-content:center;padding-top:12px;
+  border-top:1px solid var(--border);flex-shrink:0}
+.wt-c{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:13px;
+  color:var(--good);cursor:pointer;padding:9px 6px}
+.wt-c svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;
   stroke-linecap:round;stroke-linejoin:round}
-/* the live dot is the only lit thing in the list */
-/* the live dot is the only lit thing in the list */
-.tl-i.now .tl-d{border-color:var(--good);
-  box-shadow:0 0 0 5px rgba(111,216,201,.16),0 0 16px rgba(111,216,201,.55)}
-.tl-i.now .tl-n{color:var(--text)}
-.tl-i.done .tl-n{color:rgba(243,234,212,.38)}
-/* everything in the running timer is sized to be read at arm's length —
-   scoped to .timer.block so the static block preview keeps its own scale */
-.timer.block .tl-i{padding:15px 0;gap:15px}
-.timer.block .tl-t{font-size:12.5px;width:38px}
-.timer.block .tl-d{width:13px;height:13px}
-.timer.block .tl-i::after{left:57px;height:34px}
-.timer.block .tl-n{font-size:19px}
-.timer.block .btm-t{font-size:24px}
-.timer.block .btm-s,.timer.block .btm-r{font-size:11px}
-.timer.block .wod-f{font-size:12px}
-.timer.block .tctl .tc{font-size:14px;padding:10px 6px}
-.timer.block .tctl .tc svg{width:17px;height:17px}
 
 .navhdr-l{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
   color:var(--good);cursor:pointer;margin-bottom:16px;display:inline-block}
@@ -2640,9 +2667,13 @@ function nextRowName(id){
 }
 function openTimer(cfg){
   clearInterval(_tmInt);
+  /* list-driven WODs track which movement you're on, and how many times
+     you've been round; interval blocks don't need either */
+  const listy=['amrap','chipper','ladder'].includes(cfg.layout);
   if(cfg.mode==='seq'){ TM={cfg,mode:'seq',idx:0,remaining:cfg.phases[0].sec,total:cfg.phases[0].sec,running:true}; }
   else if(cfg.mode==='up'){ TM={cfg,mode:'up',elapsed:0,target:cfg.target||0,running:true}; }
   else { TM={cfg,mode:'down',remaining:cfg.sec,total:cfg.sec,running:true}; }
+  if(listy){ TM.item=0; TM.round=0; }
   $('timer').classList.add('active');
   drawTimer(); tickStart(); reqWake();
   try{ _ac=_ac||new (window.AudioContext||window.webkitAudioContext)(); }catch(e){}
@@ -2672,15 +2703,18 @@ function tick(){
   drawTimer();
 }
 function fmtClock(s){ const m=Math.floor(s/60); return `${m}:${String(s%60).padStart(2,'0')}`; }
+/* The big clock drops the leading 0: under a minute — two characters instead
+   of four, which is the whole point of sizing the clock to its string. */
+function fmtBig(s){ return s<60 ? String(s) : fmtClock(s); }
 /* a block/WOD sequence that carries a movement list gets the timeline
    presentation instead of the ring — the list stays exactly as it reads in the
    preview, and a clock above it names what you're on */
-const isBlockSeq=()=>TM&&TM.mode==='seq'&&Array.isArray(TM.cfg.moves);
+const isWod=()=>TM&&(TM.cfg.layout||(TM.mode==='seq'&&Array.isArray(TM.cfg.moves)));
 function drawTimer(){
   const t=$('timer'); const cfg=TM.cfg;
-  if(isBlockSeq()&&!TM.done){ drawBlockTimer(); return; }
+  if(isWod()&&!TM.done){ drawWodTimer(); return; }
   $('btm').innerHTML='';
-  t.classList.remove('block');
+  t.classList.remove('wod');
   let big,label,sub,next='',frac,kind;
   if(TM.mode==='up'){
     big=fmtClock(TM.elapsed); label=cfg.title; kind='work';
@@ -2719,51 +2753,134 @@ function drawTimer(){
       <button class="btn ${TM.mode==='seq'?'btn-acc':''}" style="min-width:200px" onclick="${TM.mode==='seq'?'tmSkip()':'closeTimer()'}">${TM.mode==='seq'?'Skip':'Close'}</button>
     </div>`;
 }
-function drawBlockTimer(){
-  const cfg=TM.cfg, ph=cfg.phases[TM.idx], t=$('timer');
-  t.className='timer active block '+(ph.kind==='rest'?'rest':'work');
-  const frac=1-(TM.remaining/TM.total);
-  /* three states the clock can be in: on a movement, in the short "off"
-     between two, or in the long rest between rounds */
-  let now, sub;
-  if(ph.kind==='work'){ now=cfg.moves[ph.mi].n; sub=`Round ${ph.round} of ${cfg.rounds} · ${cfg.scheme}`; }
-  else if(ph.off){ const nx=cfg.moves[ph.mi+1]; now='Off'; sub=nx?`Next · ${nx.n}`:'Round done'; }
-  else { now='Rest'; sub=`Round ${ph.round+1} of ${cfg.rounds} next`; }
+/* ── the workout timer ──────────────────────────────────────────────────
+   One landscape layout: what you're doing on the left, the clock on the
+   right. Five variants of the left pane, because what a WOD needs to tell
+   you changes with its format — an interval block needs "next", an AMRAP
+   needs the round it loops, an EMOM needs this minute's task, a chipper
+   needs a checklist, and a rep ladder needs this round's number.
+   The clock is sized to whatever string it has to show (see fitClock). */
+function wodList(items,cur,dim){
+  return `<div class="wt-list${dim?' dim':''}">`+items.map((it,i)=>{
+    const cls = cur==null ? '' : i===cur ? ' now' : i<cur ? ' done' : '';
+    return `<div class="wt-i${cls}" onclick="tmGoto(${i})">
+      <span class="wt-n">${esc(it.n)}</span>
+      ${it.r?`<span class="wt-reps">${esc(it.r)}</span>`:''}</div>`;
+  }).join('')+`</div>`;
+}
+function drawWodTimer(){
+  const cfg=TM.cfg, t=$('timer');
+  const lay=cfg.layout||'intervals';
+  let left='', big='', sub='', frac=0, kind='work';
 
-  const rows=cfg.moves.map((m,i)=>{
-    /* within the current round: anything before the live movement is done.
-       During an "off" the movement just finished counts as done too. */
-    const passed = ph.mi<0 ? true : (ph.off ? i<=ph.mi : i<ph.mi);
-    const live = ph.kind==='work' && i===ph.mi;
-    return `<div class="tl-i ${live?'now quiet':passed?'done':''}">
-      <div class="tl-t">${m.s>=60?Math.round(m.s/60)+'m':m.s+'s'}</div>
-      <div class="tl-d"></div><div class="tl-n">${esc(m.n)}</div></div>`;
-  }).join('');
-  const restRow = cfg.roundRest && ph.round<cfg.rounds
-    ? `<div class="tl-i rest last ${ph.mi<0?'now quiet':''}">
-         <div class="tl-t">${Math.round(cfg.roundRest/60)}m</div>
-         <div class="tl-d"></div><div class="tl-n">Rest, then round ${ph.round+1}</div></div>`
-    : `<div class="tl-i last" style="visibility:hidden"><div class="tl-t"></div><div class="tl-d"></div></div>`;
+  if(lay==='intervals'){
+    const ph=cfg.phases[TM.idx];
+    frac=1-(TM.remaining/TM.total); big=fmtBig(TM.remaining);
+    kind=ph.kind==='rest'?'rest':'work';
+    let now,nxt,then;
+    if(ph.kind==='work'){ now=cfg.moves[ph.mi].n; }
+    else if(ph.off){ now='Off'; }
+    else { now='Rest'; }
+    const nx=cfg.phases.slice(TM.idx+1).filter(x=>x.kind==='work')[0];
+    const nx2=cfg.phases.slice(TM.idx+1).filter(x=>x.kind==='work')[1];
+    nxt=nx?cfg.moves[nx.mi].n:'Block done';
+    then=nx2?`then ${cfg.moves[nx2.mi].n}`:'';
+    left=`<div class="wt-lbl">Now &middot; round ${ph.round} of ${cfg.rounds}</div>
+      <div class="wt-now">${esc(now)}</div>
+      <div class="wt-next"><span>Next</span>${esc(nxt)}</div>
+      <div class="wt-then">${esc(then)}</div>`;
+    sub=`${TM.total-TM.remaining}s done of ${TM.total}s`;
 
+  } else if(lay==='emom'){
+    const ph=cfg.phases[TM.idx];
+    frac=1-(TM.remaining/TM.total); big=fmtBig(TM.remaining);
+    const m=cfg.moves[ph.mi], up=[1,2].map(k=>cfg.phases[TM.idx+k]).filter(Boolean)
+      .map(x=>({n:cfg.moves[x.mi].n,r:cfg.moves[x.mi].r}));
+    left=`<div class="wt-lbl">${esc(cfg.title)} &middot; minute ${TM.idx+1} of ${cfg.phases.length}</div>
+      <div class="wt-hero"><span class="wt-hn">${esc(m.n)}</span>${m.r?`<span class="wt-hr">${esc(m.r)}</span>`:''}</div>
+      ${up.length?`<div class="wt-up">${wodList(up,null,true)}</div>`:''}`;
+    sub='left this minute';
+
+  } else if(lay==='amrap'){
+    frac=1-(TM.remaining/TM.total); big=fmtBig(TM.remaining);
+    left=`<div class="wt-lbl">${esc(cfg.title)} &middot; round ${TM.round+1}</div>
+      ${wodList(cfg.items,TM.item)}`;
+    sub=`left &middot; ${TM.round} round${TM.round===1?'':'s'} banked`;
+
+  } else if(lay==='chipper'){
+    frac=cfg.target?Math.min(1,TM.elapsed/cfg.target):0; big=fmtClock(TM.elapsed);
+    left=`<div class="wt-lbl">${esc(cfg.title)}</div>${wodList(cfg.items,TM.item)}`;
+    sub=`elapsed${cfg.targetLabel?' &middot; target '+cfg.targetLabel:''}`;
+
+  } else if(lay==='ladder'){
+    frac=cfg.target?Math.min(1,TM.elapsed/cfg.target):0; big=fmtClock(TM.elapsed);
+    const reps=cfg.ladder[TM.round]??cfg.ladder[cfg.ladder.length-1];
+    const items=cfg.items.map(it=>({n:it.n,r:String(reps)}));
+    left=`<div class="wt-lbl">${esc(cfg.title)} &middot; round ${TM.round+1} of ${cfg.ladder.length}</div>
+      ${wodList(items,TM.item)}
+      <div class="wt-ladder">${cfg.ladder.map((r,i)=>
+        `<b class="${i<TM.round?'done':i===TM.round?'now':''}">${r}</b>`).join(' &middot; ')}</div>`;
+    sub=`elapsed${cfg.targetLabel?' &middot; target '+cfg.targetLabel:''}`;
+  }
+
+  t.className='timer active wod '+kind;
+  const adv = (lay==='amrap'||lay==='chipper'||lay==='ladder')
+    ? `<div class="wt-c" onclick="tmAdvance()"><svg viewBox="0 0 24 24">${G.check}</svg><span>Done</span></div>` : '';
+  const skip = (lay==='intervals'||lay==='emom')
+    ? `<div class="wt-c" onclick="tmSkip()"><svg viewBox="0 0 24 24">${G.skip}</svg><span>Skip</span></div>` : '';
   $('btm').innerHTML=`
-    <div class="btm-hdr">
-      <div class="btm-back" onclick="closeTimer()"><svg viewBox="0 0 24 24">${G.back}</svg></div>
-      <div class="btm-b"><div class="btm-t">${esc(cfg.title)}</div>
-        <div class="btm-s">${esc(cfg.sub||'')}</div></div>
-      <div class="btm-r">${ph.round} / ${cfg.rounds}</div>
-    </div>
-    <div class="wod-f">${esc(sub)}</div>
-    <div class="tclock">
-      <div class="tc-n">${esc(now)}</div>
-      <div class="tc-v">${fmtClock(TM.remaining)}</div>
-      <div class="tc-bar"><i style="width:${Math.round(frac*100)}%"></i></div>
-    </div>
-    <div class="tline">${rows}${restRow}</div>
-    <div class="tctl">
-      <div class="tc" onclick="tmToggle()"><svg viewBox="0 0 24 24">${TM.running?G.pause:G.play}</svg>
-        <span>${TM.running?'Pause':'Resume'}</span></div>
-      <div class="tc" onclick="tmSkip()"><svg viewBox="0 0 24 24">${G.skip}</svg><span>Skip</span></div>
+    <div class="wt">
+      <div class="wt-hdr">
+        <div class="wt-back" onclick="closeTimer()"><svg viewBox="0 0 24 24">${G.back}</svg></div>
+        <div class="wt-hb"><div class="wt-t">${esc(cfg.title)}</div>
+          <div class="wt-s">${esc(cfg.sub||cfg.scheme||'')}</div></div>
+      </div>
+      <div class="wt-body">
+        <div class="wt-l">${left}</div>
+        <div class="wt-r">
+          <div class="wt-clock" id="wt-clock">${big}</div>
+          <div class="wt-sub">${sub}</div>
+          <div class="wt-bar"><i style="width:${Math.round(frac*100)}%"></i></div>
+        </div>
+      </div>
+      <div class="wt-ctl">
+        <div class="wt-c" onclick="tmToggle()"><svg viewBox="0 0 24 24">${TM.running?G.pause:G.play}</svg>
+          <span>${TM.running?'Pause':'Resume'}</span></div>
+        ${adv}${skip}
+      </div>
     </div>`;
+  fitClock();
+}
+/* The clock is the only thing on screen whose width depends on its value, so
+   it is sized from the string rather than fixed: "24" gets the full cap,
+   "12:34" steps down enough to still fit the column. */
+function fitClock(){
+  const el=$('wt-clock'); if(!el) return;
+  const w=el.parentElement.clientWidth;
+  const n=(el.textContent||'').trim().length||2;
+  el.style.fontSize=Math.min(176,Math.floor(w*0.94/(n*0.601)))+'px';
+}
+/* tapping a movement jumps to it; the Done control steps forward and, in an
+   AMRAP, banks a round when it wraps */
+function tmGoto(i){ if(TM&&TM.item!=null){ TM.item=i; drawTimer(); } }
+function tmAdvance(){
+  if(!TM) return;
+  const cfg=TM.cfg, n=cfg.items.length;
+  TM.item=(TM.item||0)+1;
+  if(TM.item>=n){
+    TM.item=0;
+    if(cfg.layout==='amrap') TM.round++;
+    else if(cfg.layout==='ladder'){
+      TM.round++;
+      if(TM.round>=cfg.ladder.length){ TM.running=false; TM.done=true; clearInterval(_tmInt);
+        beep(1040,0.5); vibrate([300,100,300]); }
+    } else if(cfg.layout==='chipper'){
+      TM.running=false; TM.done=true; clearInterval(_tmInt);
+      beep(1040,0.5); vibrate([300,100,300]);
+    }
+  }
+  beep(760,0.09); vibrate(40);
+  drawTimer();
 }
 function tmToggle(){ TM.running=!TM.running; drawTimer(); }
 function tmAdd(s){ if(TM.mode==='up')return; TM.remaining=Math.max(1,TM.remaining+s); TM.total=Math.max(TM.total,TM.remaining); drawTimer(); }
@@ -2773,7 +2890,7 @@ function tmSkip(){ if(TM.mode!=='seq')return; TM.remaining=1; }
 /* Blocks are described as {moves, rounds, off, roundRest} rather than a flat
    phase list, because the running timer draws the movement timeline and needs
    to know which movement each phase belongs to. seqBlock() flattens them. */
-function seqBlock({title,sub='',moves,rounds=1,off=0,roundRest=0,scheme=''}){
+function seqBlock({title,sub='',moves,rounds=1,off=0,roundRest=0,scheme='',layout='intervals'}){
   const ph=[];
   for(let r=1;r<=rounds;r++){
     moves.forEach((m,i)=>{
@@ -2784,7 +2901,7 @@ function seqBlock({title,sub='',moves,rounds=1,off=0,roundRest=0,scheme=''}){
     if(roundRest && r<rounds)
       ph.push({label:`Rest — round ${r+1} next`,sec:roundRest,kind:'rest',mi:-1,round:r});
   }
-  return {title,sub,mode:'seq',phases:ph,moves,rounds,scheme,roundRest};
+  return {title,sub,mode:'seq',phases:ph,moves,rounds,scheme,roundRest,layout};
 }
 const TIMERS={
   block1:()=>seqBlock({title:'Block 1',sub:'Classic intervals',scheme:'40s on / 20s off',
@@ -2795,12 +2912,21 @@ const TIMERS={
     rounds:1, off:90}),
   block3:()=>seqBlock({title:'Block 3',sub:'Hard / easy intervals',scheme:'30s hard / 60s easy',
     moves:[{n:'Hard',s:30},{n:'Easy',s:60}], rounds:10}),
-  wod1:()=>({title:'AMRAP 15',mode:'down',sec:900}),
-  wod2:()=>({title:'WOD 2 · for time',mode:'up',target:720}),
-  wod3:()=>seqBlock({title:'EMOM 20',sub:'Every minute on the minute',scheme:'1 min each',
-    moves:['8 KB clean & press','10 renegade rows','12 goblet squats','10 KB swings'].map(n=>({n,s:60})),
+  /* AMRAP: the clock runs the piece down, you loop the triplet, and the score
+     is how many times round you got */
+  wod1:()=>({title:'AMRAP 15',sub:'As many rounds as possible',mode:'down',sec:900,layout:'amrap',
+    items:[{n:'KB swings',r:'12'},{n:'Goblet squat',r:'9'},{n:'Burpees',r:'6'}]}),
+  /* rep ladder: same two movements, a different number each round */
+  wod2:()=>({title:'21-15-9',sub:'For time',mode:'up',target:720,targetLabel:'sub 12:00',layout:'ladder',
+    items:[{n:'DB thrusters'},{n:'Pull-ups'}], ladder:[21,15,9]}),
+  /* EMOM: one task per minute, clock counts the minute not the piece */
+  wod3:()=>seqBlock({title:'EMOM 20',sub:'Every minute on the minute',scheme:'1 min each',layout:'emom',
+    moves:[{n:'KB clean & press',r:'×8',s:60},{n:'Renegade rows',r:'×10',s:60},
+           {n:'Goblet squat',r:'×12',s:60},{n:'KB swings',r:'×10',s:60}],
     rounds:5}),
-  wod4:()=>({title:'Chipper · for time',mode:'up',target:900})
+  /* chipper: work down the list once, clock counts up */
+  wod4:()=>({title:'Chipper',sub:'For time',mode:'up',target:900,targetLabel:'12–16 min',layout:'chipper',
+    items:[{n:'Row',r:'40 cal'},{n:'Walking lunge',r:'30'},{n:'DB push press',r:'20'},{n:'Burpee box step-up',r:'10'}]})
 };
 
 /* ═══════════════════════════════════════════════════════════════
