@@ -10,7 +10,7 @@
 <meta name="theme-color" content="#0b0a08">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Sisu">
 <link rel="apple-touch-icon" href="assets/icon-dragon-512.png">
 
@@ -92,7 +92,8 @@ body::after{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
 /* ── Roman display type for headings & labels ── */
 .h1,.item-title,.stat-val,.hero-h1,.tm-big,.ov-title .t,.seg button,.btn-acc,.btn-lg{font-family:var(--display);letter-spacing:.01em}
 .eyebrow,.sec-label,.stat-lbl,.item-eyebrow,.grp,.tab span,.tag,.badge,.tm-label,.lbl,.log-date{font-family:var(--display)!important;letter-spacing:.14em}
-.app{max-width:640px;margin:0 auto;min-height:100vh;position:relative;display:flex;flex-direction:column}
+.app{max-width:640px;margin:0 auto;min-height:100vh;position:relative;display:flex;flex-direction:column;
+  padding-top:env(safe-area-inset-top)}
 
 /* ── views ── */
 .view{flex:1;padding:24px 22px calc(96px + env(safe-area-inset-bottom));display:none}
@@ -302,7 +303,8 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
 
 /* ── fullscreen timer ── */
 .timer{position:fixed;inset:0;z-index:90;background:radial-gradient(120% 80% at 50% 0%,#efe6d2,#e0d3b6);display:none;flex-direction:column;
-  align-items:center;justify-content:center;padding:24px;text-align:center}
+  align-items:center;justify-content:center;text-align:center;
+  padding:calc(24px + env(safe-area-inset-top)) 24px calc(24px + env(safe-area-inset-bottom))}
 .timer.active{display:flex}
 .timer.rest{background:radial-gradient(circle at 50% 30%,#dfe6d0,#d7cbb0 74%)}
 .timer.work{background:radial-gradient(circle at 50% 30%,#f0e2c6,#e2d0a8 74%)}
@@ -610,7 +612,8 @@ hr.d{border:none;border-top:1px solid var(--border);margin:22px 0}
 /* ── Home: the monolith ── */
 body.home-rail .nav{display:none}
 body.home-rail #v-home{padding-bottom:calc(24px + env(safe-area-inset-bottom))}
-.mono{display:flex;flex-direction:column;min-height:calc(100vh - 150px)}
+.mono{display:flex;flex-direction:column;
+  min-height:calc(100vh - 150px - env(safe-area-inset-top) - env(safe-area-inset-bottom))}
 .b-wrap{display:flex;align-items:center;gap:16px;flex:1}
 .b-spine{display:flex;flex-direction:column;gap:6px;flex-shrink:0}
 .b-spine i{width:3px;height:26px;border-radius:2px;background:rgba(243,234,212,.16)}
@@ -634,12 +637,13 @@ body.home-rail #v-home{padding-bottom:calc(24px + env(safe-area-inset-bottom))}
 .rr.on{color:var(--good)}
 .rr.on svg{border-color:rgba(111,216,201,.5);box-shadow:0 0 14px rgba(111,216,201,.3)}
 .b-foot{display:flex;justify-content:space-between;gap:8px;border-top:1px solid var(--border);
-  padding-top:16px;margin-top:34px;margin-bottom:-10px;font-family:var(--mono);font-size:9px;
+  padding-top:16px;margin-top:34px;font-family:var(--mono);font-size:9px;
   letter-spacing:.05em;text-transform:uppercase;color:var(--faint)}
 .b-foot span{cursor:pointer}
 
 /* ── Plans landing: three floating paths, the middle one lit ── */
-.hub{display:flex;flex-direction:column;min-height:calc(100vh - 190px)}
+.hub{display:flex;flex-direction:column;
+  min-height:calc(100vh - 190px - env(safe-area-inset-top) - env(safe-area-inset-bottom))}
 .hubttl{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
   color:var(--muted);margin-bottom:6px}
 /* the wrapper bleeds past the view padding so emblems can leave the screen */
