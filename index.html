@@ -7,12 +7,12 @@
 
 <!-- PWA -->
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0b0a08">
+<meta name="theme-color" content="#0b0714">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Sisu">
-<link rel="apple-touch-icon" href="assets/icon-dragon-512.png">
+<link rel="apple-touch-icon" href="assets/icon-wine-maskable-512.png">
 
 <style>
 /* ── self-hosted fonts (Appendix B) — the app is offline-first everywhere
@@ -46,10 +46,12 @@
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
-  /* ── the forest ground. Everything floats on it: there are no cards in this
+  /* ── the ground. Everything floats on it: there are no cards in this
      theme, only hairline rules, so --card/--card2 are transparent and the old
      card rules resolve to nothing rather than needing to be hunted down. ── */
-  --bg:#0b0a08; --bg2:#14110d; --card:transparent; --card2:rgba(255,255,255,.05);
+  /* the ground is a token: point it at another baked image to reskin */
+  --ground:url('assets/violet-bg.jpg');
+  --bg:#0b0714; --bg2:#171029; --card:transparent; --card2:rgba(255,255,255,.05);
   --border:rgba(217,184,119,.16);   /* the hairline that replaced every card edge */
   /* ── brand ── */
   --acc:#d3564f;                    /* alert / hard sessions / eyebrows */
@@ -86,9 +88,9 @@ body{background:transparent;color:var(--text);font-family:var(--sans);line-heigh
   -webkit-font-smoothing:antialiased;overscroll-behavior-y:none;font-size:16.5px}
 /* the ground is pre-blurred at export — blurring a full-bleed image at runtime
    costs a compositor layer on every scroll for no visual gain */
-body::before{content:'';position:fixed;inset:0;z-index:-2;background:url('assets/forest-bg.jpg') center/cover no-repeat}
+body::before{content:'';position:fixed;inset:0;z-index:-2;background:var(--ground) center/cover no-repeat}
 body::after{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
-  background:linear-gradient(180deg,rgba(6,5,4,.82) 0%,rgba(6,5,4,.5) 13%,rgba(6,5,4,.2) 32%,rgba(6,5,4,.38) 62%,rgba(6,5,4,.8) 100%)}
+  background:linear-gradient(180deg,rgba(8,4,16,.82) 0%,rgba(8,4,16,.5) 13%,rgba(8,4,16,.2) 32%,rgba(8,4,16,.38) 62%,rgba(8,4,16,.8) 100%)}
 /* ── Roman display type for headings & labels ── */
 .h1,.item-title,.stat-val,.hero-h1,.tm-big,.ov-title .t,.seg button,.btn-acc,.btn-lg{font-family:var(--display);letter-spacing:.01em}
 .eyebrow,.sec-label,.stat-lbl,.item-eyebrow,.grp,.tab span,.tag,.badge,.tm-label,.lbl,.log-date{font-family:var(--display)!important;letter-spacing:.14em}
@@ -495,7 +497,7 @@ hr.d{border:none;border-top:1px solid var(--border);margin:22px 0}
 .tally .tv{font-size:22px}
 .tally .tl{font-size:9px}
 /* ══════════════════════════════════════════════════════════════════════
-   FOREST THEME — the whole app floats. Nothing is boxed: every surface
+   GROUND THEME — the whole app floats. Nothing is boxed: every surface
    that used to be a card becomes a hairline-separated row on the ground.
    Written as a layer at the end so the rules above stay readable and one
    block can be lifted out if the theme is ever reverted.
@@ -551,24 +553,24 @@ hr.d{border:none;border-top:1px solid var(--border);margin:22px 0}
 .pill.on{color:var(--good)}
 
 /* chrome: the nav and the sheet stop being panels */
-.nav{background:linear-gradient(0deg,rgba(6,5,4,.86),rgba(6,5,4,0));
+.nav{background:linear-gradient(0deg,rgba(8,4,16,.86),rgba(8,4,16,0));
   backdrop-filter:none;-webkit-backdrop-filter:none;border-top:none}
 .tab{color:var(--muted)}
 .tab.active{color:var(--good)}
-.ov-head{background:linear-gradient(180deg,rgba(6,5,4,.9),rgba(6,5,4,.35));
+.ov-head{background:linear-gradient(180deg,rgba(8,4,16,.9),rgba(8,4,16,.35));
   backdrop-filter:none;-webkit-backdrop-filter:none;border-bottom:none}
 .ov-back{background:none;border:1px solid rgba(243,234,212,.26);border-radius:50%}
 .ov-title .t{font-family:var(--display);font-weight:500;font-size:19px}
 
 /* overlays get their own copy of the ground so the view beneath is hidden
    without flattening them to a solid colour */
-.overlay,.sheet-inner{background:url('assets/forest-bg.jpg') center/cover no-repeat fixed}
+.overlay,.sheet-inner{background:var(--ground) center/cover no-repeat fixed}
 .overlay::before,.sheet-inner::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:0;
-  background:linear-gradient(180deg,rgba(6,5,4,.82) 0%,rgba(6,5,4,.5) 13%,rgba(6,5,4,.2) 32%,rgba(6,5,4,.38) 62%,rgba(6,5,4,.8) 100%)}
+  background:linear-gradient(180deg,rgba(8,4,16,.82) 0%,rgba(8,4,16,.5) 13%,rgba(8,4,16,.2) 32%,rgba(8,4,16,.38) 62%,rgba(8,4,16,.8) 100%)}
 .overlay>*,.sheet-inner>*{position:relative;z-index:1}
 
-.timer,.timer.rest,.timer.work,.timer.go{background:url('assets/forest-bg.jpg') center/cover no-repeat fixed}
-.timer::before{content:'';position:absolute;inset:0;background:rgba(6,5,4,.72);pointer-events:none;z-index:0}
+.timer,.timer.rest,.timer.work,.timer.go{background:var(--ground) center/cover no-repeat fixed}
+.timer::before{content:'';position:absolute;inset:0;background:rgba(8,4,16,.72);pointer-events:none;z-index:0}
 .timer>*{position:relative;z-index:1}
 .tm-ring .bg{stroke:rgba(217,184,119,.2)}
 .timer.rest .tm-ring .fg,.timer .tm-ring .fg{stroke:var(--good)}
@@ -577,7 +579,7 @@ hr.d{border:none;border-top:1px solid var(--border);margin:22px 0}
 .tm-preset.on{color:var(--good)}
 .tm-circ{background:none;border:1px solid rgba(243,234,212,.2);color:var(--muted)}
 
-.ask{background:rgba(6,5,4,.72)}
+.ask{background:rgba(8,4,16,.72)}
 .ask-box{background:#12100c;border:1px solid var(--border);box-shadow:0 18px 50px rgba(0,0,0,.6)}
 .toast{background:#12100c;border:1px solid var(--border);color:var(--text)}
 
@@ -3014,7 +3016,7 @@ function checkWeeklyReminder(){
     const body='Take a progress photo, weigh in, and log it in the Body tab.';
     try{
       if(navigator.serviceWorker?.ready) navigator.serviceWorker.ready
-        .then(reg=>reg.showNotification('Sisu — Monday check-in',{body,icon:'assets/icon-dragon-512.png',tag:'mgt-weekly'}))
+        .then(reg=>reg.showNotification('Sisu — Monday check-in',{body,icon:'assets/icon-wine-512.png',tag:'mgt-weekly'}))
         .catch(()=>new Notification('Sisu — Monday check-in',{body}));
       else new Notification('Sisu — Monday check-in',{body});
     }catch(e){}

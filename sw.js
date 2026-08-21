@@ -1,9 +1,11 @@
-const CACHE = 'mgt-v19';
+const CACHE = 'mgt-v20';
 const ASSETS = ['./', './index.html', './manifest.json',
   './assets/fonts/eb-garamond-400-normal.woff2','./assets/fonts/eb-garamond-400-italic.woff2',
   './assets/fonts/ibm-plex-mono-400-normal.woff2','./assets/fonts/ibm-plex-mono-500-normal.woff2','./assets/fonts/ibm-plex-mono-600-normal.woff2',
   './assets/forest-bg.jpg',
-  './assets/icon-dragon-512.png',
+  './assets/violet-bg.jpg',
+  './assets/icon-wine-512.png',
+  './assets/icon-wine-maskable-512.png',
   './assets/fonts/cormorant-garamond-400-normal.woff2'];
 
 // Install: pre-cache the app shell
