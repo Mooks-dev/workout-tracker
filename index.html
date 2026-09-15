@@ -1328,7 +1328,28 @@ function programWeek(){ if(!S.active?.startedISO)return 0; const d=(Date.now()-n
 /* which program day is next — derived from this week's session count, but
    user-correctable, since doing an extra session or logging one twice would
    otherwise desync the pointer with no way to fix it. */
+/* which programme day is up. Programmes with a weekday schedule (.week) go by
+   the calendar: today's workout, or if today is a rest/run day or its workout is
+   already logged, the next scheduled one this week. A skipped day doesn't hold
+   the week back. The Home day stepper can override this, but only for the day
+   it was used, so the weekday model takes over again tomorrow. Programmes
+   without a schedule keep the old in-order pointer. */
 function nextDayIdx(p){
+  if(p.week){
+    const today=todayISO();
+    if(S.active?.nextDay!=null && S.active.nextDayISO===today)
+      return ((S.active.nextDay%p.D.length)+p.D.length)%p.D.length;
+    const dow=(new Date().getDay()+6)%7;
+    const logged=new Set(sessionsSince(weekStart())
+      .filter(s=>s.source?.programId===p.id).map(s=>s.source.dayName));
+    for(let k=0;k<7;k++){
+      const i=dow+k, slot=p.week[i%7];
+      if(typeof slot!=='number') continue;
+      if(i<7 && logged.has(p.D[slot].name)) continue;   // done already this week
+      return slot;
+    }
+    return p.week.find(x=>typeof x==='number') ?? 0;
+  }
   if(S.active?.nextDay!=null) return ((S.active.nextDay%p.D.length)+p.D.length)%p.D.length;
   const progWk=sessionsSince(weekStart())
     .filter(s=>s.source?.type==='program'&&s.source.programId===p.id).length;
@@ -1337,6 +1358,7 @@ function nextDayIdx(p){
 function bumpDay(pid,dir){
   const p=progById(pid); if(!p||!S.active) return;
   S.active.nextDay=(nextDayIdx(p)+dir+p.D.length)%p.D.length;
+  S.active.nextDayISO=todayISO();          // the override lasts for today only
   persist(); renderHome();
 }
 function bodyLoggedThisWeek(){ const ws=weekStart(); return S.bodyLog.some(e=> new Date(e.date+'T00:00:00').getTime()>=ws); }
@@ -1765,12 +1787,15 @@ function renderToday(){
   const t=p.week?slots[dow]:null;
 
   /* the hero is today's slot; without week data it falls back to next in sequence */
+  /* a swap made with Home's day stepper counts for today here too, or the two
+     screens would disagree about what you're doing */
+  const swapped=S.active?.nextDay!=null && S.active.nextDayISO===todayISO();
   let hero;
-  if(!t || t.kind==='day'){
-    const idx=t?t.idx:nextDayIdx(p);
+  if(!t || t.kind==='day' || swapped){
+    const idx=(swapped||!t)?nextDayIdx(p):t.idx;
     const d=resolveDay(p.D[idx]);
-    const done=t?t.done:false;
-    hero=`<div class="td-eyebrow">${done?'Done today':"Today's workout"}</div>
+    const done=wkSess.some(s=>s.source?.dayName===p.D[idx].name);
+    hero=`<div class="td-eyebrow">${done?'Done today':swapped?"Today's workout · swapped":"Today's workout"}</div>
       <div class="td-title">${esc(d.name)}</div>
       <div class="td-sub">${esc(d.sub||'')}${d.sub?' · ':''}${(d.lifts||[]).length} lifts</div>
       <div class="td-acts">${done
@@ -1959,6 +1984,8 @@ function bindProgSwipe(n){
 function programBreakdownHTML(p){
   const active=S.active?.programId===p.id;
   const cur = active ? nextDayIdx(p) : -1;
+  const loggedWk = active ? new Set(sessionsSince(weekStart())
+    .filter(s=>s.source?.programId===p.id).map(s=>s.source.dayName)) : new Set();
   let out=`<div class="rblock">
       <div class="eyebrow">Layout</div>
       <div class="body-sm">${esc(p.layout)}</div>
@@ -1970,7 +1997,7 @@ function programBreakdownHTML(p){
   p.D.forEach((d0,i)=>{
     const d=resolveDay(d0);
     const nl=(d.lifts||[]).length;
-    const state = cur<0 ? 'blank' : i<cur ? 'done' : i===cur ? 'now' : 'blank';
+    const state = cur<0 ? 'blank' : loggedWk.has(d0.name) ? 'done' : i===cur ? 'now' : 'blank';
     const glyph = state==='done' ? 'check' : state==='now' ? 'play' : null;
     const iconHTML = glyph
       ? `<div class="icn ${state==='done'?'done':'gold'}"><svg viewBox="0 0 24 24">${G[glyph]}</svg></div>`
