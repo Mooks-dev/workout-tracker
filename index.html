@@ -840,6 +840,39 @@ body.home-rail #v-home{padding-bottom:calc(24px + env(safe-area-inset-bottom))}
 .wt-c svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;
   stroke-linecap:round;stroke-linejoin:round}
 
+/* ── Today ── */
+.td-head{margin-bottom:6px}
+.td-date{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-top:8px}
+.td-hero{padding:22px 0 22px}
+.td-eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--acc);margin-bottom:9px}
+.td-title{font-family:var(--display);font-weight:500;font-size:clamp(32px,9vw,40px);line-height:1.05;color:var(--text);text-wrap:balance}
+.td-sub{font-family:var(--mono);font-size:10.5px;letter-spacing:.05em;color:var(--muted);margin-top:9px}
+.td-acts{display:flex;align-items:baseline;gap:24px;margin-top:18px;flex-wrap:wrap}
+.td-go{font-family:var(--display);font-weight:600;font-size:21px;letter-spacing:.04em;color:var(--good);cursor:pointer}
+.td-alt{font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--muted);cursor:pointer;
+  border-bottom:1px solid var(--border);padding-bottom:2px}
+.td-doneflag{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--good)}
+.td-row{display:grid;grid-template-columns:46px 1fr auto;align-items:center;gap:14px;
+  padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.td-row:last-child{border-bottom:none}
+.td-row.rest{cursor:default}
+.td-dow{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);line-height:1.2}
+.td-dow b{display:block;font-family:var(--display);font-weight:500;font-size:21px;letter-spacing:0;color:var(--muted);margin-top:1px}
+.td-n{font-family:var(--display);font-weight:500;font-size:18px;color:var(--text);line-height:1.15}
+.td-s{font-family:var(--mono);font-size:9.5px;color:var(--faint);margin-top:4px}
+.td-st{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+.td-st svg{width:17px;height:17px;stroke:var(--good);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:block}
+.td-row.rest .td-n{color:var(--faint);font-style:italic;font-size:16px}
+.td-row.opt .td-n,.td-row.run .td-n{color:var(--muted)}
+.td-row.today{background:linear-gradient(90deg,rgba(217,184,119,.12),transparent 75%)}
+.td-row.today .td-dow,.td-row.today .td-dow b,.td-row.today .td-st{color:var(--gold)}
+.td-row.done .td-n{color:var(--muted)}
+.td-plan{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:20px;
+  padding-top:16px;border-top:1px solid var(--border)}
+.td-plan .l{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+.td-plan .t{font-family:var(--display);font-weight:500;font-size:17px;color:var(--text);margin-top:3px}
+.td-plan .c{font-family:var(--mono);font-size:11.5px;color:var(--good);cursor:pointer;white-space:nowrap;padding:8px 0}
+
 .navhdr-l{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
   color:var(--good);cursor:pointer;margin-bottom:16px;display:inline-block}
 .tbl .tr{border-bottom:none}
@@ -905,6 +938,7 @@ body.home-rail #v-home{padding-bottom:calc(24px + env(safe-area-inset-bottom))}
 <div class="app">
   <div class="acct" id="acct"></div>
   <div class="view" id="v-home"></div>
+  <div class="view" id="v-today"></div>
   <div class="view" id="v-programs"></div>
   <div class="view" id="v-workouts"></div>
   <div class="view" id="v-history"></div>
@@ -1043,7 +1077,7 @@ const WOD_BANK = {
    Set id whenever the display name is ambiguous or might change. */
 const L=(n,s,id)=>({n,s,id:id||null});
 const PROGRAMS=[
- {id:'aug',cat:'august',days:'4',title:'August, 4 Week',subtitle:'3 lifting days + conditioning',
+ {id:'aug',cat:'august',week:[0,'opt',1,'rest',2,3,'rest'],weeks:4,days:'4',title:'August, 4 Week',subtitle:'3 lifting days + conditioning',
   layout:'Mon A, Tue rest / easy run, Wed B, Thu rest, Fri C, Sat D, Sun rest',
   run:'Easy 30 min at conversational pace on Tuesday. Deliberately not the 5k time trial — Zone 2 adds fat oxidation without the recovery cost. Run 5k hard once a fortnight at most, on the Saturday in place of conditioning.',
   note:'Week 1 (4–10 Aug) establish baselines, 2–3 reps in reserve. Week 2 (11–17 Aug) +2.5kg on the main lifts, RIR 2. Week 3 (18–24 Aug) +2.5kg again or add a set, RIR 1. Week 4 (25–31 Aug) same loads, final sets to near failure, retest bench and squat.',
@@ -1060,7 +1094,7 @@ const PROGRAMS=[
     alt:{name:'D — Conditioning',sub:'CrossFit style · weeks 2 & 4',
          lifts:[L('Goblet squat','4×5 heavy')],cond:null,wod:'wod3'}}
   ]},
- {id:'w3',cat:'weights',days:'3',title:'Weights, 3 Day',subtitle:'Full Body ×3',
+ {id:'w3',cat:'weights',week:[0,'rest',1,'rest',2,'run','rest'],days:'3',title:'Weights, 3 Day',subtitle:'Full Body ×3',
   layout:'Mon FB-A, Wed FB-B, Fri FB-C, run Sat/Sun',run:'One easy Zone 2 run, Sat or Sun.',
   D:[
    {name:'Full Body A',sub:'Squat emphasis',warmup:'Band pull-aparts + shoulder circles + bodyweight squats 2×15',
@@ -1070,7 +1104,7 @@ const PROGRAMS=[
    {name:'Full Body C',sub:'Push / pull balance',warmup:'Band work + light presses',
     lifts:[L('Hack squat or front squat','4×8–10','front-squat'),L('Overhead press','3×8–10'),L('Weighted or assisted pull-up','3×6–10','pull-up-weighted'),L('Cable fly','3×12–15'),L('Triceps rope pushdown','3×12–15')],ab:'C'}
   ]},
- {id:'w4',cat:'weights',days:'4',title:'Weights, 4 Day',subtitle:'Upper / Lower ×2',
+ {id:'w4',cat:'weights',week:[0,1,'rest',2,3,'run','rest'],days:'4',title:'Weights, 4 Day',subtitle:'Upper / Lower ×2',
   layout:'Upper A, Lower A, rest, Upper B, Lower B, run, rest',run:'Ideally the day after Upper B, or on a rest day.',
   D:[
    {name:'Upper A',sub:'Strength lean',
@@ -1082,7 +1116,7 @@ const PROGRAMS=[
    {name:'Lower B',sub:'Hinge lean',
     lifts:[L('Trap-bar deadlift','4×6–8'),L('Bulgarian split squat','3×10 each leg'),L('Hip thrust','3×10–12'),L('Leg extension','3×15'),L('Seated calf raise','4×15')],ab:'F'}
   ]},
- {id:'w5',cat:'weights',days:'5',title:'Weights, 5 Day',subtitle:'Push / Pull / Legs / Upper / Lower',
+ {id:'w5',cat:'weights',week:[0,1,2,'rest',3,4,'run'],days:'5',title:'Weights, 5 Day',subtitle:'Push / Pull / Legs / Upper / Lower',
   layout:'Push, Pull, Legs, rest, Upper, Lower, run',run:'Your 6th session — keep it genuinely easy Zone 2.',
   D:[
    {name:'Push',lifts:[L('Barbell bench press','4×6–8'),L('Overhead press','3×8–10'),L('Incline dumbbell press','3×10–12'),L('Cable fly','3×12–15'),L('Dumbbell lateral raise','4×15'),L('Dips','3×10'),L('Triceps pushdown','3×12')],ab:'A'},
@@ -1091,14 +1125,14 @@ const PROGRAMS=[
    {name:'Upper',sub:'Pump / volume',lifts:[L('Incline dumbbell press','4×10–12'),L('Chest-supported row','4×10–12'),L('Dumbbell shoulder press','3×12'),L('Lat pulldown','3×12'),L('Cable curl','3×15'),L('Cable triceps','3×15')],ab:'E'},
    {name:'Lower',sub:'Posterior + unilateral',lifts:[L('Trap-bar deadlift','4×6–8'),L('Bulgarian split squat','3×10 each leg'),L('Hip thrust','3×12'),L('Leg extension','3×15'),L('Seated calf raise','4×15')],ab:'F'}
   ]},
- {id:'h3',cat:'hiit',days:'3',title:'HIIT, 3 Day',subtitle:'Primer + conditioning block',
+ {id:'h3',cat:'hiit',week:[0,'rest',1,'rest',2,'run','rest'],days:'3',title:'HIIT, 3 Day',subtitle:'Primer + conditioning block',
   layout:'Day 1, rest, Day 2, rest, Day 3, run, rest',run:'Easy Zone 2 — intensity is covered by the blocks.',
   D:[
    {name:'Legs + Intervals',sub:'Lower primer + Block 1',tag:'Hard',lifts:[L('Back squat','4×6'),L('Romanian deadlift','3×8')],cond:'block1',ab:'C'},
    {name:'Push + Density',sub:'Push primer + Block 2',tag:'Hard',lifts:[L('Barbell bench press','4×6'),L('Overhead press','3×8')],cond:'block2',ab:'E'},
    {name:'Pull + Machine',sub:'Pull primer + Block 3',tag:'Moderate',lifts:[L('Weighted pull-up','4×6','pull-up-weighted'),L('Chest-supported row','3×8')],cond:'block3',ab:'B'}
   ]},
- {id:'h4',cat:'hiit',days:'4',title:'HIIT, 4 Day',subtitle:'Alternating hard / moderate',
+ {id:'h4',cat:'hiit',week:[0,1,'rest',2,3,'run','rest'],days:'4',title:'HIIT, 4 Day',subtitle:'Alternating hard / moderate',
   layout:'Day 1, Day 2, rest, Day 3, Day 4, run, rest',run:'Easy Zone 2.',
   D:[
    {name:'Legs + Intervals',sub:'Lower primer + Block 1',tag:'Hard',lifts:[L('Back squat','4×6'),L('Romanian deadlift','3×8')],cond:'block1',ab:'C'},
@@ -1106,7 +1140,7 @@ const PROGRAMS=[
    {name:'Full Body + Density',sub:'Full-body primer + Block 2',tag:'Hard',lifts:[L('Trap-bar deadlift','4×6'),L('Overhead press','3×8')],cond:'block2',ab:'G'},
    {name:'Conditioning Circuit',sub:'Block 4 only',tag:'Moderate',warmup:'Light full-body ramp, no heavy lifting',lifts:[],cond:'block4',ab:'E'}
   ]},
- {id:'h5',cat:'hiit',days:'5',title:'HIIT, 5 Day',subtitle:'Two hard days, rest moderate',
+ {id:'h5',cat:'hiit',week:[0,1,2,'rest',3,4,'run'],days:'5',title:'HIIT, 5 Day',subtitle:'Two hard days, rest moderate',
   layout:'Day 1, Day 2, Day 3, rest, Day 4, Day 5, run',run:'Easy Zone 2 only — do not run hard on a 5-day HIIT week.',
   D:[
    {name:'Legs + Intervals',sub:'Lower primer + Block 1',tag:'Hard',lifts:[L('Back squat','4×6'),L('Romanian deadlift','3×8')],cond:'block1',ab:'A'},
@@ -1115,14 +1149,14 @@ const PROGRAMS=[
    {name:'Full Body + Density',sub:'Full-body primer + Block 2',tag:'Hard',lifts:[L('Trap-bar deadlift','4×6'),L('Overhead press','3×8')],cond:'block2',ab:'G'},
    {name:'Machines + Pump',sub:'Machine intervals + accessories',tag:'Moderate',lifts:[L('Leg press','3×12'),L('Dumbbell shoulder press','3×12'),L('Cable curl','3×15'),L('Cable triceps','3×15')],cond:'block3',ab:'D'}
   ]},
- {id:'c3',cat:'crossfit',days:'3',title:'CrossFit, 3 Day',subtitle:'Strength piece + metcon',
+ {id:'c3',cat:'crossfit',week:[0,'rest',1,'rest',2,'run','rest'],days:'3',title:'CrossFit, 3 Day',subtitle:'Strength piece + metcon',
   layout:'Day 1, rest, Day 2, rest, Day 3, run, rest',run:'Easy Zone 2.',
   D:[
    {name:'Squat + AMRAP',sub:'Squat strength + WOD 1',tag:'Hard',lifts:[L('Back squat','4×5')],wod:'wod1',ab:'G'},
    {name:'Press + EMOM',sub:'Press strength + WOD 3',tag:'Moderate',lifts:[L('Overhead press','4×5')],wod:'wod3',ab:'E'},
    {name:'Deadlift + 21-15-9',sub:'Hinge strength + WOD 2',tag:'Hard',lifts:[L('Deadlift','4×4')],wod:'wod2',ab:'B'}
   ]},
- {id:'c4',cat:'crossfit',days:'4',title:'CrossFit, 4 Day',subtitle:'Strength piece + metcon',
+ {id:'c4',cat:'crossfit',week:[0,1,'rest',2,3,'run','rest'],days:'4',title:'CrossFit, 4 Day',subtitle:'Strength piece + metcon',
   layout:'Day 1, Day 2, rest, Day 3, Day 4, run, rest',run:'Easy Zone 2.',
   D:[
    {name:'Squat + AMRAP',sub:'Squat strength + WOD 1',tag:'Hard',lifts:[L('Back squat','4×5')],wod:'wod1',ab:'G'},
@@ -1130,7 +1164,7 @@ const PROGRAMS=[
    {name:'Deadlift + Chipper',sub:'Hinge strength + WOD 4',tag:'Hard',lifts:[L('Deadlift','4×4')],wod:'wod4',ab:'A'},
    {name:'Skill + EMOM',sub:'Skill + WOD 3',tag:'Moderate',lifts:[L('Push press technique','5×3','push-press')],wod:'wod3',ab:'C'}
   ]},
- {id:'c5',cat:'crossfit',days:'5',title:'CrossFit, 5 Day',subtitle:'Two hard days, three moderate',
+ {id:'c5',cat:'crossfit',week:[0,1,2,'rest',3,4,'run'],days:'5',title:'CrossFit, 5 Day',subtitle:'Two hard days, three moderate',
   layout:'Day 1, Day 2, Day 3, rest, Day 4, Day 5, run',run:'Easy Zone 2 only.',
   D:[
    {name:'Squat + AMRAP',sub:'Squat strength + WOD 1',tag:'Hard',lifts:[L('Back squat','4×5')],wod:'wod1',ab:'G'},
@@ -1449,6 +1483,7 @@ function runsSince(ts){ return S.runs.filter(r=> new Date(r.date+'T00:00:00').ge
 const CLOCK_ICON='<circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.5 2"/>';
 const ICON={
  home:'<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/>',
+ today:'<rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M9 15l2 2 4-4"/>',
  programs:'<path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/>',
  workouts:'<path d="M6 7v10M18 7v10M3 10h3v4H3zM18 10h3v4h-3zM6 12h12"/>',
  history:'<path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/>',
@@ -1477,14 +1512,18 @@ const CAT_G={august:'grid',weights:'bell',hiit:'bolt',crossfit:'flame'};
 const ic=(g,cls='')=>`<div class="icn ${cls}"><svg viewBox="0 0 24 24">${G[g]}</svg></div>`;
 
 const HERO_ICON='<svg viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M4 8v8M8 4v16M16 4v16M20 8v8M2 12h2M20 12h2"/></svg>';
-const TABS=[['home','Today'],['programs','Plans'],['workouts','Workouts'],['history','History'],['runs','Runs']];
+const TABS=[['home','Home'],['today','Today'],['workouts','Workouts'],['history','History'],['runs','Runs']];
 function buildNav(){
   $('nav').innerHTML=TABS.map(([id,label])=>
     `<button class="tab" id="tab-${id}" onclick="nav('${id}')"><svg viewBox="0 0 24 24">${ICON[id]}</svg><span>${label}</span></button>`).join('');
 }
 function nav(view){
   S.view=view;
-  TABS.forEach(([id])=>{ $('v-'+id).classList.toggle('active',id===view); $('tab-'+id).classList.toggle('active',id===view); });
+  /* Plans isn't a tab any more — it's opened from Today — so views and tabs
+     are toggled separately, and Today stays lit while you're in Plans */
+  document.querySelectorAll('.view').forEach(el=>el.classList.toggle('active',el.id==='v-'+view));
+  const tab=view==='programs'?'today':view;
+  TABS.forEach(([id])=>$('tab-'+id).classList.toggle('active',id===tab));
   $('acct').style.display=view==='home'?'flex':'none';
   /* Home carries its own navigation rail, so the bottom bar would be a
      second copy of the same five destinations */
@@ -1493,7 +1532,7 @@ function nav(view){
   document.querySelector('.view.active')?.scrollTo?.(0,0);
   window.scrollTo(0,0);
 }
-function render(v){({home:renderHome,programs:renderPrograms,workouts:renderWorkouts,history:renderHistory,runs:renderRuns}[v]||renderHome)();}
+function render(v){({home:renderHome,today:renderToday,programs:renderPrograms,workouts:renderWorkouts,history:renderHistory,runs:renderRuns}[v]||renderHome)();}
 function goBody(){ _hf.view='body'; nav('history'); }
 
 /* ── account chip ── */
@@ -1531,7 +1570,7 @@ function renderHome(){
   const FREE_IC='<svg viewBox="0 0 24 24"><path d="M4 4l9 9M13 4L4 13"/><path d="M16.5 12.5l3.5 3.5-1 3-3-1-.8-.8z"/></svg>';
   /* ── Home is the monolith: one big name, one action, and the navigation
      as a rail down the right. No bottom bar on this screen — the rail is it. ── */
-  const RAIL=[['home','Today'],['programs','Plans'],['workouts','Workouts'],
+  const RAIL=[['home','Home'],['today','Today'],['workouts','Workouts'],
               ['history','History'],['runs','Runs']];
   const rail=`<div class="railR">`+RAIL.map(([v,label])=>
       `<div class="rr ${v==='home'?'on':''}" onclick="nav('${v}')"><svg viewBox="0 0 24 24">${ICON[v]}</svg><span>${label}</span></div>`
@@ -1666,6 +1705,119 @@ function planTap(i,slot){
 function planEnter(){ _planIn=true; _progIdx=0; renderPrograms(); }
 function planBack(){ _planIn=false; renderPrograms(); }
 
+/* ── Today: the plan laid over this week, day by day ─────────────────────
+   Programmes carry .week (Mon–Sun: a D index, 'run', 'opt' for rest-or-easy-run,
+   or 'rest'), which is what lets this screen say which workout falls on which
+   day. A programme with .weeks has an end, and Today says so when it's passed. */
+function openPlans(){ _planIn=false; nav('programs'); }
+function todaySlot(p,i,days,wkSess){
+  const k=p.week?p.week[i]:null;
+  if(typeof k==='number'){
+    const d=resolveDay(p.D[k]);
+    return {kind:'day',idx:k,name:d.name,sub:d.sub||'',lifts:(d.lifts||[]).length,
+      done:wkSess.some(s=>s.source?.dayName===p.D[k].name)};
+  }
+  if(k==='run') return {kind:'run',name:'Easy run',sub:'Zone 2 · 30–40 min',done:days[i].ran};
+  if(k==='opt') return {kind:'opt',name:'Rest or easy run',sub:'Conversational pace · 30 min',done:days[i].ran};
+  return {kind:'rest',name:'Rest',sub:'',done:false};
+}
+function renderToday(){
+  const el=$('v-today');
+  const now=new Date();
+  const dateLine=now.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
+  const head=`<div class="td-head"><div class="h1">Today</div><div class="td-date">${dateLine}</div></div>`;
+  const streak=weekStreak();
+  const p=S.active?progById(S.active.programId):null;
+
+  if(!p){
+    el.innerHTML=head+`<div class="td-hero">
+        <div class="td-eyebrow">No plan yet</div>
+        <div class="td-title">Pick a plan to fill your week</div>
+        <div class="td-acts"><span class="td-go" onclick="openPlans()">Choose a plan</span></div>
+      </div>`;
+    return;
+  }
+
+  const wkNum=programWeek();
+  const stats=(a,b,c)=>`<div class="mstrip">
+      <div><div class="v">${a[0]}</div><div class="l">${a[1]}</div></div>
+      <div><div class="v">${b[0]}</div><div class="l">${b[1]}</div></div>
+      <div><div class="v">${c[0]}</div><div class="l">${c[1]}</div></div></div>`;
+
+  /* a fixed-length programme that has run its course asks for the next one,
+     rather than silently looping back to week 1 */
+  if(p.weeks && wkNum>p.weeks){
+    const started=new Date(S.active.startedISO+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'long'});
+    el.innerHTML=head+`<div class="td-hero">
+        <div class="td-eyebrow">Programme finished</div>
+        <div class="td-title">${esc(p.title)}</div>
+        <div class="td-sub">${p.weeks} weeks from ${started}</div>
+        <div class="td-acts"><span class="td-go" onclick="openPlans()">Choose your next plan</span></div>
+      </div>
+      ${stats([streak,'Week streak'],[S.sessions.length,'All sessions'],[p.weeks,'Weeks done'])}`;
+    return;
+  }
+
+  const days=weekDays();
+  const wkSess=sessionsSince(weekStart()).filter(s=>s.source?.programId===p.id);
+  const dow=(now.getDay()+6)%7;
+  const slots=days.map((_,i)=>todaySlot(p,i,days,wkSess));
+  const t=p.week?slots[dow]:null;
+
+  /* the hero is today's slot; without week data it falls back to next in sequence */
+  let hero;
+  if(!t || t.kind==='day'){
+    const idx=t?t.idx:nextDayIdx(p);
+    const d=resolveDay(p.D[idx]);
+    const done=t?t.done:false;
+    hero=`<div class="td-eyebrow">${done?'Done today':"Today's workout"}</div>
+      <div class="td-title">${esc(d.name)}</div>
+      <div class="td-sub">${esc(d.sub||'')}${d.sub?' · ':''}${(d.lifts||[]).length} lifts</div>
+      <div class="td-acts">${done
+        ? `<span class="td-doneflag">Logged ✓</span>`
+        : `<span class="td-go" onclick="riseNow('${p.id}',${idx})">Start workout</span>`}
+        <span class="td-alt" onclick="startProgramDay('${p.id}',${idx})">Preview</span></div>`;
+  } else if(t.kind==='rest'){
+    const nx=resolveDay(p.D[nextDayIdx(p)]);
+    hero=`<div class="td-eyebrow">Today</div>
+      <div class="td-title">Rest day</div>
+      <div class="td-sub">Next up · ${esc(nx.name)}</div>
+      <div class="td-acts"><span class="td-alt" onclick="riseNow('${p.id}',${nextDayIdx(p)})">Train anyway</span></div>`;
+  } else {
+    hero=`<div class="td-eyebrow">Today</div>
+      <div class="td-title">${esc(t.name)}</div>
+      <div class="td-sub">${esc(t.sub)}</div>
+      <div class="td-acts">${t.done
+        ? `<span class="td-doneflag">Run logged ✓</span>`
+        : `<span class="td-go" onclick="nav('runs')">Log a run</span>`}</div>`;
+  }
+
+  const check='<svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>';
+  const rows=days.map((d,i)=>{
+    const sl=slots[i];
+    const dt=new Date(d.iso+'T00:00:00');
+    const tap= sl.kind==='day' ? `startProgramDay('${p.id}',${sl.idx})`
+             : (sl.kind==='run'||sl.kind==='opt') ? `nav('runs')` : '';
+    const st= sl.done ? check : d.today ? 'Today' : sl.kind==='rest' ? '' : '';
+    const sub= sl.kind==='day' ? `${esc(sl.sub)}${sl.sub?' · ':''}${sl.lifts} lifts` : esc(sl.sub);
+    return `<div class="td-row ${sl.kind}${d.today?' today':''}${sl.done?' done':''}"${tap?` onclick="${tap}"`:''}>
+      <div class="td-dow">${DOW3[i]}<b>${dt.getDate()}</b></div>
+      <div><div class="td-n">${esc(sl.name)}</div>${sub?`<div class="td-s">${sub}</div>`:''}</div>
+      <div class="td-st">${st}</div></div>`;
+  }).join('');
+
+  el.innerHTML=head+`<div class="td-hero">${hero}</div>
+    ${stats([`${wkSess.length}/${p.D.length}`,'This week'],[streak,'Week streak'],
+            [p.weeks?`${wkNum}/${p.weeks}`:wkNum,'Plan week'])}
+    <div class="sec-label">This week</div>
+    <div class="td-week">${p.week?rows:`<div class="td-s">This plan has no fixed weekdays — work through it in order.</div>`}</div>
+    <div class="td-plan">
+      <div><div class="l">Plan</div><div class="t">${esc(p.title)}</div></div>
+      <span class="c" onclick="openPlans()">Change plan &rsaquo;</span>
+    </div>`;
+}
+const DOW3=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+
 function renderPrograms(){
   if(_planIn) return renderProgramList();
   const [cat,name,blurb]=PLAN_CATS[_planCat];
@@ -1688,6 +1840,7 @@ function renderPrograms(){
   }).join('');
   $('v-programs').innerHTML=`
     <div class="hub">
+      <div class="navhdr-l" onclick="nav('today')">&lsaquo; Today</div>
       <div class="hubttl">Choose a category</div>
       <div class="hubmid">
         <div class="catwrap"><div class="catrow" id="catrow">${cols}</div></div>
